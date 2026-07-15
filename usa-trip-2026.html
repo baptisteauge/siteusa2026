@@ -1,0 +1,1442 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>USA // AOÛT 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0a0014;
+    --bg2: #170428;
+    --magenta: #ff2e8a;
+    --cyan: #16e5ff;
+    --orange: #ff7a2e;
+    --yellow: #ffe14d;
+    --ink: #f6f1ff;
+    --muted: #b6a8d6;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Space Grotesk', sans-serif;
+    overflow-x:hidden;
+  }
+  ::selection{background:var(--magenta); color:var(--bg);}
+
+  /* grain + scanlines */
+  .grain{
+    position:fixed; inset:0; pointer-events:none; z-index:50; opacity:.06; mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  .scanlines{
+    position:fixed; inset:0; pointer-events:none; z-index:49;
+    background:repeating-linear-gradient(0deg, rgba(0,0,0,.25) 0px, rgba(0,0,0,.25) 1px, transparent 1px, transparent 3px);
+    opacity:.15;
+  }
+
+  .display{
+    font-family:'Bebas Neue', sans-serif;
+    letter-spacing:.02em;
+    line-height:.85;
+  }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    position:relative;
+    min-height:100vh;
+    display:flex; flex-direction:column; justify-content:center; align-items:center;
+    text-align:center;
+    padding:6vh 5vw;
+    background:
+      radial-gradient(120% 90% at 50% 110%, rgba(255,46,138,.55), transparent 60%),
+      radial-gradient(90% 70% at 80% -10%, rgba(22,229,255,.35), transparent 55%),
+      radial-gradient(70% 60% at 10% 0%, rgba(255,122,46,.3), transparent 55%),
+      linear-gradient(180deg, var(--bg2) 0%, var(--bg) 65%);
+    overflow:hidden;
+  }
+  .skyline{
+    position:absolute; bottom:0; left:0; width:100%; height:38vh;
+    opacity:.9;
+  }
+  .eyebrow{
+    font-size:clamp(.7rem, 1.4vw, .9rem);
+    letter-spacing:.45em;
+    color:var(--cyan);
+    text-shadow:0 0 12px rgba(22,229,255,.7);
+    margin-bottom:1.2rem;
+    text-transform:uppercase;
+    z-index:2;
+  }
+  .title-usa{
+    font-size:clamp(5rem, 22vw, 15rem);
+    color:transparent;
+    -webkit-text-stroke:3px var(--ink);
+    background:linear-gradient(180deg, var(--yellow) 0%, var(--orange) 40%, var(--magenta) 100%);
+    -webkit-background-clip:text;
+    background-clip:text;
+    -webkit-text-fill-color:transparent;
+    filter:drop-shadow(0 0 40px rgba(255,46,138,.45));
+    z-index:2;
+  }
+  .title-year{
+    font-size:clamp(2rem, 7vw, 4.5rem);
+    color:var(--ink);
+    z-index:2;
+    letter-spacing:.05em;
+    margin-top:-1vh;
+  }
+  .dates-strip{
+    margin-top:2.4rem;
+    display:flex; gap:.8rem; align-items:center; flex-wrap:wrap; justify-content:center;
+    font-size:clamp(.85rem, 1.6vw, 1.05rem);
+    color:var(--muted);
+    z-index:2;
+  }
+  .dates-strip .pill{
+    border:1px solid rgba(246,241,255,.25);
+    padding:.5rem 1.1rem;
+    border-radius:999px;
+    color:var(--ink);
+    background:rgba(255,255,255,.03);
+  }
+  .route-line{
+    margin-top:2.6rem;
+    font-family:'Bebas Neue', sans-serif;
+    font-size:clamp(1.1rem, 3vw, 1.9rem);
+    letter-spacing:.08em;
+    color:var(--ink);
+    display:flex; gap:.6rem; flex-wrap:wrap; justify-content:center; align-items:center;
+    z-index:2;
+  }
+  .route-line span.city{ }
+  .route-line span.arrow{ color:var(--orange); }
+  .scroll-cue{
+    position:absolute; bottom:3vh; left:50%; transform:translateX(-50%);
+    font-size:.7rem; letter-spacing:.35em; color:var(--muted); text-transform:uppercase;
+    z-index:2;
+    animation:bob 2s ease-in-out infinite;
+  }
+  @keyframes bob{ 0%,100%{transform:translate(-50%,0);} 50%{transform:translate(-50%,8px);} }
+
+  /* ---------- SECTION shell ---------- */
+  section{
+    padding:10vh 6vw;
+    position:relative;
+  }
+  .section-head{
+    display:flex; align-items:baseline; gap:1.2rem; margin-bottom:4rem;
+    flex-wrap:wrap;
+  }
+  .section-num{
+    font-family:'Bebas Neue'; font-size:1.1rem; color:var(--orange); letter-spacing:.2em;
+  }
+  .section-title{
+    font-family:'Bebas Neue'; font-size:clamp(2.5rem, 6vw, 5rem); letter-spacing:.02em;
+    background:linear-gradient(90deg, var(--ink), var(--muted));
+    -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
+  }
+
+  .reveal{
+    opacity:0; transform:translateY(30px);
+    transition:opacity .7s ease, transform .7s ease;
+  }
+  .reveal.in{ opacity:1; transform:translateY(0); }
+
+  /* ---------- MISSIONS (flights) ---------- */
+  .missions{ display:flex; flex-direction:column; gap:1.1rem; }
+  .mission{
+    display:grid;
+    grid-template-columns:110px 1fr auto;
+    gap:1.5rem;
+    align-items:center;
+    background:linear-gradient(90deg, rgba(255,255,255,.04), rgba(255,255,255,.01));
+    border:1px solid rgba(255,255,255,.08);
+    border-left:4px solid var(--magenta);
+    border-radius:10px;
+    padding:1.3rem 1.6rem;
+  }
+  .mission:nth-child(2){ border-left-color:var(--cyan); }
+  .mission:nth-child(3){ border-left-color:var(--orange); }
+  .mission:nth-child(4){ border-left-color:var(--yellow); }
+  .mission:nth-child(5){ border-left-color:var(--magenta); }
+  .mission .code{
+    font-family:'Bebas Neue'; font-size:1.6rem; color:var(--ink); letter-spacing:.05em;
+  }
+  .mission .route{
+    font-size:1.05rem; font-weight:600;
+  }
+  .mission .sub{
+    color:var(--muted); font-size:.85rem; margin-top:.2rem;
+  }
+  .mission .time{
+    font-family:'Bebas Neue'; font-size:1.4rem; text-align:right; color:var(--cyan);
+    white-space:nowrap;
+  }
+  .mission .time small{ display:block; font-family:'Space Grotesk'; font-size:.65rem; color:var(--muted); letter-spacing:.1em; text-transform:uppercase; }
+
+  .tz-note{
+    margin-top:2rem;
+    display:flex; gap:.9rem; align-items:flex-start;
+    border:1px dashed rgba(22,229,255,.4);
+    border-radius:10px;
+    padding:1.1rem 1.4rem;
+    background:rgba(22,229,255,.05);
+    color:var(--ink);
+    font-size:.9rem;
+  }
+  .tz-note b{ color:var(--cyan); }
+
+  /* ---------- HQ (hotels) ---------- */
+  .hq-grid{ display:grid; grid-template-columns:1.1fr 1.1fr .8fr; gap:1.4rem; }
+  @media (max-width:900px){ .hq-grid{ grid-template-columns:1fr; } }
+  @media (max-width:760px){ .mission{grid-template-columns:80px 1fr; row-gap:.4rem;} .mission .time{grid-column:1/-1; text-align:left;} }
+  .hq-card{
+    position:relative;
+    border-radius:16px;
+    padding:2rem;
+    min-height:220px;
+    display:flex; flex-direction:column; justify-content:flex-end;
+    overflow:hidden;
+    border:1px solid rgba(255,255,255,.1);
+  }
+  .hq-card.ny{ background:linear-gradient(160deg, #101a3a, #0a0014 70%); }
+  .hq-card.mia{ background:linear-gradient(160deg, #3a1030, #0a0014 70%); }
+  .hq-card.dc{ background:linear-gradient(160deg, #1a2a12, #0a0014 70%); border-style:dashed; }
+  .hq-card::before{
+    content:""; position:absolute; inset:0;
+    background:radial-gradient(70% 70% at 100% 0%, rgba(255,255,255,.12), transparent 60%);
+  }
+  .hq-tag{ font-family:'Bebas Neue'; font-size:.8rem; letter-spacing:.3em; color:var(--yellow); margin-bottom:.6rem; z-index:2;}
+  .hq-card.dc .hq-tag{ color:#8dffb0; }
+  .hq-name{ font-family:'Bebas Neue'; font-size:2rem; z-index:2; }
+  .hq-card.dc .hq-name{ font-size:1.6rem; }
+  .hq-meta{ color:var(--muted); font-size:.85rem; margin-top:.5rem; z-index:2; }
+  .hq-badge{
+    position:absolute; top:1.4rem; right:1.4rem; z-index:2;
+    font-size:.65rem; letter-spacing:.2em; color:#8dffb0;
+    border:1px solid rgba(141,255,176,.4); border-radius:999px; padding:.3rem .7rem;
+  }
+
+  /* ---------- OBJECTIVES ---------- */
+  .obj-grid{ display:grid; grid-template-columns:1fr 1fr; gap:1.4rem; }
+  @media (max-width:760px){ .obj-grid{ grid-template-columns:1fr; } }
+  .obj-card{
+    border:1px solid rgba(255,255,255,.09);
+    border-radius:16px;
+    padding:2rem;
+    background:rgba(255,255,255,.02);
+  }
+  .obj-icon{ font-size:2.2rem; margin-bottom:1rem; display:block; }
+  .obj-title{ font-family:'Bebas Neue'; font-size:1.7rem; letter-spacing:.02em; margin-bottom:.4rem; }
+  .obj-list{ margin-top:1rem; padding-left:0; list-style:none; color:var(--muted); font-size:.9rem; line-height:1.9; }
+  .obj-list li::before{ content:"▸ "; color:var(--orange); }
+
+  /* ---------- ROADMAP TIMELINE ---------- */
+  .timeline{ position:relative; padding-left:2.2rem; }
+  .timeline::before{
+    content:""; position:absolute; left:.4rem; top:6px; bottom:6px; width:2px;
+    background:linear-gradient(180deg, var(--magenta), var(--cyan), var(--orange), var(--yellow));
+  }
+  .t-item{ position:relative; padding-bottom:2.1rem; }
+  .t-item::before{
+    content:""; position:absolute; left:-2.2rem; top:4px; width:12px; height:12px; border-radius:50%;
+    background:var(--ink); box-shadow:0 0 12px rgba(255,255,255,.6);
+  }
+  .t-date{ font-family:'Bebas Neue'; color:var(--cyan); font-size:1.1rem; letter-spacing:.05em;}
+  .t-text{ color:var(--ink); font-size:.95rem; margin-top:.15rem;}
+
+  footer{
+    text-align:center; padding:8vh 5vw 6vh; color:var(--muted); font-size:.8rem; letter-spacing:.1em;
+    border-top:1px solid rgba(255,255,255,.06);
+  }
+  footer .fbig{ font-family:'Bebas Neue'; font-size:clamp(1.8rem,4vw,3rem); color:var(--ink); letter-spacing:.03em; margin-bottom:.6rem;
+    background:linear-gradient(90deg,var(--magenta),var(--cyan)); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
+  }
+
+  /* ---------- MAP ---------- */
+  .map-wrap{
+    position:relative;
+    border-radius:6px;
+    overflow:hidden;
+    border:10px solid #3b2a10;
+    outline:1px solid #6b4f20;
+    outline-offset:-4px;
+    box-shadow:0 20px 50px rgba(0,0,0,.5);
+  }
+  #tripmap{ position:relative; width:100%; }
+  #tripsvg{ display:block; width:100%; height:auto; cursor:grab; touch-action:none; }
+  #tripsvg.grabbing{ cursor:grabbing; }
+
+  .map-controls{
+    position:absolute; top:14px; right:14px; z-index:6;
+    display:flex; flex-direction:column; gap:4px;
+  }
+  .map-btn{
+    width:34px; height:34px;
+    background:#f6e9c9; color:#221607;
+    border:2px solid #3b2a10; border-radius:6px;
+    font-family:'Bebas Neue'; font-size:1.3rem; line-height:1;
+    cursor:pointer;
+    box-shadow:0 3px 0 #3b2a10;
+    transition:transform .1s ease;
+  }
+  .map-btn:hover{ background:#fff3d6; }
+  .map-btn:active{ transform:translateY(2px); box-shadow:0 1px 0 #3b2a10; }
+  .map-btn-reset{ font-size:1rem; margin-top:4px; }
+
+  .map-hint{
+    position:absolute; bottom:14px; left:14px; z-index:6;
+    background:rgba(20,14,4,.65); color:#f6e9c9;
+    font-size:.72rem; letter-spacing:.05em;
+    padding:.4rem .7rem; border-radius:6px;
+    pointer-events:none;
+    opacity:1; transition:opacity .6s ease;
+  }
+  .map-hint.hidden{ opacity:0; }
+
+  .map-tooltip{
+    position:absolute; z-index:5; pointer-events:none;
+    background:#170428; color:var(--ink);
+    border:1px solid rgba(255,255,255,.15); border-radius:10px;
+    padding:.6rem .8rem; font-size:.8rem; line-height:1.5;
+    max-width:200px;
+    opacity:0; transition:opacity .15s ease;
+    box-shadow:0 8px 24px rgba(0,0,0,.5);
+  }
+  .map-tooltip b{ font-family:'Bebas Neue'; font-size:.95rem; letter-spacing:.03em; color:var(--cyan); }
+
+  .map-legend{
+    display:flex; flex-wrap:wrap; gap:1.2rem; margin-top:1.4rem;
+    font-size:.8rem; color:var(--muted);
+  }
+  .map-legend .leg-item{ display:flex; align-items:center; gap:.5rem; }
+  .map-legend .dot{ width:14px; height:3px; border-radius:2px; display:inline-block; }
+
+  /* ---------- ADMIN MODE ---------- */
+  [data-editable]{ transition:outline .2s ease; border-radius:6px; }
+  body.admin-on [data-editable]{
+    outline:1.5px dashed rgba(22,229,255,.5);
+    outline-offset:4px;
+    cursor:text;
+  }
+  body.admin-on [data-editable]:hover{ outline-color:var(--cyan); background:rgba(22,229,255,.04); }
+  body.admin-on [data-editable]:focus{ outline:2px solid var(--cyan); background:rgba(22,229,255,.07); }
+
+  .admin-dock{
+    position:fixed; bottom:20px; right:20px; z-index:80;
+    display:flex; flex-direction:column; align-items:flex-end; gap:.6rem;
+  }
+  .admin-toggle{
+    font-family:'Bebas Neue'; letter-spacing:.08em; font-size:.85rem;
+    background:rgba(23,4,40,.9); color:var(--muted);
+    border:1px solid rgba(255,255,255,.15); border-radius:999px;
+    padding:.55rem 1.1rem; cursor:pointer;
+    display:flex; align-items:center; gap:.5rem;
+    box-shadow:0 6px 20px rgba(0,0,0,.4);
+  }
+  .admin-toggle:hover{ border-color:var(--cyan); color:var(--ink); }
+  .admin-toggle.is-on{ background:linear-gradient(90deg,var(--magenta),var(--cyan)); color:#0a0014; border-color:transparent; }
+  .admin-save{
+    font-family:'Bebas Neue'; letter-spacing:.08em; font-size:.9rem;
+    background:var(--cyan); color:#0a0014; border:none; border-radius:999px;
+    padding:.6rem 1.3rem; cursor:pointer;
+    box-shadow:0 6px 20px rgba(22,229,255,.4);
+    display:none;
+  }
+  body.admin-on .admin-save{ display:inline-block; }
+
+  /* ---------- WALL / GUESTBOOK ---------- */
+  .wall-form{
+    display:grid; grid-template-columns:1fr 1fr; gap:1rem;
+    background:rgba(255,255,255,.03);
+    border:1px solid rgba(255,255,255,.09);
+    border-radius:16px; padding:1.6rem;
+    margin-bottom:2.5rem;
+  }
+  .wall-form textarea{ grid-column:1/-1; }
+  .wall-form input[type=text], .wall-form textarea{
+    width:100%; background:rgba(0,0,0,.3); border:1px solid rgba(255,255,255,.15);
+    border-radius:8px; color:var(--ink); font-family:'Space Grotesk'; font-size:.92rem;
+    padding:.7rem .9rem;
+  }
+  .wall-form textarea{ min-height:80px; resize:vertical; }
+  .wall-form input:focus, .wall-form textarea:focus{ outline:none; border-color:var(--cyan); }
+  .wall-form .file-row{
+    grid-column:1/-1; display:flex; align-items:center; gap:1rem; flex-wrap:wrap;
+    font-size:.85rem; color:var(--muted);
+  }
+  .wall-form .file-row input[type=file]{ color:var(--muted); font-size:.8rem; }
+  .wall-thumb-preview{ max-height:60px; border-radius:6px; display:none; }
+  .wall-submit{
+    grid-column:1/-1; justify-self:start;
+    font-family:'Bebas Neue'; letter-spacing:.08em; font-size:1.1rem;
+    background:linear-gradient(90deg,var(--magenta),var(--orange));
+    color:#0a0014; border:none; border-radius:999px;
+    padding:.7rem 1.8rem; cursor:pointer;
+  }
+  .wall-submit:disabled{ opacity:.5; cursor:wait; }
+  .wall-status{ grid-column:1/-1; font-size:.8rem; color:var(--muted); min-height:1em; }
+
+  .wall-feed{ display:grid; grid-template-columns:repeat(auto-fill, minmax(260px,1fr)); gap:1.2rem; }
+  .wall-card{
+    background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.09);
+    border-radius:14px; overflow:hidden; position:relative;
+  }
+  .wall-card img{ width:100%; display:block; aspect-ratio:4/3; object-fit:cover; }
+  .wall-card .wc-body{ padding:1rem 1.1rem 1.2rem; }
+  .wall-card .wc-name{ font-family:'Bebas Neue'; font-size:1.1rem; letter-spacing:.03em; color:var(--yellow); }
+  .wall-card .wc-date{ font-size:.7rem; color:var(--muted); margin-top:-.1rem; margin-bottom:.5rem; letter-spacing:.05em; }
+  .wall-card .wc-msg{ font-size:.88rem; line-height:1.5; color:var(--ink); white-space:pre-wrap; }
+  .wall-delete{
+    position:absolute; top:8px; right:8px; z-index:2;
+    width:26px; height:26px; border-radius:50%; border:none;
+    background:rgba(20,0,0,.75); color:#ff6b6b; font-size:.9rem; cursor:pointer;
+    display:none; align-items:center; justify-content:center;
+  }
+  body.admin-on .wall-delete{ display:flex; }
+  .wall-empty{ color:var(--muted); font-size:.9rem; grid-column:1/-1; text-align:center; padding:2rem; }
+
+  /* likes & comments */
+  .wc-actions{ display:flex; align-items:center; gap:.5rem; margin-top:.9rem; padding-top:.8rem; border-top:1px solid rgba(255,255,255,.08); }
+  .wc-like{
+    background:none; border:1px solid rgba(255,255,255,.15); border-radius:999px;
+    color:var(--muted); font-size:.85rem; padding:.35rem .8rem; cursor:pointer;
+    display:flex; align-items:center; gap:.4rem; transition:all .15s ease;
+  }
+  .wc-like:hover{ border-color:var(--magenta); color:var(--ink); }
+  .wc-like.liked{ background:rgba(255,46,138,.15); border-color:var(--magenta); color:var(--magenta); }
+  .wc-comment-toggle{
+    background:none; border:none; color:var(--muted); font-size:.8rem; cursor:pointer; text-decoration:underline;
+  }
+  .wc-comments{ margin-top:.7rem; display:flex; flex-direction:column; gap:.5rem; }
+  .wc-comment{ font-size:.82rem; background:rgba(255,255,255,.03); border-radius:8px; padding:.5rem .7rem; position:relative; }
+  .wc-comment b{ color:var(--cyan); font-weight:600; }
+  .wc-comment .cm-date{ color:var(--muted); font-size:.68rem; margin-left:.4rem; }
+  .wc-comment-delete{
+    position:absolute; top:4px; right:6px; background:none; border:none; color:#ff6b6b;
+    font-size:.75rem; cursor:pointer; display:none;
+  }
+  body.admin-on .wc-comment-delete{ display:block; }
+  .wc-comment-form{ display:flex; gap:.4rem; margin-top:.6rem; flex-wrap:wrap; }
+  .wc-comment-form input{
+    background:rgba(0,0,0,.3); border:1px solid rgba(255,255,255,.15); border-radius:6px;
+    color:var(--ink); font-size:.8rem; padding:.4rem .6rem; font-family:'Space Grotesk';
+  }
+  .wc-comment-form input.cf-name{ width:90px; flex:0 0 auto; }
+  .wc-comment-form input.cf-text{ flex:1 1 140px; }
+  .wc-comment-form button{
+    background:var(--cyan); color:#0a0014; border:none; border-radius:6px;
+    font-family:'Bebas Neue'; letter-spacing:.05em; font-size:.8rem; padding:.4rem .8rem; cursor:pointer;
+  }
+
+  /* ---------- CUSTOM MODAL (prompt/confirm/alert are blocked in sandboxed preview) ---------- */
+  .custom-modal-overlay{
+    display:none; position:fixed; inset:0; z-index:200;
+    background:rgba(5,0,10,.72);
+    align-items:center; justify-content:center;
+    padding:20px;
+  }
+  .custom-modal-overlay.show{ display:flex; }
+  .custom-modal{
+    background:#170428; border:1px solid rgba(255,255,255,.15); border-radius:14px;
+    padding:1.6rem; max-width:320px; width:100%;
+    box-shadow:0 20px 60px rgba(0,0,0,.6);
+  }
+  .custom-modal-title{ color:var(--ink); font-size:.95rem; line-height:1.5; margin-bottom:1rem; }
+  .custom-modal-input{
+    width:100%; background:rgba(0,0,0,.35); border:1px solid rgba(255,255,255,.2);
+    border-radius:8px; color:var(--ink); font-family:'Space Grotesk'; font-size:.95rem;
+    padding:.65rem .8rem; margin-bottom:1rem;
+  }
+  .custom-modal-input:focus{ outline:none; border-color:var(--cyan); }
+  .custom-modal-actions{ display:flex; justify-content:flex-end; gap:.6rem; }
+  .custom-modal-btn{
+    font-family:'Bebas Neue'; letter-spacing:.05em; font-size:.9rem;
+    border:none; border-radius:999px; padding:.5rem 1.2rem; cursor:pointer;
+  }
+  .custom-modal-btn.cancel{ background:rgba(255,255,255,.1); color:var(--muted); }
+  .custom-modal-btn.ok{ background:linear-gradient(90deg,var(--magenta),var(--cyan)); color:#0a0014; }
+</style>
+</head>
+<body>
+
+<div class="grain"></div>
+<div class="scanlines"></div>
+
+<!-- HERO -->
+<div class="hero">
+  <svg class="skyline" viewBox="0 0 1200 260" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="skylineGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#170428"/>
+        <stop offset="100%" stop-color="#0a0014"/>
+      </linearGradient>
+    </defs>
+    <rect x="0" y="120" width="40" height="140" fill="url(#skylineGrad)"/>
+    <rect x="50" y="90" width="55" height="170" fill="url(#skylineGrad)"/>
+    <rect x="115" y="150" width="30" height="110" fill="url(#skylineGrad)"/>
+    <rect x="155" y="60" width="45" height="200" fill="url(#skylineGrad)"/>
+    <rect x="210" y="130" width="60" height="130" fill="url(#skylineGrad)"/>
+    <rect x="280" y="40" width="35" height="220" fill="url(#skylineGrad)"/>
+    <rect x="325" y="160" width="70" height="100" fill="url(#skylineGrad)"/>
+    <rect x="405" y="100" width="40" height="160" fill="url(#skylineGrad)"/>
+    <rect x="455" y="70" width="55" height="190" fill="url(#skylineGrad)"/>
+    <rect x="520" y="140" width="45" height="120" fill="url(#skylineGrad)"/>
+    <rect x="575" y="20" width="30" height="240" fill="url(#skylineGrad)"/>
+    <rect x="615" y="110" width="60" height="150" fill="url(#skylineGrad)"/>
+    <rect x="685" y="150" width="35" height="110" fill="url(#skylineGrad)"/>
+    <rect x="730" y="80" width="50" height="180" fill="url(#skylineGrad)"/>
+    <rect x="790" y="130" width="65" height="130" fill="url(#skylineGrad)"/>
+    <rect x="865" y="50" width="30" height="210" fill="url(#skylineGrad)"/>
+    <rect x="905" y="160" width="55" height="100" fill="url(#skylineGrad)"/>
+    <rect x="970" y="90" width="40" height="170" fill="url(#skylineGrad)"/>
+    <rect x="1020" y="130" width="60" height="130" fill="url(#skylineGrad)"/>
+    <rect x="1090" y="60" width="35" height="200" fill="url(#skylineGrad)"/>
+    <rect x="1135" y="150" width="65" height="110" fill="url(#skylineGrad)"/>
+  </svg>
+
+  <div class="eyebrow">route trip // été 2026</div>
+  <div class="title-usa display">USA</div>
+  <div class="title-year display">2026</div>
+
+  <div class="dates-strip">
+    <span class="pill">2 → 17 AOÛT</span>
+    <span class="pill">15 JOURS</span>
+    <span class="pill">3 VILLES</span>
+  </div>
+
+  <div class="route-line">
+    <span class="city">LYON</span><span class="arrow">→</span>
+    <span class="city">NEW YORK</span><span class="arrow">→</span>
+    <span class="city">WASHINGTON DC</span><span class="arrow">→</span>
+    <span class="city">MIAMI</span><span class="arrow">→</span>
+    <span class="city">LYON</span>
+  </div>
+
+  <div class="scroll-cue">scroll ↓</div>
+</div>
+
+<!-- MISSIONS / FLIGHTS -->
+<section id="missions">
+  <div class="section-head reveal">
+    <span class="section-num">01</span>
+    <span class="section-title display">Les trajets</span>
+  </div>
+
+  <div class="missions">
+    <div class="mission reveal" data-editable="mission-1" contenteditable="false">
+      <div class="code display">AF7363</div>
+      <div>
+        <div class="route">Lyon → Paris CDG</div>
+        <div class="sub">Terminal 1 → Terminal 2F · correspondance 2h</div>
+      </div>
+      <div class="time display">10:20<small>Dim. 2 août</small></div>
+    </div>
+
+    <div class="mission reveal" data-editable="mission-2" contenteditable="false">
+      <div class="code display">AF0006</div>
+      <div>
+        <div class="route">Paris CDG → New York JFK</div>
+        <div class="sub">Terminal 2E → Terminal 1</div>
+      </div>
+      <div class="time display">13:30<small>Dim. 2 août</small></div>
+    </div>
+
+    <div class="mission reveal" data-editable="mission-3" contenteditable="false">
+      <div class="code display">AMTRAK</div>
+      <div>
+        <div class="route">New York → Washington DC (A/R)</div>
+        <div class="sub">Journée détour capitale · retour NY le soir même</div>
+      </div>
+      <div class="time display">06:32<small>Jeu. 6 août</small></div>
+    </div>
+
+    <div class="mission reveal" data-editable="mission-4" contenteditable="false">
+      <div class="code display">DL2300</div>
+      <div>
+        <div class="route">New York LGA → Miami</div>
+        <div class="sub">Terminal C · Delta Air Lines</div>
+      </div>
+      <div class="time display">15:50<small>Lun. 10 août</small></div>
+    </div>
+
+    <div class="mission reveal" data-editable="mission-5" contenteditable="false">
+      <div class="code display">AF0093</div>
+      <div>
+        <div class="route">Miami → Paris CDG</div>
+        <div class="sub">Vol de nuit · arrivée J+1 puis train pour Lyon</div>
+      </div>
+      <div class="time display">23:00<small>Dim. 16 août</small></div>
+    </div>
+  </div>
+
+  <div class="tz-note reveal">
+    <span>🌐</span>
+    <span><b>Décalage horaire :</b> New York / Washington / Miami sont à <b>−6h</b> par rapport à Lyon. Quand il est midi chez nous, il est 6h du mat là-bas. Prévois ton jetlag en conséquence 😅</span>
+  </div>
+</section>
+
+<!-- HQ / HOTELS -->
+<section id="hq">
+  <div class="section-head reveal">
+    <span class="section-num">02</span>
+    <span class="section-title display">Le QG</span>
+  </div>
+  <div class="hq-grid">
+    <div class="hq-card ny reveal" data-editable="hq-1" contenteditable="false">
+      <div class="hq-tag">NEW YORK</div>
+      <div class="hq-name display">Sheraton Lincoln Harbor</div>
+      <div class="hq-meta">Weehawken, NJ — vue sur Manhattan · 2 → 10 août</div>
+    </div>
+    <div class="hq-card mia reveal" data-editable="hq-2" contenteditable="false">
+      <div class="hq-tag">MIAMI</div>
+      <div class="hq-name display">Hotel Trouvail</div>
+      <div class="hq-meta">Miami Beach, FL · 10 → 16 août</div>
+    </div>
+    <div class="hq-card dc reveal" data-editable="hq-3" contenteditable="false">
+      <div class="hq-badge">DAY TRIP</div>
+      <div class="hq-tag">WASHINGTON DC</div>
+      <div class="hq-name display">La capitale</div>
+      <div class="hq-meta">Aller-retour en train le 6 août, depuis New York</div>
+    </div>
+  </div>
+</section>
+
+<!-- OBJECTIVES -->
+<section id="objectives">
+  <div class="section-head reveal">
+    <span class="section-num">03</span>
+    <span class="section-title display">Les objectifs</span>
+  </div>
+  <div class="obj-grid">
+    <div class="obj-card reveal" data-editable="obj-1" contenteditable="false">
+      <span class="obj-icon">🗽</span>
+      <div class="obj-title display">New York Explorer Pass</div>
+      <div class="sub" style="color:var(--muted); font-size:.9rem;">Go City · 10 activités au choix</div>
+      <ul class="obj-list">
+        <li>Empire State Building — 102ᵉ étage</li>
+        <li>Top of the Rock — The Beam & Skylift</li>
+        <li>One World Observatory</li>
+        <li>Madame Tussauds New York</li>
+      </ul>
+    </div>
+    <div class="obj-card reveal" data-editable="obj-2" contenteditable="false">
+      <span class="obj-icon">🐊</span>
+      <div class="obj-title display">Everglades Airboat</div>
+      <div class="sub" style="color:var(--muted); font-size:.9rem;">Big Bus Tours · 12 août, 9h30 — 5h</div>
+      <ul class="obj-list">
+        <li>RDV Soundscape Park, Miami Beach</li>
+        <li>Traversée hydroglisseur + faune sauvage</li>
+        <li>À prendre : crème solaire, eau, tenue confort</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- TIMELINE -->
+<section id="roadmap">
+  <div class="section-head reveal">
+    <span class="section-num">04</span>
+    <span class="section-title display">La roadmap</span>
+  </div>
+  <div class="timeline" data-editable="roadmap" contenteditable="false">
+    <div class="t-item reveal"><div class="t-date display">2 AOÛT</div><div class="t-text">Décollage Lyon → New York (via Paris)</div></div>
+    <div class="t-item reveal"><div class="t-date display">2–10 AOÛT</div><div class="t-text">New York, quartier général Weehawken</div></div>
+    <div class="t-item reveal"><div class="t-date display">6 AOÛT</div><div class="t-text">Excursion éclair à Washington DC</div></div>
+    <div class="t-item reveal"><div class="t-date display">10 AOÛT</div><div class="t-text">New York → Miami</div></div>
+    <div class="t-item reveal"><div class="t-date display">10–16 AOÛT</div><div class="t-text">Miami, quartier général Miami Beach</div></div>
+    <div class="t-item reveal"><div class="t-date display">12 AOÛT</div><div class="t-text">Airboat dans les Everglades</div></div>
+    <div class="t-item reveal"><div class="t-date display">16–17 AOÛT</div><div class="t-text">Retour Miami → Paris → Lyon</div></div>
+  </div>
+</section>
+
+<!-- MAP -->
+<section id="map">
+  <div class="section-head reveal">
+    <span class="section-num">05</span>
+    <span class="section-title display">La carte</span>
+  </div>
+
+  <div class="map-wrap reveal">
+    <div id="tripmap">
+      <div class="map-controls">
+        <button class="map-btn" id="zoomIn" aria-label="Zoomer">+</button>
+        <button class="map-btn" id="zoomOut" aria-label="Dézoomer">−</button>
+        <button class="map-btn map-btn-reset" id="zoomReset" aria-label="Réinitialiser">⤾</button>
+      </div>
+      <div class="map-hint" id="mapHint">Ctrl + molette pour zoomer · glisser pour déplacer</div>
+      <svg id="tripsvg" viewBox="0 0 1000 560" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <linearGradient id="waterGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#3d7a94"/>
+            <stop offset="100%" stop-color="#2a5b73"/>
+          </linearGradient>
+          <linearGradient id="paperGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#d8c896"/>
+            <stop offset="100%" stop-color="#c3b17e"/>
+          </linearGradient>
+          <pattern id="waves" width="60" height="24" patternUnits="userSpaceOnUse">
+            <path d="M0,12 Q15,4 30,12 T60,12" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="1.5"/>
+          </pattern>
+          <filter id="paperNoise">
+            <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" result="n"/>
+            <feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .05 0"/>
+          </filter>
+          <marker id="dot" markerWidth="4" markerHeight="4" refX="2" refY="2"><circle cx="2" cy="2" r="1.6" fill="#1a1204"/></marker>
+        </defs>
+
+        <!-- paper base + ocean -->
+        <rect x="0" y="0" width="1000" height="560" fill="url(#paperGrad)"/>
+        <rect x="0" y="0" width="1000" height="560" filter="url(#paperNoise)"/>
+        <rect x="330" y="0" width="380" height="560" fill="url(#waterGrad)"/>
+        <rect x="330" y="0" width="380" height="560" fill="url(#waves)"/>
+        <text x="520" y="60" text-anchor="middle" fill="rgba(255,255,255,.5)" font-family="Bebas Neue" font-size="20" letter-spacing="10">OCÉAN ATLANTIQUE</text>
+
+        <!-- grid reference (paper map style) -->
+        <g font-family="Bebas Neue" font-size="13" fill="rgba(35,25,10,.45)" letter-spacing="2">
+          <text x="60" y="24">A</text><text x="200" y="24">B</text><text x="340" y="24">C</text>
+          <text x="480" y="24">D</text><text x="620" y="24">E</text><text x="760" y="24">F</text><text x="900" y="24">G</text>
+          <text x="16" y="90">1</text><text x="16" y="220">2</text><text x="16" y="350">3</text><text x="16" y="480">4</text>
+        </g>
+        <g stroke="rgba(35,25,10,.12)" stroke-width="1">
+          <line x1="0" y1="140" x2="1000" y2="140"/><line x1="0" y1="280" x2="1000" y2="280"/><line x1="0" y1="420" x2="1000" y2="420"/>
+          <line x1="140" y1="0" x2="140" y2="560"/><line x1="280" y1="0" x2="280" y2="560"/><line x1="620" y1="0" x2="620" y2="560"/><line x1="760" y1="0" x2="760" y2="560"/><line x1="900" y1="0" x2="900" y2="560"/>
+        </g>
+
+        <!-- USA landmass — real coastline (East Coast crop, from GeoJSON, Douglas-Peucker simplified) -->
+        <path d="M0,0 L330,0 L330,560 L0,560 Z" fill="url(#paperGrad)"/>
+        <path d="M22.4,103.9 L31.4,105.1 L42.5,100.7 L85.8,122.4 L87.0,126.4 L90.0,128.0 L89.2,129.5 L94.9,128.4 L95.5,132.0 L98.0,134.5 L103.3,136.4 L101.7,139.1 L114.6,146.3 L119.7,173.8 L116.1,182.9 L107.6,196.8 L108.7,200.6 L112.9,203.1 L116.0,203.1 L130.4,194.8 L143.1,192.4 L159.3,184.7 L158.5,178.4 L156.5,175.4 L162.1,172.9 L185.6,172.9 L189.5,166.9 L209.8,151.7 L251.4,151.6 L252.6,147.8 L261.8,144.6 L266.2,137.6 L270.0,125.6 L279.5,113.9 L283.6,118.0 L291.9,115.4 L297.4,119.8 L297.4,140.9 L305.5,149.6 L307.6,154.7 L294.4,162.1 L268.6,172.0 L259.9,184.7 L259.8,192.9 L263.9,201.0 L269.0,201.4 L267.7,195.8 L271.4,199.2 L270.5,203.6 L234.4,210.1 L224.1,214.5 L242.3,211.6 L245.9,214.6 L228.6,219.2 L220.7,219.2 L221.1,217.3 L217.3,221.6 L221.0,222.3 L218.3,233.4 L209.3,245.3 L208.4,241.3 L201.6,236.7 L204.2,245.0 L207.2,247.7 L207.4,253.6 L196.5,271.9 L195.3,271.3 L199.2,260.8 L192.9,254.9 L191.4,242.0 L189.0,248.7 L191.7,258.5 L183.5,256.1 L192.0,261.1 L192.5,275.8 L196.1,276.8 L199.1,297.6 L191.2,309.1 L178.4,313.7 L170.3,322.7 L164.1,323.7 L157.8,329.4 L156.1,334.6 L142.5,344.6 L129.7,361.1 L127.8,372.0 L129.9,382.8 L134.1,396.0 L139.6,406.9 L139.6,413.6 L145.5,431.5 L144.6,447.9 L141.5,457.3 L137.8,459.3 L131.7,457.4 L129.7,450.6 L125.0,447.1 L110.9,416.0 L113.4,405.7 L109.9,397.2 L100.3,384.3 L95.4,381.9 L83.0,388.9 L74.7,381.0 L67.0,377.1 L53.0,379.1 L42.0,377.4 L32.5,378.4 L27.4,380.8 L29.7,385.0 L29.5,391.2 L32.1,394.3 L29.7,396.3 L25.1,394.0 L22.4,395.7 Z"
+              fill="#8a9a5b" stroke="#5c6a3a" stroke-width="1.6" stroke-linejoin="round"/>
+        <text x="45" y="70" fill="#4a3f1f" font-family="Bebas Neue" font-size="22" letter-spacing="6">USA</text>
+        <text x="45" y="88" fill="#4a3f1f" font-family="Bebas Neue" font-size="11" letter-spacing="3" opacity=".7">CÔTE EST</text>
+
+        <!-- France landmass — real coastline (Hexagone + Corse, from GeoJSON, Douglas-Peucker simplified) -->
+        <path d="M700,0 L1000,0 L1000,300 L700,300 Z" fill="url(#paperGrad)"/>
+        <path d="M884.6,55.1 L897.7,68.0 L907.4,65.9 L923.9,78.4 L928.1,80.8 L933.5,80.2 L942.4,87.4 L969.6,92.5 L960.1,111.3 L957.7,130.9 L952.5,135.6 L943.9,133.1 L944.5,140.1 L930.7,155.6 L930.5,168.0 L939.5,163.7 L945.9,175.8 L945.2,183.5 L950.7,193.9 L944.2,202.2 L949.0,223.5 L959.2,227.0 L957.1,238.9 L940.0,254.5 L902.8,247.0 L875.4,256.0 L873.2,272.5 L851.4,276.1 L830.2,263.6 L823.3,269.6 L788.6,257.1 L781.1,246.4 L790.9,229.9 L794.5,175.1 L775.0,146.2 L761.1,132.3 L732.3,121.7 L730.4,101.7 L754.8,95.7 L786.5,102.8 L780.5,71.7 L798.3,83.4 L842.2,62.0 L847.8,39.5 L864.3,33.9 L867.1,43.6 L875.8,44.0 Z"
+              fill="#8a9a5b" stroke="#5c6a3a" stroke-width="1.6" stroke-linejoin="round"/>
+        <path d="M997.1,281.3 L990.9,302.6 L982.3,297.0 L978.0,278.5 L981.8,268.3 L993.9,257.8 Z"
+              fill="#8a9a5b" stroke="#5c6a3a" stroke-width="1.4" stroke-linejoin="round"/>
+        <text x="740" y="290" fill="#4a3f1f" font-family="Bebas Neue" font-size="20" letter-spacing="6">FRANCE</text>
+
+        <!-- routes: black casing + colored dash on top, GPS style -->
+        <g fill="none" stroke-linecap="round">
+          <path d="M908,182 L865,93" stroke="#1a1204" stroke-width="5" opacity=".5"/>
+          <path class="flight-path" d="M908,182 L865,93" stroke="#ff2e8a" stroke-width="2.5" stroke-dasharray="6 10"/>
+
+          <path d="M865,93 L220,218" stroke="#1a1204" stroke-width="5" opacity=".5"/>
+          <path class="flight-path" d="M865,93 L220,218" stroke="#16e5ff" stroke-width="2.5" stroke-dasharray="6 10"/>
+
+          <path d="M220,218 Q197,225 183,246" stroke="#1a1204" stroke-width="4" opacity=".5"/>
+          <path class="flight-path" d="M220,218 Q197,225 183,246" stroke="#ff7a2e" stroke-width="2" stroke-dasharray="2 8" marker-end="url(#arrowOrange)"/>
+          <path d="M183,246 Q206,238 220,218" stroke="#1a1204" stroke-width="4" opacity=".5"/>
+          <path class="flight-path" d="M183,246 Q206,238 220,218" stroke="#ff7a2e" stroke-width="2" stroke-dasharray="2 8" marker-end="url(#arrowOrange)"/>
+
+          <path d="M220,218 L144,449" stroke="#1a1204" stroke-width="5" opacity=".5"/>
+          <path class="flight-path" d="M220,218 L144,449" stroke="#ffd400" stroke-width="2.5" stroke-dasharray="6 10"/>
+
+          <path d="M144,449 L865,93 L908,182" stroke="#1a1204" stroke-width="5" opacity=".5"/>
+          <path class="flight-path" d="M144,449 L865,93 L908,182" stroke="#ff2e8a" stroke-width="2.5" stroke-dasharray="6 10"/>
+
+          <path d="M144,449 Q136,444 135,453" stroke="#1a1204" stroke-width="4" opacity=".5"/>
+          <path class="flight-path" d="M144,449 Q136,444 135,453" stroke="#31c48d" stroke-width="2" stroke-dasharray="2 8" marker-end="url(#arrowGreen)"/>
+          <path d="M135,453 Q143,458 144,449" stroke="#1a1204" stroke-width="4" opacity=".5"/>
+          <path class="flight-path" d="M135,453 Q143,458 144,449" stroke="#31c48d" stroke-width="2" stroke-dasharray="2 8" marker-end="url(#arrowGreen)"/>
+        </g>
+
+        <defs>
+          <marker id="arrowOrange" markerWidth="8" markerHeight="8" refX="5" refY="3" orient="auto" markerUnits="userSpaceOnUse">
+            <path d="M0,0 L6,3 L0,6 Z" fill="#ff7a2e"/>
+          </marker>
+          <marker id="arrowGreen" markerWidth="8" markerHeight="8" refX="5" refY="3" orient="auto" markerUnits="userSpaceOnUse">
+            <path d="M0,0 L6,3 L0,6 Z" fill="#31c48d"/>
+          </marker>
+        </defs>
+
+        <!-- ============ BLIPS (GTA-style icons) ============ -->
+
+        <!-- LYON — home base -->
+        <g class="pin" data-name="LYON" data-info="Base — départ &amp; retour" transform="translate(908,182)">
+          <circle r="13" fill="rgba(20,14,4,.55)" stroke="#f6e9c9" stroke-width="1.5"/>
+          <path d="M-6,1 L0,-6 L6,1 L6,6 L-6,6 Z" fill="#ffd400" stroke="#1a1204" stroke-width=".8"/>
+          <text x="15" y="4" font-family="Bebas Neue" font-size="15" letter-spacing="2" fill="#221607" stroke="#f6e9c9" stroke-width="3" paint-order="stroke">LYON</text>
+        </g>
+
+        <!-- PARIS CDG — transit -->
+        <g class="pin" data-name="PARIS CDG" data-info="Correspondance" transform="translate(865,93)">
+          <circle r="11" fill="rgba(20,14,4,.55)" stroke="#f6e9c9" stroke-width="1.5"/>
+          <path d="M0,-7 L2,-1 L7,2 L7,4 L2,2.5 L1,6 L3,7.5 L3,8.5 L0,7.5 L-3,8.5 L-3,7.5 L-1,6 L-2,2.5 L-7,4 L-7,2 L-2,-1 Z" fill="#e8e2d4" stroke="#1a1204" stroke-width=".6"/>
+          <text x="14" y="4" font-family="Bebas Neue" font-size="13" letter-spacing="2" fill="#221607" stroke="#f6e9c9" stroke-width="3" paint-order="stroke">PARIS CDG</text>
+        </g>
+
+        <!-- NEW YORK — main hub -->
+        <g class="pin" data-name="NEW YORK" data-info="2 → 10 août · Sheraton Lincoln Harbor" transform="translate(220,218)">
+          <circle r="15" fill="rgba(20,14,4,.55)" stroke="#f6e9c9" stroke-width="1.5"/>
+          <path d="M0,-9 L2.2,-2.6 L9,-1.5 L3.8,3 L5,10 L0,6.2 L-5,10 L-3.8,3 L-9,-1.5 L-2.2,-2.6 Z" fill="#2e7dd1" stroke="#1a1204" stroke-width=".8"/>
+          <text x="17" y="5" font-family="Bebas Neue" font-size="17" letter-spacing="2" fill="#221607" stroke="#f6e9c9" stroke-width="3" paint-order="stroke">NEW YORK</text>
+        </g>
+
+        <!-- WASHINGTON DC — capital -->
+        <g class="pin" data-name="WASHINGTON DC" data-info="6 août · Amtrak aller 6h32, retour le soir même vers New York" transform="translate(183,246)">
+          <circle r="11" fill="rgba(20,14,4,.55)" stroke="#f6e9c9" stroke-width="1.5"/>
+          <rect x="-1" y="-8" width="2" height="16" fill="#c9c2ac"/>
+          <path d="M1,-8 L8,-5 L1,-2 Z" fill="#d4342c" stroke="#1a1204" stroke-width=".6"/>
+          <text x="14" y="18" font-family="Bebas Neue" font-size="13" letter-spacing="2" fill="#221607" stroke="#f6e9c9" stroke-width="3" paint-order="stroke">WASHINGTON DC</text>
+        </g>
+
+        <!-- MIAMI — beach -->
+        <g class="pin" data-name="MIAMI" data-info="10 → 16 août · Hotel Trouvail" transform="translate(144,449)">
+          <circle r="13" fill="rgba(20,14,4,.55)" stroke="#f6e9c9" stroke-width="1.5"/>
+          <circle r="4.5" fill="#ffb020" stroke="#1a1204" stroke-width=".6"/>
+          <g stroke="#ffb020" stroke-width="1.6">
+            <line x1="0" y1="-6.5" x2="0" y2="-9.5"/><line x1="0" y1="6.5" x2="0" y2="9.5"/>
+            <line x1="-6.5" y1="0" x2="-9.5" y2="0"/><line x1="6.5" y1="0" x2="9.5" y2="0"/>
+            <line x1="-4.6" y1="-4.6" x2="-6.7" y2="-6.7"/><line x1="4.6" y1="4.6" x2="6.7" y2="6.7"/>
+            <line x1="-4.6" y1="4.6" x2="-6.7" y2="6.7"/><line x1="4.6" y1="-4.6" x2="6.7" y2="-6.7"/>
+          </g>
+          <text x="16" y="4" font-family="Bebas Neue" font-size="15" letter-spacing="2" fill="#221607" stroke="#f6e9c9" stroke-width="3" paint-order="stroke">MIAMI</text>
+        </g>
+
+        <!-- EVERGLADES — swamp excursion -->
+        <g class="pin" data-name="EVERGLADES" data-info="12 août · Excursion hydroglisseur, 9h30 - 5h (Big Bus Tours)" transform="translate(135,453)">
+          <circle r="9" fill="rgba(20,14,4,.55)" stroke="#f6e9c9" stroke-width="1.5"/>
+          <path d="M0,-6 C5,-3.5 5,3.5 0,6 C-5,3.5 -5,-3.5 0,-6 Z" fill="#31c48d" stroke="#1a1204" stroke-width=".6"/>
+          <line x1="0" y1="-5" x2="0" y2="5" stroke="#1a1204" stroke-width=".6"/>
+          <text x="-11" y="-11" text-anchor="end" font-family="Bebas Neue" font-size="12" letter-spacing="2" fill="#221607" stroke="#f6e9c9" stroke-width="3" paint-order="stroke">EVERGLADES</text>
+        </g>
+
+        <!-- compass rose -->
+        <g transform="translate(940,480)">
+          <circle r="30" fill="rgba(246,233,201,.5)" stroke="#3b2a10" stroke-width="1.5"/>
+          <path d="M0,-24 L6,0 L0,24 L-6,0 Z" fill="#3b2a10"/>
+          <path d="M-24,0 L0,-6 L24,0 L0,6 Z" fill="#3b2a10" opacity=".55"/>
+          <text x="0" y="-32" text-anchor="middle" font-family="Bebas Neue" font-size="14" fill="#221607">N</text>
+        </g>
+      </svg>
+      <div id="map-tooltip" class="map-tooltip"></div>
+    </div>
+  </div>
+
+  <div class="map-legend reveal">
+    <div class="leg-item"><span class="dot" style="background:#ff2e8a;"></span> Lyon ↔ Paris</div>
+    <div class="leg-item"><span class="dot" style="background:#16e5ff;"></span> Paris → New York</div>
+    <div class="leg-item"><span class="dot" style="background:#ff7a2e;"></span> New York ↔ Washington DC</div>
+    <div class="leg-item"><span class="dot" style="background:#ffd400;"></span> New York → Miami</div>
+    <div class="leg-item"><span class="dot" style="background:#31c48d;"></span> Miami ↔ Everglades</div>
+    <div class="leg-item"><span class="dot" style="background:#ff2e8a;"></span> Miami → Paris → Lyon</div>
+  </div>
+</section>
+
+<!-- WALL -->
+<section id="wall">
+  <div class="section-head reveal">
+    <span class="section-num">06</span>
+    <span class="section-title display">Le mur</span>
+  </div>
+  <p class="reveal" style="color:var(--muted); margin-bottom:2rem; max-width:60ch;">
+    Les updates du voyage sont postées par nous deux. Vous, famille et potes, vous pouvez tout lire, liker ❤️ et laisser un commentaire sous chaque post.
+  </p>
+
+  <div id="wallFormWrap" style="display:none;">
+    <form class="wall-form reveal" id="wallForm">
+      <input type="text" id="wfName" placeholder="Ton prénom" required maxlength="40" style="grid-column:1/-1;">
+      <textarea id="wfMessage" placeholder="Un petit message..." maxlength="500" required></textarea>
+      <div class="file-row">
+        <label>📷 Ajouter une photo (optionnel) <input type="file" id="wfPhoto" accept="image/*"></label>
+        <img id="wfPreview" class="wall-thumb-preview">
+      </div>
+      <button type="submit" class="wall-submit" id="wfSubmit">Publier</button>
+      <div class="wall-status" id="wfStatus"></div>
+    </form>
+  </div>
+  <p id="wallLockedNote" class="reveal" style="color:var(--muted); font-size:.85rem; margin-bottom:2rem;">
+    🔒 Seuls les voyageurs peuvent publier de nouveaux posts — active le <b style="color:var(--cyan)">mode voyageur</b> en bas à droite si c'est toi, Baptiste 😉
+  </p>
+
+  <div class="wall-feed reveal" id="wallFeed">
+    <div class="wall-empty">Chargement…</div>
+  </div>
+</section>
+
+<footer>
+  <div class="fbig display">GOOD TRIP.</div>
+  15 jours · 3 villes · New York → Washington DC → Miami · zéro regret
+</footer>
+
+<div class="admin-dock">
+  <button class="admin-save" id="adminSave">💾 Enregistrer les modifications</button>
+  <button class="admin-toggle" id="adminToggle">🧳 Mode voyageur</button>
+</div>
+
+<div class="custom-modal-overlay" id="customModalOverlay">
+  <div class="custom-modal">
+    <div class="custom-modal-title" id="customModalTitle"></div>
+    <input type="password" id="customModalInput" class="custom-modal-input" style="display:none;">
+    <div class="custom-modal-actions">
+      <button class="custom-modal-btn cancel" id="customModalCancel">Annuler</button>
+      <button class="custom-modal-btn ok" id="customModalOk">OK</button>
+    </div>
+  </div>
+</div>
+
+
+<script>
+  // animated dashes — pure CSS/SVG, no external tiles needed
+  let dashOffset = 0;
+  setInterval(()=>{
+    dashOffset = (dashOffset - 1) % 200;
+    document.querySelectorAll('#tripsvg path.flight-path').forEach(p=>{
+      p.style.strokeDashoffset = dashOffset;
+    });
+  }, 60);
+
+  // hover / tap tooltips on pins
+  const tooltip = document.getElementById('map-tooltip');
+  const mapWrap = document.getElementById('tripmap');
+  document.querySelectorAll('#tripsvg .pin').forEach(pin=>{
+    const show = (evt)=>{
+      const name = pin.getAttribute('data-name');
+      const info = pin.getAttribute('data-info');
+      tooltip.innerHTML = `<b>${name}</b><br>${info}`;
+      tooltip.style.opacity = 1;
+      const rect = mapWrap.getBoundingClientRect();
+      const x = (evt.touches ? evt.touches[0].clientX : evt.clientX) - rect.left;
+      const y = (evt.touches ? evt.touches[0].clientY : evt.clientY) - rect.top;
+      tooltip.style.left = Math.min(x + 16, rect.width - 200) + 'px';
+      tooltip.style.top = Math.max(y - 50, 10) + 'px';
+    };
+    pin.addEventListener('mouseenter', show);
+    pin.addEventListener('mousemove', show);
+    pin.addEventListener('mouseleave', ()=> tooltip.style.opacity = 0);
+    pin.addEventListener('click', show);
+    pin.style.cursor = 'pointer';
+  });
+
+  // ---------- ZOOM & PAN ----------
+  const svgEl = document.getElementById('tripsvg');
+  const hint = document.getElementById('mapHint');
+  const BASE = { x:0, y:0, w:1000, h:560 };
+  let vb = { ...BASE };
+  const MIN_W = 120;   // most zoomed-in
+  const MAX_W = 1000;  // most zoomed-out (= full map)
+
+  function applyViewBox(){
+    svgEl.setAttribute('viewBox', `${vb.x} ${vb.y} ${vb.w} ${vb.h}`);
+  }
+
+  function clampViewBox(){
+    vb.w = Math.min(Math.max(vb.w, MIN_W), MAX_W);
+    vb.h = vb.w * (BASE.h / BASE.w);
+    // keep view inside a generous bound around the base map
+    const margin = 200;
+    vb.x = Math.min(Math.max(vb.x, BASE.x - margin), BASE.x + BASE.w + margin - vb.w);
+    vb.y = Math.min(Math.max(vb.y, BASE.y - margin), BASE.y + BASE.h + margin - vb.h);
+  }
+
+  function zoomAt(svgX, svgY, factor){
+    const newW = vb.w * factor;
+    const newH = vb.h * factor;
+    vb.x = svgX - (svgX - vb.x) * (newW / vb.w);
+    vb.y = svgY - (svgY - vb.y) * (newH / vb.h);
+    vb.w = newW; vb.h = newH;
+    clampViewBox();
+    applyViewBox();
+  }
+
+  function zoomAtCenter(factor){
+    zoomAt(vb.x + vb.w/2, vb.y + vb.h/2, factor);
+  }
+
+  function screenToSVG(clientX, clientY){
+    const rect = svgEl.getBoundingClientRect();
+    const scaleX = vb.w / rect.width;
+    const scaleY = vb.h / rect.height;
+    return { x: vb.x + (clientX - rect.left) * scaleX, y: vb.y + (clientY - rect.top) * scaleY };
+  }
+
+  // buttons
+  document.getElementById('zoomIn').addEventListener('click', ()=> zoomAtCenter(0.75));
+  document.getElementById('zoomOut').addEventListener('click', ()=> zoomAtCenter(1.33));
+  document.getElementById('zoomReset').addEventListener('click', ()=>{ vb = { ...BASE }; applyViewBox(); });
+
+  // wheel zoom — Ctrl/Cmd required so page scroll stays free
+  let hintShown = false;
+  svgEl.addEventListener('wheel', (e)=>{
+    if(!(e.ctrlKey || e.metaKey)){
+      if(!hintShown){
+        hint.classList.remove('hidden');
+        clearTimeout(hint._t);
+        hint._t = setTimeout(()=> hint.classList.add('hidden'), 1800);
+      }
+      return; // let the page scroll normally
+    }
+    e.preventDefault();
+    const { x, y } = screenToSVG(e.clientX, e.clientY);
+    zoomAt(x, y, e.deltaY < 0 ? 0.9 : 1.1);
+  }, { passive:false });
+
+  // drag to pan (mouse)
+  let dragging = false, dragStart = null, vbStart = null;
+  svgEl.addEventListener('mousedown', (e)=>{
+    dragging = true;
+    svgEl.classList.add('grabbing');
+    dragStart = { x:e.clientX, y:e.clientY };
+    vbStart = { ...vb };
+  });
+  window.addEventListener('mousemove', (e)=>{
+    if(!dragging) return;
+    const rect = svgEl.getBoundingClientRect();
+    const scaleX = vbStart.w / rect.width, scaleY = vbStart.h / rect.height;
+    vb.x = vbStart.x - (e.clientX - dragStart.x) * scaleX;
+    vb.y = vbStart.y - (e.clientY - dragStart.y) * scaleY;
+    clampViewBox();
+    applyViewBox();
+  });
+  window.addEventListener('mouseup', ()=>{ dragging = false; svgEl.classList.remove('grabbing'); });
+
+  // touch: 1 finger pan, 2 finger pinch zoom
+  let touchMode = null, touchStart = null, touchVbStart = null, pinchStartDist = null;
+  function touchDist(t0,t1){ return Math.hypot(t1.clientX-t0.clientX, t1.clientY-t0.clientY); }
+  svgEl.addEventListener('touchstart', (e)=>{
+    if(e.touches.length === 1){
+      touchMode = 'pan';
+      touchStart = { x:e.touches[0].clientX, y:e.touches[0].clientY };
+      touchVbStart = { ...vb };
+    } else if(e.touches.length === 2){
+      touchMode = 'pinch';
+      pinchStartDist = touchDist(e.touches[0], e.touches[1]);
+      touchVbStart = { ...vb };
+    }
+  }, { passive:true });
+  svgEl.addEventListener('touchmove', (e)=>{
+    const rect = svgEl.getBoundingClientRect();
+    if(touchMode === 'pan' && e.touches.length === 1){
+      e.preventDefault();
+      const scaleX = touchVbStart.w / rect.width, scaleY = touchVbStart.h / rect.height;
+      vb.x = touchVbStart.x - (e.touches[0].clientX - touchStart.x) * scaleX;
+      vb.y = touchVbStart.y - (e.touches[0].clientY - touchStart.y) * scaleY;
+      clampViewBox();
+      applyViewBox();
+    } else if(touchMode === 'pinch' && e.touches.length === 2){
+      e.preventDefault();
+      const dist = touchDist(e.touches[0], e.touches[1]);
+      const factor = pinchStartDist / dist;
+      const midX = (e.touches[0].clientX + e.touches[1].clientX)/2;
+      const midY = (e.touches[0].clientY + e.touches[1].clientY)/2;
+      vb = { ...touchVbStart };
+      const { x, y } = screenToSVG(midX, midY);
+      zoomAt(x, y, factor);
+    }
+  }, { passive:false });
+  svgEl.addEventListener('touchend', ()=>{ touchMode = null; });
+</script>
+
+<script>
+  // ============================================================
+  // CUSTOM MODAL — window.prompt/confirm/alert are blocked inside
+  // the sandboxed Claude artifact preview, so we roll our own.
+  // ============================================================
+  const modalOverlay = document.getElementById('customModalOverlay');
+  const modalTitle = document.getElementById('customModalTitle');
+  const modalInput = document.getElementById('customModalInput');
+  const modalOk = document.getElementById('customModalOk');
+  const modalCancel = document.getElementById('customModalCancel');
+
+  function customPrompt(message, isPassword){
+    return new Promise(resolve=>{
+      modalTitle.textContent = message;
+      modalInput.style.display = 'block';
+      modalInput.type = isPassword ? 'password' : 'text';
+      modalInput.value = '';
+      modalCancel.style.display = 'inline-block';
+      modalOverlay.classList.add('show');
+      setTimeout(()=> modalInput.focus(), 50);
+
+      const cleanup = (val)=>{
+        modalOverlay.classList.remove('show');
+        modalOk.onclick = null; modalCancel.onclick = null;
+        modalInput.onkeydown = null;
+        resolve(val);
+      };
+      modalOk.onclick = ()=> cleanup(modalInput.value);
+      modalCancel.onclick = ()=> cleanup(null);
+      modalInput.onkeydown = (e)=>{ if(e.key === 'Enter') cleanup(modalInput.value); };
+    });
+  }
+
+  function customConfirm(message){
+    return new Promise(resolve=>{
+      modalTitle.textContent = message;
+      modalInput.style.display = 'none';
+      modalCancel.style.display = 'inline-block';
+      modalOverlay.classList.add('show');
+
+      const cleanup = (val)=>{
+        modalOverlay.classList.remove('show');
+        modalOk.onclick = null; modalCancel.onclick = null;
+        resolve(val);
+      };
+      modalOk.onclick = ()=> cleanup(true);
+      modalCancel.onclick = ()=> cleanup(false);
+    });
+  }
+
+  function customAlert(message){
+    return new Promise(resolve=>{
+      modalTitle.textContent = message;
+      modalInput.style.display = 'none';
+      modalCancel.style.display = 'none';
+      modalOverlay.classList.add('show');
+
+      const cleanup = ()=>{
+        modalOverlay.classList.remove('show');
+        modalOk.onclick = null;
+        resolve();
+      };
+      modalOk.onclick = cleanup;
+    });
+  }
+</script>
+
+<script>
+  // ============================================================
+  // ADMIN MODE + CONTENT EDITING (window.storage, personal check only)
+  // ============================================================
+  const ADMIN_PASSWORD = "USA2026"; // 🔑 mot de passe partagé entre vous deux — change-le avant de partager le lien
+
+  let isAdmin = false;
+
+  async function loadEditableContent(){
+    try {
+      const res = await window.storage.get('trip-content', true);
+      if(!res) return;
+      const map = JSON.parse(res.value);
+      Object.entries(map).forEach(([key, html])=>{
+        const el = document.querySelector(`[data-editable="${key}"]`);
+        if(el) el.innerHTML = html;
+      });
+    } catch(e){
+      // no saved content yet — keep defaults
+    }
+  }
+
+  async function saveEditableContent(){
+    const map = {};
+    document.querySelectorAll('[data-editable]').forEach(el=>{
+      map[el.getAttribute('data-editable')] = el.innerHTML;
+    });
+    try {
+      await window.storage.set('trip-content', JSON.stringify(map), true);
+      adminSave.textContent = '✅ Enregistré !';
+      setTimeout(()=> adminSave.textContent = '💾 Enregistrer les modifications', 1800);
+    } catch(e){
+      await customAlert("Erreur lors de l'enregistrement, réessaie.");
+    }
+  }
+
+  const adminToggle = document.getElementById('adminToggle');
+  const adminSave = document.getElementById('adminSave');
+  const wallFormWrap = document.getElementById('wallFormWrap');
+  const wallLockedNote = document.getElementById('wallLockedNote');
+
+  adminToggle.addEventListener('click', async ()=>{
+    if(!isAdmin){
+      const pwd = await customPrompt("Mot de passe voyageur (Baptiste & pote) :", true);
+      if(pwd !== ADMIN_PASSWORD){
+        if(pwd !== null) await customAlert("Mot de passe incorrect.");
+        return;
+      }
+      isAdmin = true;
+      document.body.classList.add('admin-on');
+      document.querySelectorAll('[data-editable]').forEach(el=> el.setAttribute('contenteditable','true'));
+      adminToggle.textContent = '🔓 Voyageur actif';
+      adminToggle.classList.add('is-on');
+      wallFormWrap.style.display = 'block';
+      wallLockedNote.style.display = 'none';
+      renderWall(); // re-render to show delete buttons
+    } else {
+      isAdmin = false;
+      document.body.classList.remove('admin-on');
+      document.querySelectorAll('[data-editable]').forEach(el=> el.setAttribute('contenteditable','false'));
+      adminToggle.textContent = '🧳 Mode voyageur';
+      adminToggle.classList.remove('is-on');
+      wallFormWrap.style.display = 'none';
+      wallLockedNote.style.display = 'block';
+      renderWall();
+    }
+  });
+
+  adminSave.addEventListener('click', saveEditableContent);
+
+  // ============================================================
+  // THE WALL — shared photos & comments (window.storage, shared)
+  // ============================================================
+  const wallFeed = document.getElementById('wallFeed');
+  const wallForm = document.getElementById('wallForm');
+  const wfPhoto = document.getElementById('wfPhoto');
+  const wfPreview = document.getElementById('wfPreview');
+  const wfSubmit = document.getElementById('wfSubmit');
+  const wfStatus = document.getElementById('wfStatus');
+
+  let photoDataUrl = null;
+
+  // compress + resize photo client-side before storing (keeps it well under 5MB)
+  function readAndCompressImage(file){
+    return new Promise((resolve, reject)=>{
+      const reader = new FileReader();
+      reader.onload = (e)=>{
+        const img = new Image();
+        img.onload = ()=>{
+          const maxW = 1000;
+          const scale = Math.min(1, maxW / img.width);
+          const canvas = document.createElement('canvas');
+          canvas.width = img.width * scale;
+          canvas.height = img.height * scale;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          resolve(canvas.toDataURL('image/jpeg', 0.72));
+        };
+        img.onerror = reject;
+        img.src = e.target.result;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  wfPhoto.addEventListener('change', async ()=>{
+    const file = wfPhoto.files[0];
+    if(!file) { photoDataUrl = null; wfPreview.style.display='none'; return; }
+    wfStatus.textContent = 'Compression de la photo…';
+    try {
+      photoDataUrl = await readAndCompressImage(file);
+      wfPreview.src = photoDataUrl;
+      wfPreview.style.display = 'inline-block';
+      wfStatus.textContent = '';
+    } catch(e){
+      wfStatus.textContent = "Impossible de lire cette image.";
+      photoDataUrl = null;
+    }
+  });
+
+  function escapeHtml(str){
+    const d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+  }
+
+  function formatDate(iso){
+    const d = new Date(iso);
+    return d.toLocaleDateString('fr-FR', { day:'numeric', month:'short', year:'numeric' }) + ' à ' +
+           d.toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' });
+  }
+
+  async function loadWallEntries(){
+    try {
+      const list = await window.storage.list('entries:', true);
+      if(!list || !list.keys || list.keys.length === 0) return [];
+      const entries = [];
+      for(const key of list.keys){
+        try {
+          const r = await window.storage.get(key, true);
+          if(r) entries.push({ key, ...JSON.parse(r.value) });
+        } catch(e){ /* entry might have been deleted mid-flight, skip */ }
+      }
+      entries.sort((a,b)=> (b.date || '').localeCompare(a.date || ''));
+      return entries;
+    } catch(e){
+      console.error('loadWallEntries', e);
+      return [];
+    }
+  }
+
+  let likedPosts = new Set(); // session-only, avoids double-likes on refresh-free browsing
+
+  async function renderWall(){
+    const entries = await loadWallEntries();
+    if(entries.length === 0){
+      wallFeed.innerHTML = `<div class="wall-empty">Aucun post pour l'instant — les voyageurs vont bientôt publier 👋</div>`;
+      return;
+    }
+    wallFeed.innerHTML = entries.map(e => {
+      const comments = e.comments || [];
+      const likes = e.likes || 0;
+      const liked = likedPosts.has(e.key);
+      return `
+      <div class="wall-card">
+        ${isAdmin ? `<button class="wall-delete" data-key="${e.key}" title="Supprimer ce post">✕</button>` : ''}
+        ${e.photo ? `<img src="${e.photo}" alt="photo de ${escapeHtml(e.name)}">` : ''}
+        <div class="wc-body">
+          <div class="wc-name">${escapeHtml(e.name)}</div>
+          <div class="wc-date">${formatDate(e.date)}</div>
+          <div class="wc-msg">${escapeHtml(e.message)}</div>
+
+          <div class="wc-actions">
+            <button class="wc-like ${liked ? 'liked' : ''}" data-key="${e.key}">❤️ ${likes}</button>
+            <button class="wc-comment-toggle" data-key="${e.key}">💬 ${comments.length} commentaire${comments.length>1?'s':''}</button>
+          </div>
+
+          <div class="wc-comments" id="comments-${e.key}" style="display:none;">
+            ${comments.map((c,i) => `
+              <div class="wc-comment">
+                ${isAdmin ? `<button class="wc-comment-delete" data-key="${e.key}" data-idx="${i}">✕</button>` : ''}
+                <b>${escapeHtml(c.name)}</b><span class="cm-date">${formatDate(c.date)}</span><br>${escapeHtml(c.text)}
+              </div>
+            `).join('') || '<div style="color:var(--muted); font-size:.8rem;">Sois le premier à commenter !</div>'}
+            <form class="wc-comment-form" data-key="${e.key}">
+              <input class="cf-name" type="text" placeholder="Prénom" maxlength="30" required>
+              <input class="cf-text" type="text" placeholder="Ton commentaire..." maxlength="200" required>
+              <button type="submit">Envoyer</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    `;
+    }).join('');
+
+    wallFeed.querySelectorAll('.wall-delete').forEach(btn=>{
+      btn.addEventListener('click', async ()=>{
+        if(!(await customConfirm('Supprimer ce post ?'))) return;
+        try {
+          await window.storage.delete(btn.getAttribute('data-key'), true);
+          renderWall();
+        } catch(e){
+          await customAlert('Erreur lors de la suppression.');
+        }
+      });
+    });
+
+    wallFeed.querySelectorAll('.wc-like').forEach(btn=>{
+      btn.addEventListener('click', ()=> likePost(btn.getAttribute('data-key')));
+    });
+
+    wallFeed.querySelectorAll('.wc-comment-toggle').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const box = document.getElementById(`comments-${btn.getAttribute('data-key')}`);
+        box.style.display = box.style.display === 'none' ? 'flex' : 'none';
+        box.style.flexDirection = 'column';
+      });
+    });
+
+    wallFeed.querySelectorAll('.wc-comment-form').forEach(form=>{
+      form.addEventListener('submit', async (evt)=>{
+        evt.preventDefault();
+        const key = form.getAttribute('data-key');
+        const name = form.querySelector('.cf-name').value.trim();
+        const text = form.querySelector('.cf-text').value.trim();
+        if(!name || !text) return;
+        const btn = form.querySelector('button');
+        btn.disabled = true;
+        await addComment(key, name, text);
+      });
+    });
+
+    wallFeed.querySelectorAll('.wc-comment-delete').forEach(btn=>{
+      btn.addEventListener('click', ()=> deleteComment(btn.getAttribute('data-key'), parseInt(btn.getAttribute('data-idx'))));
+    });
+  }
+
+  async function likePost(key){
+    if(likedPosts.has(key)) return;
+    likedPosts.add(key); // optimistic, prevents double-click spam
+    try {
+      const r = await window.storage.get(key, true);
+      if(!r) return;
+      const post = JSON.parse(r.value);
+      post.likes = (post.likes || 0) + 1;
+      await window.storage.set(key, JSON.stringify(post), true);
+      renderWall();
+    } catch(e){
+      likedPosts.delete(key);
+      console.error('likePost', e);
+    }
+  }
+
+  async function addComment(key, name, text){
+    try {
+      const r = await window.storage.get(key, true);
+      if(!r) return;
+      const post = JSON.parse(r.value);
+      post.comments = post.comments || [];
+      post.comments.push({ name, text, date: new Date().toISOString() });
+      await window.storage.set(key, JSON.stringify(post), true);
+      renderWall();
+    } catch(e){
+      await customAlert("Erreur lors de l'envoi du commentaire.");
+    }
+  }
+
+  async function deleteComment(key, idx){
+    if(!(await customConfirm('Supprimer ce commentaire ?'))) return;
+    try {
+      const r = await window.storage.get(key, true);
+      if(!r) return;
+      const post = JSON.parse(r.value);
+      post.comments = (post.comments || []).filter((_,i)=> i !== idx);
+      await window.storage.set(key, JSON.stringify(post), true);
+      renderWall();
+    } catch(e){
+      await customAlert('Erreur lors de la suppression du commentaire.');
+    }
+  }
+
+  wallForm.addEventListener('submit', async (evt)=>{
+    evt.preventDefault();
+    const name = document.getElementById('wfName').value.trim();
+    const message = document.getElementById('wfMessage').value.trim();
+    if(!name || !message) return;
+
+    wfSubmit.disabled = true;
+    wfSubmit.textContent = 'Publication…';
+    wfStatus.textContent = '';
+
+    const entry = {
+      name, message,
+      photo: photoDataUrl,
+      date: new Date().toISOString(),
+      likes: 0,
+      comments: []
+    };
+    const key = `entries:${Date.now()}-${Math.random().toString(36).slice(2,8)}`;
+
+    try {
+      const result = await window.storage.set(key, JSON.stringify(entry), true);
+      if(!result) throw new Error('no result returned by window.storage.set');
+      wallForm.reset();
+      wfPreview.style.display = 'none';
+      photoDataUrl = null;
+      wfStatus.textContent = '✅ Posté !';
+      setTimeout(()=> wfStatus.textContent = '', 2000);
+      renderWall();
+    } catch(e){
+      console.error('wall submit error:', e);
+      wfStatus.textContent = "❌ Erreur : " + (e && e.message ? e.message : 'inconnue') + " (voir la console pour le détail)";
+    } finally {
+      wfSubmit.disabled = false;
+      wfSubmit.textContent = 'Publier';
+    }
+  });
+
+  // init
+  if(typeof window.storage === 'undefined'){
+    wfStatus.textContent = "⚠️ Le stockage partagé n'est pas disponible dans cet aperçu.";
+    wallFeed.innerHTML = '<div class="wall-empty">⚠️ window.storage indisponible ici — ouvre ce fichier en tant qu\'Artefact Claude (pas juste le fichier téléchargé) pour activer le mur.</div>';
+  } else {
+    loadEditableContent();
+    renderWall();
+  }
+</script>
+
+<script>
+  const els = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, {threshold:.15});
+  els.forEach(el=>io.observe(el));
+</script>
+
+</body>
+</html>
