@@ -21,6 +21,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<link rel="stylesheet" href="https://unpkg.com/cropperjs@1.6.2/dist/cropper.min.css">
 <style>
   :root{
     --bg: #0a0014;
@@ -546,6 +547,50 @@
   .wall-thumb-preview-list{ display:flex; gap:.5rem; flex-wrap:wrap; }
   .wall-thumb-preview-list img, .wall-thumb-preview-list video{ max-height:60px; border-radius:6px; }
 
+  .wf-geo-row{ grid-column:1/-1; display:flex; align-items:center; gap:.7rem; flex-wrap:wrap; }
+  .wf-geo-btn{
+    background:rgba(22,229,255,.12); border:1px solid rgba(22,229,255,.4); color:var(--cyan);
+    border-radius:999px; padding:.5rem 1rem; font-size:.82rem; cursor:pointer; font-family:'Space Grotesk';
+  }
+  .wf-geo-btn:hover{ background:rgba(22,229,255,.2); }
+  .wf-geo-btn:disabled{ opacity:.5; cursor:wait; }
+  .wf-geo-status{ font-size:.8rem; color:var(--muted); }
+
+  .wc-tags{ display:flex; flex-wrap:wrap; gap:.4rem; margin-bottom:.5rem; }
+  .wc-tag{
+    display:inline-flex; align-items:center; gap:.3rem; font-size:.75rem;
+    background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12);
+    border-radius:999px; padding:.25rem .7rem; color:var(--muted); text-decoration:none;
+  }
+  a.wc-tag:hover{ border-color:var(--cyan); color:var(--ink); }
+
+  /* ---------- PHOTO CROP MODAL ---------- */
+  .crop-modal{
+    display:none; position:fixed; inset:0; z-index:1100;
+    background:rgba(5,0,15,.94); align-items:center; justify-content:center; padding:1.2rem;
+  }
+  .crop-modal.show{ display:flex; }
+  .crop-modal-inner{
+    background:var(--bg2); border:1px solid rgba(255,255,255,.12); border-radius:16px;
+    padding:1.2rem; width:100%; max-width:520px; display:flex; flex-direction:column; gap:.9rem;
+  }
+  .crop-img-wrap{ max-height:60vh; background:#000; border-radius:8px; overflow:hidden; }
+  .crop-img-wrap img{ display:block; max-width:100%; }
+  .crop-ratios{ display:flex; gap:.5rem; flex-wrap:wrap; }
+  .crop-ratios button{
+    background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.15); color:var(--muted);
+    border-radius:999px; padding:.35rem .9rem; font-size:.78rem; cursor:pointer; font-family:'Space Grotesk';
+  }
+  .crop-ratios button.active{ background:var(--cyan); border-color:var(--cyan); color:#0a0014; }
+  .crop-progress{ font-size:.78rem; color:var(--muted); }
+  .crop-actions{ display:flex; justify-content:space-between; gap:.7rem; flex-wrap:wrap; }
+  .crop-actions button{
+    font-family:'Bebas Neue'; letter-spacing:.06em; font-size:.95rem;
+    border:none; border-radius:999px; padding:.6rem 1.4rem; cursor:pointer;
+  }
+  .crop-skip{ background:rgba(255,255,255,.1); color:var(--muted); }
+  .crop-confirm{ background:linear-gradient(90deg,var(--magenta),var(--orange)); color:#0a0014; }
+
   .wall-photos{ display:grid; gap:2px; }
   .wall-photos[data-count="1"]{ grid-template-columns:1fr; }
   .wall-photos[data-count="2"], .wall-photos[data-count="3"], .wall-photos[data-count="4"]{ grid-template-columns:1fr 1fr; }
@@ -862,6 +907,12 @@
 
   <div id="wallFormWrap" style="display:none;">
     <form class="wall-form reveal" id="wallForm">
+      <input type="text" id="wfPlace" placeholder="📍 Lieu (ex: Times Square)" maxlength="80">
+      <input type="text" id="wfActivity" placeholder="🏷️ Activité (ex: Visite, Resto, Plage...)" maxlength="60">
+      <div class="wf-geo-row">
+        <button type="button" class="wf-geo-btn" id="wfGeoBtn">📍 Utiliser ma position</button>
+        <span class="wf-geo-status" id="wfGeoStatus"></span>
+      </div>
       <textarea id="wfMessage" placeholder="Un petit message..." maxlength="500" required></textarea>
       <div class="file-row">
         <label>📷 Ajouter des photos/vidéos (optionnel, 10 max) <input type="file" id="wfPhoto" accept="image/*,video/*" multiple></label>
@@ -1451,6 +1502,25 @@
   <img id="imgLightboxImg" src="" alt="">
 </div>
 
+<div class="crop-modal" id="cropModal">
+  <div class="crop-modal-inner">
+    <div class="crop-progress" id="cropProgress"></div>
+    <div class="crop-img-wrap"><img id="cropImg"></div>
+    <div class="crop-ratios">
+      <button type="button" data-ratio="NaN" class="active">Libre</button>
+      <button type="button" data-ratio="1">1:1</button>
+      <button type="button" data-ratio="1.3333">4:3</button>
+      <button type="button" data-ratio="0.75">3:4</button>
+      <button type="button" data-ratio="1.7778">16:9</button>
+      <button type="button" data-ratio="0.5625">9:16</button>
+    </div>
+    <div class="crop-actions">
+      <button type="button" class="crop-skip" id="cropSkip">Utiliser telle quelle</button>
+      <button type="button" class="crop-confirm" id="cropConfirm">Valider le cadrage</button>
+    </div>
+  </div>
+</div>
+
 
 <script>
   // animated dashes — pure CSS/SVG, no external tiles needed
@@ -1912,6 +1982,10 @@
   // ============================================================
   const wallFeed = document.getElementById('wallFeed');
   const wallForm = document.getElementById('wallForm');
+  const wfPlace = document.getElementById('wfPlace');
+  const wfActivity = document.getElementById('wfActivity');
+  const wfGeoBtn = document.getElementById('wfGeoBtn');
+  const wfGeoStatus = document.getElementById('wfGeoStatus');
   const wfPhoto = document.getElementById('wfPhoto');
   const wfPreviewList = document.getElementById('wfPreviewList');
   const wfSubmit = document.getElementById('wfSubmit');
@@ -1920,6 +1994,28 @@
   const MAX_MEDIA = 10;
   const MAX_VIDEO_SIZE = 50 * 1024 * 1024; // 50 Mo
   let mediaItems = []; // [{type:'image', src: dataUrl} | {type:'video', src: storageUrl}]
+  let wfGeo = null; // {lat, lon} captured via navigator.geolocation
+
+  wfGeoBtn.addEventListener('click', ()=>{
+    if(!navigator.geolocation){
+      wfGeoStatus.textContent = "⚠️ Géolocalisation non supportée par ce navigateur.";
+      return;
+    }
+    wfGeoBtn.disabled = true;
+    wfGeoStatus.textContent = 'Localisation en cours…';
+    navigator.geolocation.getCurrentPosition(
+      (pos)=>{
+        wfGeo = { lat: pos.coords.latitude, lon: pos.coords.longitude };
+        wfGeoStatus.textContent = `✓ Position capturée (±${Math.round(pos.coords.accuracy)}m)`;
+        wfGeoBtn.disabled = false;
+      },
+      (err)=>{
+        wfGeoStatus.textContent = "⚠️ Position indisponible (" + err.message + ")";
+        wfGeoBtn.disabled = false;
+      },
+      { enableHighAccuracy:true, timeout:10000 }
+    );
+  });
 
   // compress + resize photo client-side before storing (keeps it well under 5MB)
   function readAndCompressImage(file){
@@ -1955,25 +2051,117 @@
     return { type: 'video', src: url };
   }
 
-  function loadMedia(file){
-    return file.type.startsWith('video/') ? uploadVideo(file) : readAndCompressImage(file);
+  function renderPreviewList(){
+    wfPreviewList.innerHTML = mediaItems.map(m =>
+      m.type === 'video'
+        ? `<video src="${m.src}" muted></video>`
+        : `<img src="${m.src}">`
+    ).join('');
   }
+
+  // ---------- photo crop modal (Cropper.js) — one photo at a time ----------
+  const cropModal = document.getElementById('cropModal');
+  const cropImg = document.getElementById('cropImg');
+  const cropProgress = document.getElementById('cropProgress');
+  const cropConfirmBtn = document.getElementById('cropConfirm');
+  const cropSkipBtn = document.getElementById('cropSkip');
+  let cropQueue = [];
+  let cropIndex = 0;
+  let cropInstance = null;
+  let cropResolve = null; // resolves the current photo's crop promise
+  let cropFinish = null; // ends the whole sequence early (abort), returning items gathered so far
+
+  function loadCropImage(file){
+    cropProgress.textContent = `Photo ${cropIndex + 1} / ${cropQueue.length}`;
+    cropModal.querySelectorAll('.crop-ratios button').forEach((b,i)=> b.classList.toggle('active', i===0));
+    const reader = new FileReader();
+    reader.onload = (e)=>{
+      cropImg.src = e.target.result;
+      if(cropInstance) cropInstance.destroy();
+      cropInstance = new Cropper(cropImg, { viewMode:1, dragMode:'move', autoCropArea:1, background:false, aspectRatio:NaN });
+    };
+    reader.readAsDataURL(file);
+  }
+
+  // crops every image in `files` one by one via the modal, returns the resulting media items
+  function cropImagesSequentially(files){
+    return new Promise((resolveAll)=>{
+      if(files.length === 0){ resolveAll([]); return; }
+      const results = [];
+      cropQueue = files;
+      cropIndex = 0;
+      cropModal.classList.add('show');
+      const finish = ()=>{
+        if(cropInstance){ cropInstance.destroy(); cropInstance = null; }
+        cropModal.classList.remove('show');
+        resolveAll(results);
+      };
+      const next = (item)=>{
+        results.push(item);
+        cropIndex++;
+        if(cropIndex < cropQueue.length){
+          cropResolve = next;
+          loadCropImage(cropQueue[cropIndex]);
+        } else {
+          finish();
+        }
+      };
+      cropResolve = next;
+      cropFinish = finish;
+      loadCropImage(cropQueue[0]);
+    });
+  }
+
+  cropModal.querySelectorAll('.crop-ratios button').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      cropModal.querySelectorAll('.crop-ratios button').forEach(b=> b.classList.remove('active'));
+      btn.classList.add('active');
+      if(cropInstance) cropInstance.setAspectRatio(parseFloat(btn.getAttribute('data-ratio')));
+    });
+  });
+
+  cropConfirmBtn.addEventListener('click', ()=>{
+    if(!cropInstance) return;
+    const canvas = cropInstance.getCroppedCanvas({ maxWidth:1000, maxHeight:1000 });
+    cropResolve({ type:'image', src: canvas.toDataURL('image/jpeg', 0.72) });
+  });
+
+  cropSkipBtn.addEventListener('click', async ()=>{
+    const file = cropQueue[cropIndex];
+    const item = await readAndCompressImage(file);
+    cropResolve(item);
+  });
+
+  function abortCropQueue(){
+    if(!cropModal.classList.contains('show') || !cropFinish) return;
+    cropFinish();
+    cropFinish = null;
+  }
+  cropModal.addEventListener('click', (e)=>{ if(e.target === cropModal) abortCropQueue(); });
+  document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape' && cropModal.classList.contains('show')) abortCropQueue(); });
 
   wfPhoto.addEventListener('change', async ()=>{
     let files = Array.from(wfPhoto.files);
     if(files.length === 0) { mediaItems = []; wfPreviewList.innerHTML = ''; return; }
     const tooMany = files.length > MAX_MEDIA;
     if(tooMany) files = files.slice(0, MAX_MEDIA);
-    wfStatus.textContent = tooMany
-      ? `⚠️ ${MAX_MEDIA} fichiers maximum, les suivants seront ignorés.`
-      : 'Chargement des fichiers…';
+    const videoFiles = files.filter(f => f.type.startsWith('video/'));
+    const imageFiles = files.filter(f => !f.type.startsWith('video/'));
+
+    wfStatus.textContent = tooMany ? `⚠️ ${MAX_MEDIA} fichiers maximum, les suivants seront ignorés.` : '';
+    mediaItems = [];
     try {
-      mediaItems = await Promise.all(files.map(loadMedia));
-      wfPreviewList.innerHTML = mediaItems.map(m =>
-        m.type === 'video'
-          ? `<video src="${m.src}" muted></video>`
-          : `<img src="${m.src}">`
-      ).join('');
+      if(videoFiles.length){
+        wfStatus.textContent = 'Chargement des vidéos…';
+        mediaItems = mediaItems.concat(await Promise.all(videoFiles.map(uploadVideo)));
+        renderPreviewList();
+      }
+      if(imageFiles.length){
+        wfStatus.textContent = '';
+        const cropped = await cropImagesSequentially(imageFiles);
+        mediaItems = mediaItems.concat(cropped);
+        renderPreviewList();
+      }
       if(!tooMany) wfStatus.textContent = '';
     } catch(e){
       wfStatus.textContent = e.message === 'video-too-large'
@@ -2040,6 +2228,12 @@
         <div class="wc-body">
           <div class="wc-name">${escapeHtml(e.name)}</div>
           <div class="wc-date">${formatDate(e.date)}</div>
+          ${(e.activity || e.place || e.geo) ? `
+          <div class="wc-tags">
+            ${e.activity ? `<span class="wc-tag">🏷️ ${escapeHtml(e.activity)}</span>` : ''}
+            ${e.place ? `<span class="wc-tag">📍 ${escapeHtml(e.place)}</span>` : ''}
+            ${e.geo ? `<a class="wc-tag" href="https://maps.google.com/?q=${e.geo.lat},${e.geo.lon}" target="_blank" rel="noopener">🗺️ Voir sur la carte</a>` : ''}
+          </div>` : ''}
           ${editingPosts.has(e.key) ? `
           <div class="wc-edit">
             <textarea class="wc-edit-textarea" data-key="${e.key}" maxlength="500">${escapeHtml(e.message)}</textarea>
@@ -2207,6 +2401,9 @@
 
     const entry = {
       name, message,
+      place: wfPlace.value.trim() || null,
+      activity: wfActivity.value.trim() || null,
+      geo: wfGeo,
       photos: mediaItems,
       date: new Date().toISOString(),
       likes: 0,
@@ -2226,6 +2423,8 @@
       wallForm.reset();
       wfPreviewList.innerHTML = '';
       mediaItems = [];
+      wfGeo = null;
+      wfGeoStatus.textContent = '';
       if(!wfStatus.textContent){
         wfStatus.textContent = '✅ Posté !';
         setTimeout(()=> wfStatus.textContent = '', 2000);
@@ -2455,6 +2654,7 @@
 </script>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script src="https://unpkg.com/cropperjs@1.6.2/dist/cropper.min.js"></script>
 
 <script>
   // ============================================================
