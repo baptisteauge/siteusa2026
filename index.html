@@ -4,8 +4,23 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>USA // AOÛT 2026</title>
+
+<meta name="description" content="Le mur partagé et le carnet de route de notre roadtrip USA 2026 : New York, Washington DC, Miami. Photos, likes et commentaires en direct.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://baptisteauge.github.io/siteusa2026/">
+<meta property="og:title" content="USA 2026 — Notre roadtrip">
+<meta property="og:description" content="Suis notre roadtrip USA 2026 : New York, Washington DC, Miami. Photos, mur partagé, likes et commentaires en direct.">
+<meta property="og:image" content="https://baptisteauge.github.io/siteusa2026/New%20york.jpg">
+<meta name="twitter:card" content="summary_large_image">
+
+<meta name="theme-color" content="#0a0014">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
 <style>
   :root{
     --bg: #0a0014;
@@ -17,13 +32,19 @@
     --ink: #f6f1ff;
     --muted: #b6a8d6;
   }
-  *{box-sizing:border-box; margin:0; padding:0;}
+  *{box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent;}
   html{scroll-behavior:smooth;}
   body{
     background:var(--bg);
     color:var(--ink);
     font-family:'Space Grotesk', sans-serif;
     overflow-x:hidden;
+  }
+  button, .auth-pill, .wc-like, .wc-comment-toggle, .wall-delete, .wc-comment-delete, .auth-tab{
+    transition:transform .12s ease;
+  }
+  button:active, .auth-pill:active, .wc-like:active, .wc-comment-toggle:active, .auth-tab:active{
+    transform:scale(.95);
   }
   ::selection{background:var(--magenta); color:var(--bg);}
 
@@ -114,6 +135,28 @@
   }
   .route-line span.city{ }
   .route-line span.arrow{ color:var(--orange); }
+
+  .clocks{
+    display:flex; align-items:center; justify-content:center; gap:1.2rem;
+    margin-top:1.8rem; flex-wrap:wrap; z-index:2; position:relative;
+  }
+  .clock-card{
+    background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.14);
+    border-radius:16px; padding:.9rem 1.6rem; text-align:center; min-width:150px;
+    backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
+  }
+  .clock-city{ font-family:'Bebas Neue'; letter-spacing:.15em; font-size:.75rem; color:var(--yellow); margin-bottom:.3rem; }
+  .clock-time{
+    font-family:'Bebas Neue'; font-size:2rem; letter-spacing:.05em; color:var(--ink);
+    font-variant-numeric:tabular-nums;
+  }
+  .clock-date{ font-size:.7rem; color:var(--muted); margin-top:.2rem; text-transform:capitalize; }
+  .clock-sep{ font-size:1.3rem; color:var(--cyan); opacity:.7; }
+  @media (max-width:600px){
+    .clock-card{ min-width:120px; padding:.7rem 1rem; }
+    .clock-time{ font-size:1.5rem; }
+  }
+
   .scroll-cue{
     position:absolute; bottom:3vh; left:50%; transform:translateX(-50%);
     font-size:.7rem; letter-spacing:.35em; color:var(--muted); text-transform:uppercase;
@@ -147,53 +190,10 @@
   .reveal.in{ opacity:1; transform:translateY(0); }
 
   /* ---------- MISSIONS (flights) ---------- */
-  .missions{ display:flex; flex-direction:column; gap:1.1rem; }
-  .mission{
-    display:grid;
-    grid-template-columns:110px 1fr auto;
-    gap:1.5rem;
-    align-items:center;
-    background:linear-gradient(90deg, rgba(255,255,255,.04), rgba(255,255,255,.01));
-    border:1px solid rgba(255,255,255,.08);
-    border-left:4px solid var(--magenta);
-    border-radius:10px;
-    padding:1.3rem 1.6rem;
-  }
-  .mission:nth-child(2){ border-left-color:var(--cyan); }
-  .mission:nth-child(3){ border-left-color:var(--orange); }
-  .mission:nth-child(4){ border-left-color:var(--yellow); }
-  .mission:nth-child(5){ border-left-color:var(--magenta); }
-  .mission .code{
-    font-family:'Bebas Neue'; font-size:1.6rem; color:var(--ink); letter-spacing:.05em;
-  }
-  .mission .route{
-    font-size:1.05rem; font-weight:600;
-  }
-  .mission .sub{
-    color:var(--muted); font-size:.85rem; margin-top:.2rem;
-  }
-  .mission .time{
-    font-family:'Bebas Neue'; font-size:1.4rem; text-align:right; color:var(--cyan);
-    white-space:nowrap;
-  }
-  .mission .time small{ display:block; font-family:'Space Grotesk'; font-size:.65rem; color:var(--muted); letter-spacing:.1em; text-transform:uppercase; }
-
-  .tz-note{
-    margin-top:2rem;
-    display:flex; gap:.9rem; align-items:flex-start;
-    border:1px dashed rgba(22,229,255,.4);
-    border-radius:10px;
-    padding:1.1rem 1.4rem;
-    background:rgba(22,229,255,.05);
-    color:var(--ink);
-    font-size:.9rem;
-  }
-  .tz-note b{ color:var(--cyan); }
 
   /* ---------- HQ (hotels) ---------- */
   .hq-grid{ display:grid; grid-template-columns:1.1fr 1.1fr .8fr; gap:1.4rem; }
   @media (max-width:900px){ .hq-grid{ grid-template-columns:1fr; } }
-  @media (max-width:760px){ .mission{grid-template-columns:80px 1fr; row-gap:.4rem;} .mission .time{grid-column:1/-1; text-align:left;} }
   .hq-card{
     position:relative;
     border-radius:16px;
@@ -207,8 +207,15 @@
   .hq-card.mia{ background:linear-gradient(160deg, #3a1030, #0a0014 70%); }
   .hq-card.dc{ background:linear-gradient(160deg, #1a2a12, #0a0014 70%); border-style:dashed; }
   .hq-card::before{
-    content:""; position:absolute; inset:0;
-    background:radial-gradient(70% 70% at 100% 0%, rgba(255,255,255,.12), transparent 60%);
+    content:""; position:absolute; inset:0; z-index:1;
+    background:
+      radial-gradient(70% 70% at 100% 0%, rgba(255,255,255,.10), transparent 60%),
+      linear-gradient(180deg, rgba(10,0,20,.15) 0%, rgba(10,0,20,.55) 60%, rgba(10,0,20,.92) 100%);
+  }
+  .hq-photo{
+    position:absolute; inset:0; width:100%; height:100%;
+    object-fit:cover; object-position:center;
+    pointer-events:none;
   }
   .hq-tag{ font-family:'Bebas Neue'; font-size:.8rem; letter-spacing:.3em; color:var(--yellow); margin-bottom:.6rem; z-index:2;}
   .hq-card.dc .hq-tag{ color:#8dffb0; }
@@ -218,6 +225,7 @@
   .hq-badge{
     position:absolute; top:1.4rem; right:1.4rem; z-index:2;
     font-size:.65rem; letter-spacing:.2em; color:#8dffb0;
+    background:rgba(10,0,20,.55); backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px);
     border:1px solid rgba(141,255,176,.4); border-radius:999px; padding:.3rem .7rem;
   }
 
@@ -235,19 +243,183 @@
   .obj-list{ margin-top:1rem; padding-left:0; list-style:none; color:var(--muted); font-size:.9rem; line-height:1.9; }
   .obj-list li::before{ content:"▸ "; color:var(--orange); }
 
-  /* ---------- ROADMAP TIMELINE ---------- */
-  .timeline{ position:relative; padding-left:2.2rem; }
-  .timeline::before{
-    content:""; position:absolute; left:.4rem; top:6px; bottom:6px; width:2px;
-    background:linear-gradient(180deg, var(--magenta), var(--cyan), var(--orange), var(--yellow));
+  /* ---------- ROADMAP HORIZONTAL TIMELINE (glow, scrollable) ---------- */
+  .roadmap-track{
+    height:400px; padding:0 2rem; overflow-x:auto; overflow-y:hidden;
+    scroll-snap-type:x proximity; display:flex; align-items:center;
   }
-  .t-item{ position:relative; padding-bottom:2.1rem; }
-  .t-item::before{
-    content:""; position:absolute; left:-2.2rem; top:4px; width:12px; height:12px; border-radius:50%;
-    background:var(--ink); box-shadow:0 0 12px rgba(255,255,255,.6);
+  .roadmap-line-wrap{
+    position:relative; display:flex; align-items:center; gap:2.4rem;
+    height:100%; width:max-content;
   }
-  .t-date{ font-family:'Bebas Neue'; color:var(--cyan); font-size:1.1rem; letter-spacing:.05em;}
-  .t-text{ color:var(--ink); font-size:.95rem; margin-top:.15rem;}
+  .roadmap-line-wrap::before{
+    content:""; position:absolute; left:0; right:0; top:50%; height:3px; transform:translateY(-50%);
+    background:linear-gradient(90deg, var(--magenta), var(--cyan), var(--orange), var(--yellow));
+    box-shadow:0 0 20px rgba(255,255,255,.18);
+    border-radius:3px;
+  }
+  .rm-item{
+    position:relative; flex:0 0 220px; height:100%;
+    scroll-snap-align:center;
+  }
+  .rm-dot{
+    position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); z-index:2;
+    width:18px; height:18px; border-radius:50%;
+    background:var(--bg); border:3px solid var(--cyan);
+    box-shadow:0 0 0 5px var(--bg), 0 0 18px rgba(22,229,255,.7);
+    animation:rm-pulse 2.4s ease-in-out infinite;
+  }
+  .rm-item:nth-child(3n+2) .rm-dot{ border-color:var(--magenta); box-shadow:0 0 0 5px var(--bg), 0 0 18px rgba(255,46,138,.7); }
+  .rm-item:nth-child(3n+3) .rm-dot{ border-color:var(--yellow); box-shadow:0 0 0 5px var(--bg), 0 0 18px rgba(255,225,77,.7); }
+  @keyframes rm-pulse{ 0%,100%{ transform:translate(-50%,-50%) scale(1); } 50%{ transform:translate(-50%,-50%) scale(1.25); } }
+  .rm-card{
+    position:absolute; left:50%; transform:translateX(-50%); width:220px; text-align:center;
+    background:rgba(255,255,255,.045); border:1px solid rgba(255,255,255,.12);
+    border-radius:18px; padding:1.2rem 1.3rem;
+    backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+    box-shadow:0 12px 30px rgba(0,0,0,.35);
+    transition:transform .25s ease, border-color .25s ease, box-shadow .25s ease;
+  }
+  .rm-item:nth-child(odd) .rm-card{ bottom:calc(50% + 24px); }
+  .rm-item:nth-child(even) .rm-card{ top:calc(50% + 24px); }
+  .rm-card:hover{ transform:translateX(-50%) translateY(-5px); border-color:var(--cyan); box-shadow:0 18px 40px rgba(22,229,255,.15); }
+  .rm-icon{ font-size:1.6rem; margin-bottom:.4rem; }
+  .rm-date{ font-family:'Bebas Neue'; letter-spacing:.08em; font-size:1.1rem; color:var(--yellow); }
+  .rm-text{ color:var(--ink); font-size:.88rem; margin-top:.3rem; line-height:1.4; }
+
+  @media (max-width:760px){
+    .roadmap-track{ height:340px; gap:1.6rem; }
+    .rm-item{ flex-basis:180px; }
+    .rm-card{ width:180px; padding:1rem 1.1rem; }
+    .rm-item:nth-child(odd) .rm-card{ bottom:calc(50% + 20px); }
+    .rm-item:nth-child(even) .rm-card{ top:calc(50% + 20px); }
+  }
+
+  /* ---------- MISSIONS — live flight/train tracker (real boarding-pass style) ---------- */
+  .missions-tracker{ display:flex; flex-direction:column; gap:1.3rem; }
+  .trk-card{
+    position:relative; overflow:hidden; display:flex; align-items:stretch;
+    background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.1);
+    border-radius:18px;
+    backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+    box-shadow:0 10px 30px rgba(0,0,0,.3);
+    transition:border-color .3s ease, box-shadow .3s ease;
+  }
+  .trk-card.is-active{ border-color:var(--cyan); box-shadow:0 0 32px rgba(22,229,255,.22); }
+  .trk-card.is-done{ opacity:.55; }
+
+  .trk-main{ flex:1; min-width:0; padding:1.3rem 1.5rem; }
+
+  .trk-mode{ display:flex; align-items:center; gap:.7rem; margin-bottom:1rem; }
+  .trk-mode .trk-icon{ font-size:1.4rem; }
+  .trk-eyebrow{ font-size:.6rem; letter-spacing:.28em; color:var(--muted); text-transform:uppercase; }
+  .trk-code{ font-family:'Bebas Neue'; font-size:1.1rem; color:var(--ink); letter-spacing:.08em; }
+  .trk-route{ display:flex; align-items:center; gap:1rem; }
+  .trk-endpoint{ min-width:76px; }
+  .trk-endpoint-end{ text-align:right; }
+  .trk-time{ font-family:'Bebas Neue'; font-size:1.5rem; color:var(--ink); letter-spacing:.03em; }
+  .trk-place{ font-size:.75rem; color:var(--muted); margin-top:.1rem; }
+  .trk-fr-time{
+    font-family:'Bebas Neue'; font-size:.85rem; letter-spacing:.03em;
+    color:var(--yellow); margin-top:.3rem;
+  }
+  .trk-fr-time::before{ content:"🇫🇷 "; }
+  .trk-line{ flex:1; position:relative; height:2px; background:rgba(255,255,255,.14); border-radius:2px; }
+  .trk-line-fill{
+    position:absolute; left:0; top:0; height:100%; width:0%;
+    background:linear-gradient(90deg, var(--magenta), var(--cyan));
+    border-radius:2px; transition:width 1s ease;
+  }
+  .trk-card.is-train .trk-line-fill{ background:linear-gradient(90deg, var(--orange), var(--yellow)); }
+  .trk-plane{
+    position:absolute; top:50%; left:0%; transform:translate(-50%,-50%);
+    font-size:1.15rem; transition:left 1s ease;
+    filter:drop-shadow(0 0 6px rgba(22,229,255,.85));
+  }
+  .trk-card.is-train .trk-plane{ filter:drop-shadow(0 0 6px rgba(255,225,77,.85)); }
+  .trk-meta{ display:flex; justify-content:space-between; align-items:center; gap:1rem; margin-top:1.1rem; flex-wrap:wrap; }
+  .trk-sub{ color:var(--muted); font-size:.82rem; }
+  .trk-status{
+    font-family:'Bebas Neue'; font-size:.72rem; letter-spacing:.1em;
+    padding:.35rem .85rem; border-radius:999px; white-space:nowrap;
+    background:rgba(255,255,255,.07); color:var(--muted); border:1px solid rgba(255,255,255,.15);
+  }
+  .trk-status.active{
+    background:rgba(22,229,255,.15); border-color:var(--cyan); color:var(--cyan);
+    animation:trk-glow 1.6s ease-in-out infinite;
+  }
+  .trk-card.is-train .trk-status.active{
+    background:rgba(255,225,77,.15); border-color:var(--yellow); color:var(--yellow);
+  }
+  .trk-status.done{ opacity:.7; }
+  @keyframes trk-glow{ 0%,100%{ box-shadow:0 0 6px rgba(22,229,255,.35); } 50%{ box-shadow:0 0 16px rgba(22,229,255,.75); } }
+  .trk-live{
+    display:block; margin-top:.6rem; font-size:.72rem; letter-spacing:.04em;
+    color:var(--orange); border-top:1px dashed rgba(255,122,46,.3); padding-top:.5rem;
+  }
+
+  .trk-expand{
+    margin-top:.9rem; background:none; border:1px solid rgba(255,255,255,.15);
+    color:var(--muted); font-family:'Bebas Neue'; letter-spacing:.08em; font-size:.72rem;
+    padding:.4rem .9rem; border-radius:999px; cursor:pointer;
+  }
+  .trk-expand:hover{ border-color:var(--cyan); color:var(--ink); }
+  .trk-card.is-train .trk-expand:hover{ border-color:var(--yellow); }
+  .trk-map{
+    margin-top:1rem; height:220px; border-radius:12px; overflow:hidden;
+    border:1px solid rgba(255,255,255,.15); background:#0a0014;
+  }
+  .trk-leaflet-dot{ width:10px; height:10px; border-radius:50%; background:#fff; border:2px solid rgba(0,0,0,.5); }
+  .trk-leaflet-marker{
+    font-size:20px; line-height:1; text-align:center;
+    filter:drop-shadow(0 0 5px rgba(22,229,255,.9));
+  }
+  .trk-card.is-train .trk-leaflet-marker{ filter:drop-shadow(0 0 5px rgba(255,225,77,.9)); }
+  .trk-map .leaflet-control-attribution{ font-size:9px; background:rgba(10,0,20,.6); color:var(--muted); }
+  .trk-map .leaflet-control-attribution a{ color:var(--muted); }
+
+  /* ticket stub — perforated tear-off with barcode */
+  .trk-stub{
+    flex:0 0 auto; width:64px; position:relative;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.7rem;
+    padding:1rem .3rem;
+    border-left:2px dashed rgba(255,255,255,.22);
+    transition:transform .6s ease, opacity .6s ease;
+    transform-origin:top center;
+  }
+  .trk-card.is-train .trk-stub{ border-left-color:rgba(255,225,77,.35); }
+  .trk-card.is-done .trk-stub{
+    transform:translate(10px, 4px) rotate(4deg);
+    opacity:.45;
+  }
+  .trk-stub::before, .trk-stub::after{
+    content:""; position:absolute; left:-11px; width:20px; height:20px;
+    background:var(--bg); border-radius:50%;
+  }
+  .trk-stub::before{ top:-10px; }
+  .trk-stub::after{ bottom:-10px; }
+  .trk-stub-icon{ font-size:1.3rem; }
+  .trk-stub-label{
+    writing-mode:vertical-rl; transform:rotate(180deg);
+    font-family:'Bebas Neue'; letter-spacing:.22em; font-size:.65rem; color:var(--muted);
+  }
+  .trk-barcode{
+    width:18px; height:56px;
+    background:repeating-linear-gradient(90deg, var(--ink) 0 2px, transparent 2px 4px, var(--ink) 4px 5px, transparent 5px 8px);
+    opacity:.3;
+  }
+
+  @media (max-width:600px){
+    .trk-route{ gap:.6rem; }
+    .trk-endpoint{ min-width:56px; }
+    .trk-time{ font-size:1.2rem; }
+    .trk-meta{ flex-direction:column; align-items:flex-start; }
+  }
+  @media (max-width:480px){
+    .trk-stub{ width:42px; padding:.7rem .15rem; }
+    .trk-stub-label{ display:none; }
+    .trk-barcode{ height:34px; }
+  }
 
   footer{
     text-align:center; padding:8vh 5vw 6vh; color:var(--muted); font-size:.8rem; letter-spacing:.1em;
@@ -328,8 +500,9 @@
 
   .admin-dock{
     position:fixed; bottom:20px; right:20px; z-index:80;
-    display:flex; flex-direction:column; align-items:flex-end; gap:.6rem;
+    display:none; flex-direction:column; align-items:flex-end; gap:.6rem;
   }
+  .admin-dock.show{ display:flex; }
   .admin-toggle{
     font-family:'Bebas Neue'; letter-spacing:.08em; font-size:.85rem;
     background:rgba(23,4,40,.9); color:var(--muted);
@@ -358,19 +531,27 @@
     margin-bottom:2.5rem;
   }
   .wall-form textarea{ grid-column:1/-1; }
-  .wall-form input[type=text], .wall-form textarea{
+  .wall-form input[type=text], .wall-form select, .wall-form textarea{
     width:100%; background:rgba(0,0,0,.3); border:1px solid rgba(255,255,255,.15);
     border-radius:8px; color:var(--ink); font-family:'Space Grotesk'; font-size:.92rem;
     padding:.7rem .9rem;
   }
   .wall-form textarea{ min-height:80px; resize:vertical; }
-  .wall-form input:focus, .wall-form textarea:focus{ outline:none; border-color:var(--cyan); }
+  .wall-form input:focus, .wall-form select:focus, .wall-form textarea:focus{ outline:none; border-color:var(--cyan); }
   .wall-form .file-row{
     grid-column:1/-1; display:flex; align-items:center; gap:1rem; flex-wrap:wrap;
     font-size:.85rem; color:var(--muted);
   }
   .wall-form .file-row input[type=file]{ color:var(--muted); font-size:.8rem; }
-  .wall-thumb-preview{ max-height:60px; border-radius:6px; display:none; }
+  .wall-thumb-preview-list{ display:flex; gap:.5rem; flex-wrap:wrap; }
+  .wall-thumb-preview-list img, .wall-thumb-preview-list video{ max-height:60px; border-radius:6px; }
+
+  .wall-photos{ display:grid; gap:2px; }
+  .wall-photos[data-count="1"]{ grid-template-columns:1fr; }
+  .wall-photos[data-count="2"], .wall-photos[data-count="3"], .wall-photos[data-count="4"]{ grid-template-columns:1fr 1fr; }
+  .wall-photos img{ width:100%; height:100%; display:block; aspect-ratio:1/1; object-fit:cover; cursor:zoom-in; }
+  .wall-photos video{ width:100%; height:100%; display:block; aspect-ratio:1/1; object-fit:cover; background:#000; }
+  .wall-photos[data-count="1"] img{ aspect-ratio:4/3; }
   .wall-submit{
     grid-column:1/-1; justify-self:start;
     font-family:'Bebas Neue'; letter-spacing:.08em; font-size:1.1rem;
@@ -381,12 +562,69 @@
   .wall-submit:disabled{ opacity:.5; cursor:wait; }
   .wall-status{ grid-column:1/-1; font-size:.8rem; color:var(--muted); min-height:1em; }
 
-  .wall-feed{ display:grid; grid-template-columns:repeat(auto-fill, minmax(260px,1fr)); gap:1.2rem; }
+  /* ---------- AUTH DOCK — fixed top-left login/signup widget ---------- */
+  .auth-dock{ position:fixed; top:16px; right:16px; z-index:120; }
+  .auth-pill{
+    display:flex; align-items:center; gap:.5rem;
+    font-family:'Bebas Neue'; letter-spacing:.06em; font-size:.85rem;
+    background:rgba(10,0,20,.75); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+    color:var(--ink); border:1px solid rgba(255,255,255,.15); border-radius:999px;
+    padding:.6rem 1.2rem; cursor:pointer; box-shadow:0 6px 20px rgba(0,0,0,.4);
+    transition:border-color .2s ease;
+    max-width:calc(100vw - 32px); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+  .auth-pill:hover{ border-color:var(--cyan); }
+  .auth-pill.is-admin{ border-color:var(--yellow); color:var(--yellow); }
+
+  .auth-dropdown{
+    display:none; position:absolute; top:calc(100% + 10px); right:0;
+    width:290px; max-width:calc(100vw - 32px);
+    background:#170428; border:1px solid rgba(255,255,255,.12);
+    border-radius:16px; padding:1.3rem; box-shadow:0 20px 60px rgba(0,0,0,.55);
+  }
+  .auth-dropdown.open{ display:block; }
+
+  .auth-tabs{
+    display:flex; gap:.3rem; margin-bottom:1.1rem;
+    background:rgba(255,255,255,.05); border-radius:999px; padding:.25rem;
+  }
+  .auth-tab{
+    flex:1; background:none; border:none; color:var(--muted);
+    font-family:'Bebas Neue'; letter-spacing:.05em; font-size:.8rem;
+    padding:.5rem 0; border-radius:999px; cursor:pointer;
+  }
+  .auth-tab.is-active{ background:linear-gradient(90deg,var(--magenta),var(--cyan)); color:#0a0014; }
+
+  .auth-form{ display:flex; flex-direction:column; gap:.6rem; }
+  .auth-form input{
+    background:rgba(0,0,0,.3); border:1px solid rgba(255,255,255,.15);
+    border-radius:8px; color:var(--ink); font-family:'Space Grotesk'; font-size:.85rem;
+    padding:.6rem .8rem;
+  }
+  .auth-form input:focus{ outline:none; border-color:var(--cyan); }
+  .auth-form button{
+    font-family:'Bebas Neue'; letter-spacing:.06em; font-size:.9rem;
+    background:linear-gradient(90deg,var(--magenta),var(--cyan)); color:#0a0014;
+    border:none; border-radius:999px; padding:.65rem 1rem; cursor:pointer; margin-top:.3rem;
+  }
+  .auth-status{ font-size:.78rem; color:var(--muted); min-height:1em; margin-top:.8rem; line-height:1.4; }
+
+  .auth-logged-in{ display:flex; flex-direction:column; gap:.9rem; }
+  .auth-logged-in .auth-welcome{ font-size:.85rem; color:var(--ink); line-height:1.4; }
+  .auth-logout-btn{
+    font-family:'Bebas Neue'; letter-spacing:.06em; font-size:.85rem;
+    background:rgba(255,255,255,.08); color:var(--muted);
+    border:1px solid rgba(255,255,255,.15); border-radius:999px;
+    padding:.55rem 1rem; cursor:pointer; align-self:flex-start;
+  }
+  .auth-logout-btn:hover{ border-color:var(--cyan); color:var(--ink); }
+
+  .wall-feed{ display:flex; flex-direction:column; gap:1.2rem; max-width:600px; margin:0 auto; }
   .wall-card{
     background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.09);
     border-radius:14px; overflow:hidden; position:relative;
   }
-  .wall-card img{ width:100%; display:block; aspect-ratio:4/3; object-fit:cover; }
+  .wall-card img{ width:100%; display:block; aspect-ratio:4/3; object-fit:cover; cursor:zoom-in; }
   .wall-card .wc-body{ padding:1rem 1.1rem 1.2rem; }
   .wall-card .wc-name{ font-family:'Bebas Neue'; font-size:1.1rem; letter-spacing:.03em; color:var(--yellow); }
   .wall-card .wc-date{ font-size:.7rem; color:var(--muted); margin-top:-.1rem; margin-bottom:.5rem; letter-spacing:.05em; }
@@ -395,9 +633,27 @@
     position:absolute; top:8px; right:8px; z-index:2;
     width:26px; height:26px; border-radius:50%; border:none;
     background:rgba(20,0,0,.75); color:#ff6b6b; font-size:.9rem; cursor:pointer;
-    display:none; align-items:center; justify-content:center;
+    display:flex; align-items:center; justify-content:center;
   }
-  body.admin-on .wall-delete{ display:flex; }
+  .wall-edit{
+    position:absolute; top:8px; right:42px; z-index:2;
+    width:26px; height:26px; border-radius:50%; border:none;
+    background:rgba(10,0,20,.75); color:var(--cyan); font-size:.85rem; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .wc-edit-textarea{
+    width:100%; min-height:80px; background:rgba(0,0,0,.3); border:1px solid rgba(255,255,255,.2);
+    border-radius:8px; color:var(--ink); font-family:'Space Grotesk'; font-size:.88rem;
+    padding:.6rem .8rem; resize:vertical;
+  }
+  .wc-edit-textarea:focus{ outline:none; border-color:var(--cyan); }
+  .wc-edit-actions{ display:flex; gap:.5rem; margin-top:.5rem; }
+  .wc-edit-actions button{
+    font-family:'Bebas Neue'; letter-spacing:.05em; font-size:.8rem;
+    border:none; border-radius:999px; padding:.4rem 1rem; cursor:pointer;
+  }
+  .wc-edit-save{ background:var(--cyan); color:#0a0014; }
+  .wc-edit-cancel{ background:rgba(255,255,255,.1); color:var(--muted); }
   .wall-empty{ color:var(--muted); font-size:.9rem; grid-column:1/-1; text-align:center; padding:2rem; }
 
   /* likes & comments */
@@ -418,15 +674,13 @@
   .wc-comment .cm-date{ color:var(--muted); font-size:.68rem; margin-left:.4rem; }
   .wc-comment-delete{
     position:absolute; top:4px; right:6px; background:none; border:none; color:#ff6b6b;
-    font-size:.75rem; cursor:pointer; display:none;
+    font-size:.75rem; cursor:pointer; display:block;
   }
-  body.admin-on .wc-comment-delete{ display:block; }
   .wc-comment-form{ display:flex; gap:.4rem; margin-top:.6rem; flex-wrap:wrap; }
   .wc-comment-form input{
     background:rgba(0,0,0,.3); border:1px solid rgba(255,255,255,.15); border-radius:6px;
     color:var(--ink); font-size:.8rem; padding:.4rem .6rem; font-family:'Space Grotesk';
   }
-  .wc-comment-form input.cf-name{ width:90px; flex:0 0 auto; }
   .wc-comment-form input.cf-text{ flex:1 1 140px; }
   .wc-comment-form button{
     background:var(--cyan); color:#0a0014; border:none; border-radius:6px;
@@ -460,12 +714,74 @@
   }
   .custom-modal-btn.cancel{ background:rgba(255,255,255,.1); color:var(--muted); }
   .custom-modal-btn.ok{ background:linear-gradient(90deg,var(--magenta),var(--cyan)); color:#0a0014; }
+
+  .img-lightbox-overlay{
+    display:none; position:fixed; inset:0; z-index:1000;
+    background:rgba(0,0,0,.9); align-items:center; justify-content:center;
+    padding:2rem; cursor:zoom-out;
+  }
+  .img-lightbox-overlay.show{ display:flex; }
+  .img-lightbox-overlay img{ max-width:100%; max-height:100%; object-fit:contain; border-radius:8px; }
+  .img-lightbox-close{
+    position:absolute; top:1rem; right:1.2rem; background:none; border:none;
+    color:#fff; font-size:2rem; line-height:1; cursor:pointer;
+  }
+
+  /* ---------- MOBILE POLISH ---------- */
+  @media (max-width:600px){
+    /* 16px min prevents iOS Safari from auto-zooming in on focus */
+    .wall-form input[type=text], .wall-form select, .wall-form textarea,
+    .auth-form input, .wc-comment-form input{
+      font-size:16px;
+    }
+    .wc-like, .wc-comment-toggle{ padding:.55rem .9rem; min-height:40px; }
+    .wall-delete{ width:32px; height:32px; }
+    .wc-comment-delete{ padding:.4rem; }
+    .auth-pill{ padding:.65rem 1.1rem; }
+    .auth-dock{ top:12px; right:12px; }
+    .admin-dock{ bottom:16px; right:12px; }
+  }
 </style>
 </head>
 <body>
 
 <div class="grain"></div>
 <div class="scanlines"></div>
+
+<div class="auth-dock" id="authDock">
+  <button type="button" class="auth-pill" id="authPillBtn">
+    <span id="authPillLabel">👤 Se connecter</span>
+  </button>
+
+  <div class="auth-dropdown" id="authDropdown">
+    <div id="authLoggedOut">
+      <div class="auth-tabs">
+        <button type="button" class="auth-tab is-active" data-tab="login">Connexion</button>
+        <button type="button" class="auth-tab" data-tab="signup">Inscription</button>
+      </div>
+
+      <form class="auth-form" id="loginForm" data-panel="login">
+        <input type="email" id="loginEmail" placeholder="Email" required>
+        <input type="password" id="loginPassword" placeholder="Mot de passe" required>
+        <button type="submit">Connexion</button>
+      </form>
+
+      <form class="auth-form" id="signupForm" data-panel="signup" style="display:none;">
+        <input type="text" id="signupName" placeholder="Ton prénom" required maxlength="30">
+        <input type="email" id="signupEmail" placeholder="Email" required>
+        <input type="password" id="signupPassword" placeholder="Mot de passe (6 car. min)" required minlength="6">
+        <button type="submit">Créer mon compte</button>
+      </form>
+
+      <div class="auth-status" id="authStatus"></div>
+    </div>
+
+    <div id="authLoggedIn" class="auth-logged-in" style="display:none;">
+      <span class="auth-welcome" id="authWelcome"></span>
+      <button type="button" class="auth-logout-btn" id="logoutBtn">Se déconnecter</button>
+    </div>
+  </div>
+</div>
 
 <!-- HERO -->
 <div class="hero">
@@ -517,87 +833,383 @@
     <span class="city">LYON</span>
   </div>
 
+  <div class="clocks">
+    <div class="clock-card">
+      <div class="clock-city">🇫🇷 Paris</div>
+      <div class="clock-time" id="clockParis">--:--:--</div>
+      <div class="clock-date" id="clockParisDate"></div>
+    </div>
+    <div class="clock-sep">✈</div>
+    <div class="clock-card">
+      <div class="clock-city">🇺🇸 New York · Miami</div>
+      <div class="clock-time" id="clockNY">--:--:--</div>
+      <div class="clock-date" id="clockNYDate"></div>
+    </div>
+  </div>
+
   <div class="scroll-cue">scroll ↓</div>
 </div>
+
+<!-- WALL -->
+<section id="wall">
+  <div class="section-head reveal">
+    <span class="section-num">01</span>
+    <span class="section-title display">Le mur</span>
+  </div>
+  <p class="reveal" style="color:var(--muted); margin-bottom:2rem; max-width:60ch;">
+    Tout le monde peut lire le mur. Connecte-toi (en haut à droite) pour liker ❤️ et laisser un commentaire — les nouveaux posts restent publiés par Baptiste & Martin.
+  </p>
+
+  <div id="wallFormWrap" style="display:none;">
+    <form class="wall-form reveal" id="wallForm">
+      <textarea id="wfMessage" placeholder="Un petit message..." maxlength="500" required></textarea>
+      <div class="file-row">
+        <label>📷 Ajouter des photos/vidéos (optionnel, 10 max) <input type="file" id="wfPhoto" accept="image/*,video/*" multiple></label>
+        <div id="wfPreviewList" class="wall-thumb-preview-list"></div>
+      </div>
+      <button type="submit" class="wall-submit" id="wfSubmit">Publier</button>
+      <div class="wall-status" id="wfStatus"></div>
+    </form>
+  </div>
+  <p id="wallLockedNote" class="reveal" style="color:var(--muted); font-size:.85rem; margin-bottom:2rem;">
+    🔒 Seuls Baptiste & Martin peuvent publier de nouveaux posts.
+  </p>
+
+  <div class="wall-feed reveal" id="wallFeed">
+    <div class="wall-empty">Chargement…</div>
+  </div>
+</section>
+
+<!-- TIMELINE -->
+<section id="roadmap">
+  <div class="section-head reveal">
+    <span class="section-num">02</span>
+    <span class="section-title display">La roadmap</span>
+  </div>
+  <div class="roadmap-track" data-editable="roadmap" contenteditable="false">
+   <div class="roadmap-line-wrap">
+    <div class="rm-item reveal">
+      <div class="rm-dot"></div>
+      <div class="rm-card">
+        <div class="rm-icon">✈️</div>
+        <div class="rm-date display">2 AOÛT</div>
+        <div class="rm-text">Décollage Lyon → New York (via Paris)</div>
+      </div>
+    </div>
+    <div class="rm-item reveal">
+      <div class="rm-dot"></div>
+      <div class="rm-card">
+        <div class="rm-icon">🗽</div>
+        <div class="rm-date display">2–10 AOÛT</div>
+        <div class="rm-text">New York, quartier général Weehawken</div>
+      </div>
+    </div>
+    <div class="rm-item reveal">
+      <div class="rm-dot"></div>
+      <div class="rm-card">
+        <div class="rm-icon">🏛️</div>
+        <div class="rm-date display">6 AOÛT</div>
+        <div class="rm-text">Excursion éclair à Washington DC</div>
+      </div>
+    </div>
+    <div class="rm-item reveal">
+      <div class="rm-dot"></div>
+      <div class="rm-card">
+        <div class="rm-icon">✈️</div>
+        <div class="rm-date display">10 AOÛT</div>
+        <div class="rm-text">New York → Miami</div>
+      </div>
+    </div>
+    <div class="rm-item reveal">
+      <div class="rm-dot"></div>
+      <div class="rm-card">
+        <div class="rm-icon">🌴</div>
+        <div class="rm-date display">10–16 AOÛT</div>
+        <div class="rm-text">Miami, quartier général Miami Beach</div>
+      </div>
+    </div>
+    <div class="rm-item reveal">
+      <div class="rm-dot"></div>
+      <div class="rm-card">
+        <div class="rm-icon">🐊</div>
+        <div class="rm-date display">12 AOÛT</div>
+        <div class="rm-text">Airboat dans les Everglades</div>
+      </div>
+    </div>
+    <div class="rm-item reveal">
+      <div class="rm-dot"></div>
+      <div class="rm-card">
+        <div class="rm-icon">✈️</div>
+        <div class="rm-date display">16–17 AOÛT</div>
+        <div class="rm-text">Retour Miami → Paris → Lyon</div>
+      </div>
+    </div>
+   </div>
+  </div>
+</section>
 
 <!-- MISSIONS / FLIGHTS -->
 <section id="missions">
   <div class="section-head reveal">
-    <span class="section-num">01</span>
+    <span class="section-num">03</span>
     <span class="section-title display">Les trajets</span>
   </div>
 
-  <div class="missions">
-    <div class="mission reveal" data-editable="mission-1" contenteditable="false">
-      <div class="code display">AF7363</div>
-      <div>
-        <div class="route">Lyon → Paris CDG</div>
-        <div class="sub">Terminal 1 → Terminal 2F · correspondance 2h</div>
+  <div class="missions-tracker">
+    <div class="trk-card is-flight reveal" data-dep="2026-08-02T10:20:00+02:00" data-arr="2026-08-02T11:30:00+02:00" data-flight="AF7363" data-date="2026-08-02" data-origin="LYS" data-dep-lat="45.7264" data-dep-lon="5.090829" data-arr-lat="49.0128" data-arr-lon="2.549999">
+      <div class="trk-main">
+        <div class="trk-mode">
+          <span class="trk-icon">✈️</span>
+          <div><div class="trk-eyebrow">Flight</div><span class="trk-code display">AF7363</span></div>
+        </div>
+        <div class="trk-route">
+          <div class="trk-endpoint">
+            <div class="trk-time display">10:20</div>
+            <div class="trk-place">Lyon</div>
+          </div>
+          <div class="trk-line"><div class="trk-line-fill"></div><div class="trk-plane">✈️</div></div>
+          <div class="trk-endpoint trk-endpoint-end">
+            <div class="trk-time display">11:30</div>
+            <div class="trk-place">Paris CDG</div>
+          </div>
+        </div>
+        <div class="trk-meta" data-editable="mission-1" contenteditable="false">
+          <span class="trk-sub">Terminal 1 → Terminal 2F · correspondance 2h · Dim. 2 août</span>
+          <span class="trk-status">À venir</span>
+        </div>
+        <span class="trk-live" style="display:none;"></span>
+        <button type="button" class="trk-expand" aria-expanded="false">🗺️ Voir sur la carte</button>
+        <div class="trk-map" style="display:none;"></div>
       </div>
-      <div class="time display">10:20<small>Dim. 2 août</small></div>
+      <div class="trk-stub">
+        <div class="trk-stub-icon">✈️</div>
+        <div class="trk-stub-label">BOARDING PASS</div>
+        <div class="trk-barcode"></div>
+      </div>
     </div>
 
-    <div class="mission reveal" data-editable="mission-2" contenteditable="false">
-      <div class="code display">AF0006</div>
-      <div>
-        <div class="route">Paris CDG → New York JFK</div>
-        <div class="sub">Terminal 2E → Terminal 1</div>
+    <div class="trk-card is-flight reveal" data-dep="2026-08-02T13:30:00+02:00" data-arr="2026-08-02T15:50:00-04:00" data-flight="AF0006" data-date="2026-08-02" data-origin="CDG" data-dep-lat="49.0128" data-dep-lon="2.549999" data-arr-lat="40.6398" data-arr-lon="-73.7789">
+      <div class="trk-main">
+        <div class="trk-mode">
+          <span class="trk-icon">✈️</span>
+          <div><div class="trk-eyebrow">Flight</div><span class="trk-code display">AF0006</span></div>
+        </div>
+        <div class="trk-route">
+          <div class="trk-endpoint">
+            <div class="trk-time display">13:30</div>
+            <div class="trk-place">Paris CDG</div>
+          </div>
+          <div class="trk-line"><div class="trk-line-fill"></div><div class="trk-plane">✈️</div></div>
+          <div class="trk-endpoint trk-endpoint-end">
+            <div class="trk-time display">15:50</div>
+            <div class="trk-place">New York JFK</div>
+            <div class="trk-fr-time">21:50</div>
+          </div>
+        </div>
+        <div class="trk-meta" data-editable="mission-2" contenteditable="false">
+          <span class="trk-sub">Terminal 2E → Terminal 1 · Dim. 2 août</span>
+          <span class="trk-status">À venir</span>
+        </div>
+        <span class="trk-live" style="display:none;"></span>
+        <button type="button" class="trk-expand" aria-expanded="false">🗺️ Voir sur la carte</button>
+        <div class="trk-map" style="display:none;"></div>
       </div>
-      <div class="time display">13:30<small>Dim. 2 août</small></div>
+      <div class="trk-stub">
+        <div class="trk-stub-icon">✈️</div>
+        <div class="trk-stub-label">BOARDING PASS</div>
+        <div class="trk-barcode"></div>
+      </div>
     </div>
 
-    <div class="mission reveal" data-editable="mission-3" contenteditable="false">
-      <div class="code display">AMTRAK</div>
-      <div>
-        <div class="route">New York → Washington DC (A/R)</div>
-        <div class="sub">Journée détour capitale · retour NY le soir même</div>
+    <div class="trk-card is-train reveal" data-dep="2026-08-06T06:32:00-04:00" data-arr="2026-08-06T09:53:00-04:00" data-train="113" data-date="2026-08-06" data-origin="NYP" data-dest="WAS" data-dep-lat="40.7506" data-dep-lon="-73.9935" data-arr-lat="38.8970" data-arr-lon="-77.0060">
+      <div class="trk-main">
+        <div class="trk-mode">
+          <span class="trk-icon">🚆</span>
+          <div><div class="trk-eyebrow">Train</div><span class="trk-code display">TRAIN 113</span></div>
+        </div>
+        <div class="trk-route">
+          <div class="trk-endpoint">
+            <div class="trk-time display">06:32</div>
+            <div class="trk-place">New York</div>
+            <div class="trk-fr-time">12:32</div>
+          </div>
+          <div class="trk-line"><div class="trk-line-fill"></div><div class="trk-plane">🚆</div></div>
+          <div class="trk-endpoint trk-endpoint-end">
+            <div class="trk-time display">09:53</div>
+            <div class="trk-place">Washington DC</div>
+            <div class="trk-fr-time">15:53</div>
+          </div>
+        </div>
+        <div class="trk-meta" data-editable="mission-3" contenteditable="false">
+          <span class="trk-sub">Journée détour capitale · Jeu. 6 août</span>
+          <span class="trk-status">À venir</span>
+        </div>
+        <span class="trk-live" style="display:none;"></span>
+        <button type="button" class="trk-expand" aria-expanded="false">🗺️ Voir sur la carte</button>
+        <div class="trk-map" style="display:none;"></div>
       </div>
-      <div class="time display">06:32<small>Jeu. 6 août</small></div>
+      <div class="trk-stub">
+        <div class="trk-stub-icon">🚆</div>
+        <div class="trk-stub-label">TRAIN TICKET</div>
+        <div class="trk-barcode"></div>
+      </div>
     </div>
 
-    <div class="mission reveal" data-editable="mission-4" contenteditable="false">
-      <div class="code display">DL2300</div>
-      <div>
-        <div class="route">New York LGA → Miami</div>
-        <div class="sub">Terminal C · Delta Air Lines</div>
+    <div class="trk-card is-train reveal" data-dep="2026-08-06T21:15:00-04:00" data-arr="2026-08-07T00:45:00-04:00" data-train="198" data-date="2026-08-06" data-origin="WAS" data-dest="NYP" data-dep-lat="38.8970" data-dep-lon="-77.0060" data-arr-lat="40.7506" data-arr-lon="-73.9935">
+      <div class="trk-main">
+        <div class="trk-mode">
+          <span class="trk-icon">🚆</span>
+          <div><div class="trk-eyebrow">Train</div><span class="trk-code display">TRAIN 198</span></div>
+        </div>
+        <div class="trk-route">
+          <div class="trk-endpoint">
+            <div class="trk-time display">21:15</div>
+            <div class="trk-place">Washington DC</div>
+            <div class="trk-fr-time">03:15 (J+1)</div>
+          </div>
+          <div class="trk-line"><div class="trk-line-fill"></div><div class="trk-plane">🚆</div></div>
+          <div class="trk-endpoint trk-endpoint-end">
+            <div class="trk-time display">00:45</div>
+            <div class="trk-place">New York</div>
+            <div class="trk-fr-time">06:45</div>
+          </div>
+        </div>
+        <div class="trk-meta" data-editable="mission-3b" contenteditable="false">
+          <span class="trk-sub">Retour vers New York, même journée · Jeu. 6 août</span>
+          <span class="trk-status">À venir</span>
+        </div>
+        <span class="trk-live" style="display:none;"></span>
+        <button type="button" class="trk-expand" aria-expanded="false">🗺️ Voir sur la carte</button>
+        <div class="trk-map" style="display:none;"></div>
       </div>
-      <div class="time display">15:50<small>Lun. 10 août</small></div>
+      <div class="trk-stub">
+        <div class="trk-stub-icon">🚆</div>
+        <div class="trk-stub-label">TRAIN TICKET</div>
+        <div class="trk-barcode"></div>
+      </div>
     </div>
 
-    <div class="mission reveal" data-editable="mission-5" contenteditable="false">
-      <div class="code display">AF0093</div>
-      <div>
-        <div class="route">Miami → Paris CDG</div>
-        <div class="sub">Vol de nuit · arrivée J+1 puis train pour Lyon</div>
+    <div class="trk-card is-flight reveal" data-dep="2026-08-10T14:59:00-04:00" data-arr="2026-08-10T18:30:00-04:00" data-flight="DL2300" data-date="2026-08-10" data-origin="LGA" data-dep-lat="40.7772" data-dep-lon="-73.8726" data-arr-lat="25.7932" data-arr-lon="-80.2906">
+      <div class="trk-main">
+        <div class="trk-mode">
+          <span class="trk-icon">✈️</span>
+          <div><div class="trk-eyebrow">Flight</div><span class="trk-code display">DL2300</span></div>
+        </div>
+        <div class="trk-route">
+          <div class="trk-endpoint">
+            <div class="trk-time display">14:59</div>
+            <div class="trk-place">New York LGA</div>
+            <div class="trk-fr-time">20:59</div>
+          </div>
+          <div class="trk-line"><div class="trk-line-fill"></div><div class="trk-plane">✈️</div></div>
+          <div class="trk-endpoint trk-endpoint-end">
+            <div class="trk-time display">18:30</div>
+            <div class="trk-place">Miami</div>
+            <div class="trk-fr-time">00:30 (J+1)</div>
+          </div>
+        </div>
+        <div class="trk-meta" data-editable="mission-4" contenteditable="false">
+          <span class="trk-sub">Terminal C · Delta Air Lines · Lun. 10 août</span>
+          <span class="trk-status">À venir</span>
+        </div>
+        <span class="trk-live" style="display:none;"></span>
+        <button type="button" class="trk-expand" aria-expanded="false">🗺️ Voir sur la carte</button>
+        <div class="trk-map" style="display:none;"></div>
       </div>
-      <div class="time display">23:00<small>Dim. 16 août</small></div>
+      <div class="trk-stub">
+        <div class="trk-stub-icon">✈️</div>
+        <div class="trk-stub-label">BOARDING PASS</div>
+        <div class="trk-barcode"></div>
+      </div>
     </div>
-  </div>
 
-  <div class="tz-note reveal">
-    <span>🌐</span>
-    <span><b>Décalage horaire :</b> New York / Washington / Miami sont à <b>−6h</b> par rapport à Lyon. Quand il est midi chez nous, il est 6h du mat là-bas. Prévois ton jetlag en conséquence 😅</span>
+    <div class="trk-card is-flight reveal" data-dep="2026-08-16T23:00:00-04:00" data-arr="2026-08-17T14:00:00+02:00" data-flight="AF0093" data-date="2026-08-16" data-origin="MIA" data-dep-lat="25.7932" data-dep-lon="-80.2906" data-arr-lat="49.0128" data-arr-lon="2.549999">
+      <div class="trk-main">
+        <div class="trk-mode">
+          <span class="trk-icon">✈️</span>
+          <div><div class="trk-eyebrow">Flight</div><span class="trk-code display">AF0093</span></div>
+        </div>
+        <div class="trk-route">
+          <div class="trk-endpoint">
+            <div class="trk-time display">23:00</div>
+            <div class="trk-place">Miami</div>
+            <div class="trk-fr-time">05:00 (J+1)</div>
+          </div>
+          <div class="trk-line"><div class="trk-line-fill"></div><div class="trk-plane">✈️</div></div>
+          <div class="trk-endpoint trk-endpoint-end">
+            <div class="trk-time display">14:00</div>
+            <div class="trk-place">Paris CDG</div>
+          </div>
+        </div>
+        <div class="trk-meta" data-editable="mission-5" contenteditable="false">
+          <span class="trk-sub">Vol de nuit · arrivée J+1 puis train pour Lyon · Dim. 16 août</span>
+          <span class="trk-status">À venir</span>
+        </div>
+        <span class="trk-live" style="display:none;"></span>
+        <button type="button" class="trk-expand" aria-expanded="false">🗺️ Voir sur la carte</button>
+        <div class="trk-map" style="display:none;"></div>
+      </div>
+      <div class="trk-stub">
+        <div class="trk-stub-icon">✈️</div>
+        <div class="trk-stub-label">BOARDING PASS</div>
+        <div class="trk-barcode"></div>
+      </div>
+    </div>
+
+    <div class="trk-card is-train reveal" data-dep="2026-08-17T17:58:00+02:00" data-arr="2026-08-17T20:02:00+02:00" data-dep-lat="48.8443" data-dep-lon="2.3743" data-arr-lat="45.7607" data-arr-lon="4.8599">
+      <div class="trk-main">
+        <div class="trk-mode">
+          <span class="trk-icon">🚄</span>
+          <div><div class="trk-eyebrow">Train</div><span class="trk-code display">TRAIN AF6413</span></div>
+        </div>
+        <div class="trk-route">
+          <div class="trk-endpoint">
+            <div class="trk-time display">17:58</div>
+            <div class="trk-place">Paris</div>
+          </div>
+          <div class="trk-line"><div class="trk-line-fill"></div><div class="trk-plane">🚄</div></div>
+          <div class="trk-endpoint trk-endpoint-end">
+            <div class="trk-time display">20:02</div>
+            <div class="trk-place">Lyon Part-Dieu</div>
+          </div>
+        </div>
+        <div class="trk-meta" data-editable="mission-6" contenteditable="false">
+          <span class="trk-sub">Dernier trajet, retour à la maison · Lun. 17 août</span>
+          <span class="trk-status">À venir</span>
+        </div>
+        <button type="button" class="trk-expand" aria-expanded="false">🗺️ Voir sur la carte</button>
+        <div class="trk-map" style="display:none;"></div>
+      </div>
+      <div class="trk-stub">
+        <div class="trk-stub-icon">🚄</div>
+        <div class="trk-stub-label">TRAIN TICKET</div>
+        <div class="trk-barcode"></div>
+      </div>
+    </div>
   </div>
 </section>
 
 <!-- HQ / HOTELS -->
 <section id="hq">
   <div class="section-head reveal">
-    <span class="section-num">02</span>
+    <span class="section-num">04</span>
     <span class="section-title display">Le QG</span>
   </div>
   <div class="hq-grid">
     <div class="hq-card ny reveal" data-editable="hq-1" contenteditable="false">
+      <img class="hq-photo" src="New york.jpg" alt="New York">
       <div class="hq-tag">NEW YORK</div>
       <div class="hq-name display">Sheraton Lincoln Harbor</div>
       <div class="hq-meta">Weehawken, NJ — vue sur Manhattan · 2 → 10 août</div>
     </div>
     <div class="hq-card mia reveal" data-editable="hq-2" contenteditable="false">
+      <img class="hq-photo" src="Miami.jpg" alt="Miami">
       <div class="hq-tag">MIAMI</div>
       <div class="hq-name display">Hotel Trouvail</div>
       <div class="hq-meta">Miami Beach, FL · 10 → 16 août</div>
     </div>
     <div class="hq-card dc reveal" data-editable="hq-3" contenteditable="false">
+      <img class="hq-photo" src="washington.jpg" alt="Washington DC">
       <div class="hq-badge">DAY TRIP</div>
       <div class="hq-tag">WASHINGTON DC</div>
       <div class="hq-name display">La capitale</div>
@@ -609,7 +1221,7 @@
 <!-- OBJECTIVES -->
 <section id="objectives">
   <div class="section-head reveal">
-    <span class="section-num">03</span>
+    <span class="section-num">05</span>
     <span class="section-title display">Les objectifs</span>
   </div>
   <div class="obj-grid">
@@ -637,27 +1249,10 @@
   </div>
 </section>
 
-<!-- TIMELINE -->
-<section id="roadmap">
-  <div class="section-head reveal">
-    <span class="section-num">04</span>
-    <span class="section-title display">La roadmap</span>
-  </div>
-  <div class="timeline" data-editable="roadmap" contenteditable="false">
-    <div class="t-item reveal"><div class="t-date display">2 AOÛT</div><div class="t-text">Décollage Lyon → New York (via Paris)</div></div>
-    <div class="t-item reveal"><div class="t-date display">2–10 AOÛT</div><div class="t-text">New York, quartier général Weehawken</div></div>
-    <div class="t-item reveal"><div class="t-date display">6 AOÛT</div><div class="t-text">Excursion éclair à Washington DC</div></div>
-    <div class="t-item reveal"><div class="t-date display">10 AOÛT</div><div class="t-text">New York → Miami</div></div>
-    <div class="t-item reveal"><div class="t-date display">10–16 AOÛT</div><div class="t-text">Miami, quartier général Miami Beach</div></div>
-    <div class="t-item reveal"><div class="t-date display">12 AOÛT</div><div class="t-text">Airboat dans les Everglades</div></div>
-    <div class="t-item reveal"><div class="t-date display">16–17 AOÛT</div><div class="t-text">Retour Miami → Paris → Lyon</div></div>
-  </div>
-</section>
-
 <!-- MAP -->
 <section id="map">
   <div class="section-head reveal">
-    <span class="section-num">05</span>
+    <span class="section-num">06</span>
     <span class="section-title display">La carte</span>
   </div>
 
@@ -780,7 +1375,7 @@
         </g>
 
         <!-- WASHINGTON DC — capital -->
-        <g class="pin" data-name="WASHINGTON DC" data-info="6 août · Amtrak aller 6h32, retour le soir même vers New York" transform="translate(183,246)">
+        <g class="pin" data-name="WASHINGTON DC" data-info="6 août · Amtrak aller 6h32, retour 21h15 vers New York" transform="translate(183,246)">
           <circle r="11" fill="rgba(20,14,4,.55)" stroke="#f6e9c9" stroke-width="1.5"/>
           <rect x="-1" y="-8" width="2" height="16" fill="#c9c2ac"/>
           <path d="M1,-8 L8,-5 L1,-2 Z" fill="#d4342c" stroke="#1a1204" stroke-width=".6"/>
@@ -830,45 +1425,14 @@
   </div>
 </section>
 
-<!-- WALL -->
-<section id="wall">
-  <div class="section-head reveal">
-    <span class="section-num">06</span>
-    <span class="section-title display">Le mur</span>
-  </div>
-  <p class="reveal" style="color:var(--muted); margin-bottom:2rem; max-width:60ch;">
-    Les updates du voyage sont postées par nous deux. Vous, famille et potes, vous pouvez tout lire, liker ❤️ et laisser un commentaire sous chaque post.
-  </p>
-
-  <div id="wallFormWrap" style="display:none;">
-    <form class="wall-form reveal" id="wallForm">
-      <input type="text" id="wfName" placeholder="Ton prénom" required maxlength="40" style="grid-column:1/-1;">
-      <textarea id="wfMessage" placeholder="Un petit message..." maxlength="500" required></textarea>
-      <div class="file-row">
-        <label>📷 Ajouter une photo (optionnel) <input type="file" id="wfPhoto" accept="image/*"></label>
-        <img id="wfPreview" class="wall-thumb-preview">
-      </div>
-      <button type="submit" class="wall-submit" id="wfSubmit">Publier</button>
-      <div class="wall-status" id="wfStatus"></div>
-    </form>
-  </div>
-  <p id="wallLockedNote" class="reveal" style="color:var(--muted); font-size:.85rem; margin-bottom:2rem;">
-    🔒 Seuls les voyageurs peuvent publier de nouveaux posts — active le <b style="color:var(--cyan)">mode voyageur</b> en bas à droite si c'est toi, Baptiste 😉
-  </p>
-
-  <div class="wall-feed reveal" id="wallFeed">
-    <div class="wall-empty">Chargement…</div>
-  </div>
-</section>
-
 <footer>
   <div class="fbig display">GOOD TRIP.</div>
   15 jours · 3 villes · New York → Washington DC → Miami · zéro regret
 </footer>
 
-<div class="admin-dock">
+<div class="admin-dock" id="adminDock">
   <button class="admin-save" id="adminSave">💾 Enregistrer les modifications</button>
-  <button class="admin-toggle" id="adminToggle">🧳 Mode voyageur</button>
+  <button class="admin-toggle" id="adminToggle">🧳 Mode édition</button>
 </div>
 
 <div class="custom-modal-overlay" id="customModalOverlay">
@@ -880,6 +1444,11 @@
       <button class="custom-modal-btn ok" id="customModalOk">OK</button>
     </div>
   </div>
+</div>
+
+<div class="img-lightbox-overlay" id="imgLightboxOverlay">
+  <button class="img-lightbox-close" id="imgLightboxClose">&times;</button>
+  <img id="imgLightboxImg" src="" alt="">
 </div>
 
 
@@ -1099,27 +1668,93 @@
       modalOk.onclick = cleanup;
     });
   }
+
+  // ============================================================
+  // IMAGE LIGHTBOX — click a wall photo to see it full-size
+  // ============================================================
+  const imgLightboxOverlay = document.getElementById('imgLightboxOverlay');
+  const imgLightboxImg = document.getElementById('imgLightboxImg');
+  const imgLightboxClose = document.getElementById('imgLightboxClose');
+
+  function openLightbox(src, alt){
+    imgLightboxImg.src = src;
+    imgLightboxImg.alt = alt || '';
+    imgLightboxOverlay.classList.add('show');
+  }
+  function closeLightbox(){
+    imgLightboxOverlay.classList.remove('show');
+    imgLightboxImg.src = '';
+  }
+  imgLightboxOverlay.addEventListener('click', closeLightbox);
+  imgLightboxClose.addEventListener('click', (e)=>{ e.stopPropagation(); closeLightbox(); });
+  imgLightboxImg.addEventListener('click', (e)=> e.stopPropagation());
+  document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') closeLightbox(); });
 </script>
 
-<script>
+<script type="module">
   // ============================================================
-  // ADMIN MODE + CONTENT EDITING (window.storage, personal check only)
+  // FIREBASE — remplace window.storage (qui ne marche que dans
+  // l'aperçu Claude) par Firestore, gratuit et accessible une
+  // fois le site hébergé sur GitHub Pages.
+  //
+  // 👉 Remplis firebaseConfig ci-dessous avec les valeurs de TON
+  // projet Firebase (voir le guide fourni). Rien d'autre à changer.
   // ============================================================
-  const ADMIN_PASSWORD = "USA2026"; // 🔑 mot de passe partagé entre vous deux — change-le avant de partager le lien
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
+  import {
+    getFirestore, collection, doc, addDoc, setDoc, getDoc,
+    updateDoc, deleteDoc, query, orderBy, onSnapshot
+  } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
+  import {
+    getAuth, onAuthStateChanged, createUserWithEmailAndPassword,
+    signInWithEmailAndPassword, signOut, updateProfile
+  } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
+  import {
+    getStorage, ref, uploadBytes, getDownloadURL
+  } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-storage.js";
 
+  const firebaseConfig = {
+    apiKey: "AIzaSyDeNjRVenWrPi900Uvx2wkKKdNx7Vzz76U",
+    authDomain: "usa-trip-2026-e471d.firebaseapp.com",
+    projectId: "usa-trip-2026-e471d",
+    storageBucket: "usa-trip-2026-e471d.firebasestorage.app",
+    messagingSenderId: "801302766853",
+    appId: "1:801302766853:web:2d01a61b1f6d84f0bcc36c"
+  };
+
+  // 🔑 Comptes admin (Baptiste & Martin) — édition du contenu du site
+  // + suppression de posts/commentaires. Ajoute l'email de Martin ici
+  // une fois qu'il a créé son compte.
+  const ADMIN_EMAILS = ["baptiste.auge1@gmail.com"];
+
+  const firebaseReady = firebaseConfig.apiKey !== "YOUR_API_KEY";
+  const app = firebaseReady ? initializeApp(firebaseConfig) : null;
+  const db = firebaseReady ? getFirestore(app) : null;
+  const auth = firebaseReady ? getAuth(app) : null;
+  const storage = firebaseReady ? getStorage(app) : null;
+  const entriesCol = firebaseReady ? collection(db, 'wall_entries') : null;
+  const contentDocRef = firebaseReady ? doc(db, 'site_content', 'main') : null;
+
+  // ============================================================
+  // ACCOUNTS (Firebase Auth) — n'importe qui peut créer un compte
+  // pour publier / liker / commenter. isAdmin est déterminé par
+  // l'email du compte connecté (voir ADMIN_EMAILS ci-dessus), pas
+  // par un mot de passe partagé.
+  // ============================================================
+  let currentUser = null;
   let isAdmin = false;
 
   async function loadEditableContent(){
     try {
-      const res = await window.storage.get('trip-content', true);
-      if(!res) return;
-      const map = JSON.parse(res.value);
+      const snap = await getDoc(contentDocRef);
+      if(!snap.exists()) return;
+      const map = snap.data();
       Object.entries(map).forEach(([key, html])=>{
         const el = document.querySelector(`[data-editable="${key}"]`);
         if(el) el.innerHTML = html;
       });
     } catch(e){
-      // no saved content yet — keep defaults
+      console.error('loadEditableContent', e);
     }
   }
 
@@ -1129,7 +1764,7 @@
       map[el.getAttribute('data-editable')] = el.innerHTML;
     });
     try {
-      await window.storage.set('trip-content', JSON.stringify(map), true);
+      await setDoc(contentDocRef, map);
       adminSave.textContent = '✅ Enregistré !';
       setTimeout(()=> adminSave.textContent = '💾 Enregistrer les modifications', 1800);
     } catch(e){
@@ -1139,49 +1774,152 @@
 
   const adminToggle = document.getElementById('adminToggle');
   const adminSave = document.getElementById('adminSave');
+  const adminDock = document.getElementById('adminDock');
   const wallFormWrap = document.getElementById('wallFormWrap');
   const wallLockedNote = document.getElementById('wallLockedNote');
 
-  adminToggle.addEventListener('click', async ()=>{
-    if(!isAdmin){
-      const pwd = await customPrompt("Mot de passe voyageur (Baptiste & pote) :", true);
-      if(pwd !== ADMIN_PASSWORD){
-        if(pwd !== null) await customAlert("Mot de passe incorrect.");
-        return;
-      }
-      isAdmin = true;
-      document.body.classList.add('admin-on');
-      document.querySelectorAll('[data-editable]').forEach(el=> el.setAttribute('contenteditable','true'));
-      adminToggle.textContent = '🔓 Voyageur actif';
-      adminToggle.classList.add('is-on');
-      wallFormWrap.style.display = 'block';
-      wallLockedNote.style.display = 'none';
-      renderWall(); // re-render to show delete buttons
-    } else {
-      isAdmin = false;
-      document.body.classList.remove('admin-on');
-      document.querySelectorAll('[data-editable]').forEach(el=> el.setAttribute('contenteditable','false'));
-      adminToggle.textContent = '🧳 Mode voyageur';
-      adminToggle.classList.remove('is-on');
-      wallFormWrap.style.display = 'none';
-      wallLockedNote.style.display = 'block';
-      renderWall();
-    }
+  // "Mode édition" is just an on/off toggle for content-editing, only
+  // ever usable once isAdmin is true (dock is hidden otherwise).
+  let editModeOn = false;
+  adminToggle.addEventListener('click', ()=>{
+    editModeOn = !editModeOn;
+    document.body.classList.toggle('admin-on', editModeOn);
+    document.querySelectorAll('[data-editable]').forEach(el=> el.setAttribute('contenteditable', editModeOn ? 'true' : 'false'));
+    adminToggle.textContent = editModeOn ? '🔓 Édition active' : '🧳 Mode édition';
+    adminToggle.classList.toggle('is-on', editModeOn);
   });
 
   adminSave.addEventListener('click', saveEditableContent);
 
   // ============================================================
-  // THE WALL — shared photos & comments (window.storage, shared)
+  // AUTH — email/password accounts (Firebase Auth)
+  // ============================================================
+  const authDock = document.getElementById('authDock');
+  const authPillBtn = document.getElementById('authPillBtn');
+  const authPillLabel = document.getElementById('authPillLabel');
+  const authDropdown = document.getElementById('authDropdown');
+  const authLoggedOut = document.getElementById('authLoggedOut');
+  const authLoggedIn = document.getElementById('authLoggedIn');
+  const authWelcome = document.getElementById('authWelcome');
+  const authStatus = document.getElementById('authStatus');
+  const loginForm = document.getElementById('loginForm');
+  const signupForm = document.getElementById('signupForm');
+  const logoutBtn = document.getElementById('logoutBtn');
+
+  authPillBtn.addEventListener('click', (e)=>{
+    e.stopPropagation();
+    authDropdown.classList.toggle('open');
+  });
+  document.addEventListener('click', (e)=>{
+    if(!authDock.contains(e.target)) authDropdown.classList.remove('open');
+  });
+
+  document.querySelectorAll('.auth-tab').forEach(tab=>{
+    tab.addEventListener('click', ()=>{
+      document.querySelectorAll('.auth-tab').forEach(t=> t.classList.remove('is-active'));
+      tab.classList.add('is-active');
+      const target = tab.getAttribute('data-tab');
+      loginForm.style.display = target === 'login' ? 'flex' : 'none';
+      signupForm.style.display = target === 'signup' ? 'flex' : 'none';
+      authStatus.textContent = '';
+    });
+  });
+
+  function translateAuthError(code){
+    switch(code){
+      case 'auth/email-already-in-use': return "Cet email a déjà un compte — connecte-toi plutôt.";
+      case 'auth/invalid-email': return "Email invalide.";
+      case 'auth/weak-password': return "Mot de passe trop court (6 caractères min).";
+      case 'auth/user-not-found':
+      case 'auth/wrong-password':
+      case 'auth/invalid-credential': return "Email ou mot de passe incorrect.";
+      default: return "Une erreur est survenue, réessaie.";
+    }
+  }
+
+  function updateAuthUI(user){
+    currentUser = user;
+    isAdmin = !!(user && ADMIN_EMAILS.includes(user.email));
+
+    authLoggedOut.style.display = user ? 'none' : 'block';
+    authLoggedIn.style.display = user ? 'flex' : 'none';
+    if(user) authWelcome.textContent = `Connecté en tant que ${user.displayName || user.email}${isAdmin ? ' (admin)' : ''}`;
+
+    authPillLabel.textContent = user ? `👤 ${user.displayName || user.email}` : '👤 Se connecter';
+    authPillBtn.classList.toggle('is-admin', isAdmin);
+
+    wallFormWrap.style.display = isAdmin ? 'block' : 'none';
+    wallLockedNote.style.display = isAdmin ? 'none' : 'block';
+
+    adminDock.classList.toggle('show', isAdmin);
+    if(!isAdmin && editModeOn){
+      editModeOn = false;
+      document.body.classList.remove('admin-on');
+      document.querySelectorAll('[data-editable]').forEach(el=> el.setAttribute('contenteditable','false'));
+      adminToggle.textContent = '🧳 Mode édition';
+      adminToggle.classList.remove('is-on');
+    }
+
+    renderWallEntries(lastEntries);
+  }
+
+  signupForm.addEventListener('submit', async (evt)=>{
+    evt.preventDefault();
+    const name = document.getElementById('signupName').value.trim();
+    const email = document.getElementById('signupEmail').value.trim();
+    const password = document.getElementById('signupPassword').value;
+    if(!name || !email || !password) return;
+    authStatus.textContent = 'Création du compte…';
+    try {
+      const cred = await createUserWithEmailAndPassword(auth, email, password);
+      await updateProfile(cred.user, { displayName: name });
+      authStatus.textContent = '';
+      signupForm.reset();
+      updateAuthUI(auth.currentUser);
+      authDropdown.classList.remove('open');
+    } catch(e){
+      console.error('signup error:', e);
+      authStatus.textContent = '❌ ' + translateAuthError(e.code);
+    }
+  });
+
+  loginForm.addEventListener('submit', async (evt)=>{
+    evt.preventDefault();
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    if(!email || !password) return;
+    authStatus.textContent = 'Connexion…';
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      authStatus.textContent = '';
+      loginForm.reset();
+      authDropdown.classList.remove('open');
+    } catch(e){
+      console.error('login error:', e);
+      authStatus.textContent = '❌ ' + translateAuthError(e.code);
+    }
+  });
+
+  logoutBtn.addEventListener('click', ()=>{
+    signOut(auth);
+    authDropdown.classList.remove('open');
+  });
+
+  onAuthStateChanged(auth, (user)=> updateAuthUI(user));
+
+  // ============================================================
+  // THE WALL — shared photos & comments (Firestore, shared)
   // ============================================================
   const wallFeed = document.getElementById('wallFeed');
   const wallForm = document.getElementById('wallForm');
   const wfPhoto = document.getElementById('wfPhoto');
-  const wfPreview = document.getElementById('wfPreview');
+  const wfPreviewList = document.getElementById('wfPreviewList');
   const wfSubmit = document.getElementById('wfSubmit');
   const wfStatus = document.getElementById('wfStatus');
 
-  let photoDataUrl = null;
+  const MAX_MEDIA = 10;
+  const MAX_VIDEO_SIZE = 50 * 1024 * 1024; // 50 Mo
+  let mediaItems = []; // [{type:'image', src: dataUrl} | {type:'video', src: storageUrl}]
 
   // compress + resize photo client-side before storing (keeps it well under 5MB)
   function readAndCompressImage(file){
@@ -1197,7 +1935,7 @@
           canvas.height = img.height * scale;
           const ctx = canvas.getContext('2d');
           ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-          resolve(canvas.toDataURL('image/jpeg', 0.72));
+          resolve({ type: 'image', src: canvas.toDataURL('image/jpeg', 0.72) });
         };
         img.onerror = reject;
         img.src = e.target.result;
@@ -1207,18 +1945,42 @@
     });
   }
 
+  // videos go straight to Firebase Storage — far too big to inline as base64 in Firestore
+  async function uploadVideo(file){
+    if(file.size > MAX_VIDEO_SIZE) throw new Error('video-too-large');
+    const path = `wall_videos/${Date.now()}-${Math.random().toString(36).slice(2,8)}-${file.name}`;
+    const fileRef = ref(storage, path);
+    await uploadBytes(fileRef, file);
+    const url = await getDownloadURL(fileRef);
+    return { type: 'video', src: url };
+  }
+
+  function loadMedia(file){
+    return file.type.startsWith('video/') ? uploadVideo(file) : readAndCompressImage(file);
+  }
+
   wfPhoto.addEventListener('change', async ()=>{
-    const file = wfPhoto.files[0];
-    if(!file) { photoDataUrl = null; wfPreview.style.display='none'; return; }
-    wfStatus.textContent = 'Compression de la photo…';
+    let files = Array.from(wfPhoto.files);
+    if(files.length === 0) { mediaItems = []; wfPreviewList.innerHTML = ''; return; }
+    const tooMany = files.length > MAX_MEDIA;
+    if(tooMany) files = files.slice(0, MAX_MEDIA);
+    wfStatus.textContent = tooMany
+      ? `⚠️ ${MAX_MEDIA} fichiers maximum, les suivants seront ignorés.`
+      : 'Chargement des fichiers…';
     try {
-      photoDataUrl = await readAndCompressImage(file);
-      wfPreview.src = photoDataUrl;
-      wfPreview.style.display = 'inline-block';
-      wfStatus.textContent = '';
+      mediaItems = await Promise.all(files.map(loadMedia));
+      wfPreviewList.innerHTML = mediaItems.map(m =>
+        m.type === 'video'
+          ? `<video src="${m.src}" muted></video>`
+          : `<img src="${m.src}">`
+      ).join('');
+      if(!tooMany) wfStatus.textContent = '';
     } catch(e){
-      wfStatus.textContent = "Impossible de lire cette image.";
-      photoDataUrl = null;
+      wfStatus.textContent = e.message === 'video-too-large'
+        ? '⚠️ Vidéo trop lourde (50 Mo max).'
+        : "Impossible de lire ces fichiers.";
+      mediaItems = [];
+      wfPreviewList.innerHTML = '';
     }
   });
 
@@ -1234,77 +1996,124 @@
            d.toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' });
   }
 
-  async function loadWallEntries(){
-    try {
-      const list = await window.storage.list('entries:', true);
-      if(!list || !list.keys || list.keys.length === 0) return [];
-      const entries = [];
-      for(const key of list.keys){
-        try {
-          const r = await window.storage.get(key, true);
-          if(r) entries.push({ key, ...JSON.parse(r.value) });
-        } catch(e){ /* entry might have been deleted mid-flight, skip */ }
-      }
-      entries.sort((a,b)=> (b.date || '').localeCompare(a.date || ''));
-      return entries;
-    } catch(e){
-      console.error('loadWallEntries', e);
-      return [];
-    }
+  let lastEntries = [];
+  let openComments = new Set(); // keeps comment panels open across live re-renders
+  let editingPosts = new Set(); // posts currently being edited by an admin
+
+  function startWallListener(){
+    const q = query(entriesCol, orderBy('date', 'desc'));
+    onSnapshot(q, (snap)=>{
+      lastEntries = snap.docs.map(d => ({ key: d.id, ...d.data() }));
+      renderWallEntries(lastEntries);
+    }, (e)=>{
+      console.error('wall snapshot error', e);
+      wallFeed.innerHTML = '<div class="wall-empty">⚠️ Impossible de charger le mur.</div>';
+    });
   }
 
-  let likedPosts = new Set(); // session-only, avoids double-likes on refresh-free browsing
-
-  async function renderWall(){
-    const entries = await loadWallEntries();
+  function renderWallEntries(entries){
     if(entries.length === 0){
-      wallFeed.innerHTML = `<div class="wall-empty">Aucun post pour l'instant — les voyageurs vont bientôt publier 👋</div>`;
+      wallFeed.innerHTML = `<div class="wall-empty">Aucun post pour l'instant 👋</div>`;
       return;
     }
     wallFeed.innerHTML = entries.map(e => {
       const comments = e.comments || [];
-      const likes = e.likes || 0;
-      const liked = likedPosts.has(e.key);
+      const likedBy = e.likedBy || [];
+      const likes = e.likedBy ? likedBy.length : (e.likes || 0);
+      const liked = !!(currentUser && likedBy.includes(currentUser.uid));
       return `
       <div class="wall-card">
         ${isAdmin ? `<button class="wall-delete" data-key="${e.key}" title="Supprimer ce post">✕</button>` : ''}
-        ${e.photo ? `<img src="${e.photo}" alt="photo de ${escapeHtml(e.name)}">` : ''}
+        ${isAdmin ? `<button class="wall-edit" data-key="${e.key}" title="Modifier ce post">✏️</button>` : ''}
+        ${(() => {
+          const raw = e.photos || (e.photo ? [e.photo] : []);
+          // normalize legacy plain-string photo entries to {type, src} objects
+          const media = raw.map(m => typeof m === 'string' ? { type: 'image', src: m } : m);
+          if(media.length === 0) return '';
+          return `<div class="wall-photos" data-count="${media.length}">
+            ${media.map(m => m.type === 'video'
+              ? `<video src="${m.src}" controls playsinline></video>`
+              : `<img src="${m.src}" alt="photo de ${escapeHtml(e.name)}">`
+            ).join('')}
+          </div>`;
+        })()}
         <div class="wc-body">
           <div class="wc-name">${escapeHtml(e.name)}</div>
           <div class="wc-date">${formatDate(e.date)}</div>
-          <div class="wc-msg">${escapeHtml(e.message)}</div>
+          ${editingPosts.has(e.key) ? `
+          <div class="wc-edit">
+            <textarea class="wc-edit-textarea" data-key="${e.key}" maxlength="500">${escapeHtml(e.message)}</textarea>
+            <div class="wc-edit-actions">
+              <button class="wc-edit-save" data-key="${e.key}">Enregistrer</button>
+              <button class="wc-edit-cancel" data-key="${e.key}">Annuler</button>
+            </div>
+          </div>` : `<div class="wc-msg">${escapeHtml(e.message)}</div>`}
 
           <div class="wc-actions">
             <button class="wc-like ${liked ? 'liked' : ''}" data-key="${e.key}">❤️ ${likes}</button>
             <button class="wc-comment-toggle" data-key="${e.key}">💬 ${comments.length} commentaire${comments.length>1?'s':''}</button>
           </div>
 
-          <div class="wc-comments" id="comments-${e.key}" style="display:none;">
+          <div class="wc-comments" id="comments-${e.key}" style="display:${openComments.has(e.key) ? 'flex' : 'none'}; flex-direction:column;">
             ${comments.map((c,i) => `
               <div class="wc-comment">
                 ${isAdmin ? `<button class="wc-comment-delete" data-key="${e.key}" data-idx="${i}">✕</button>` : ''}
                 <b>${escapeHtml(c.name)}</b><span class="cm-date">${formatDate(c.date)}</span><br>${escapeHtml(c.text)}
               </div>
             `).join('') || '<div style="color:var(--muted); font-size:.8rem;">Sois le premier à commenter !</div>'}
+            ${currentUser ? `
             <form class="wc-comment-form" data-key="${e.key}">
-              <input class="cf-name" type="text" placeholder="Prénom" maxlength="30" required>
               <input class="cf-text" type="text" placeholder="Ton commentaire..." maxlength="200" required>
               <button type="submit">Envoyer</button>
-            </form>
+            </form>` : `<div style="color:var(--muted); font-size:.8rem; margin-top:.4rem;">Connecte-toi pour commenter.</div>`}
           </div>
         </div>
       </div>
     `;
     }).join('');
 
+    wallFeed.querySelectorAll('.wall-card img').forEach(img=>{
+      img.addEventListener('click', ()=> openLightbox(img.src, img.alt));
+    });
+
     wallFeed.querySelectorAll('.wall-delete').forEach(btn=>{
       btn.addEventListener('click', async ()=>{
         if(!(await customConfirm('Supprimer ce post ?'))) return;
         try {
-          await window.storage.delete(btn.getAttribute('data-key'), true);
-          renderWall();
+          await deleteDoc(doc(db, 'wall_entries', btn.getAttribute('data-key')));
         } catch(e){
           await customAlert('Erreur lors de la suppression.');
+        }
+      });
+    });
+
+    wallFeed.querySelectorAll('.wall-edit').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        editingPosts.add(btn.getAttribute('data-key'));
+        renderWallEntries(lastEntries);
+      });
+    });
+
+    wallFeed.querySelectorAll('.wc-edit-cancel').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        editingPosts.delete(btn.getAttribute('data-key'));
+        renderWallEntries(lastEntries);
+      });
+    });
+
+    wallFeed.querySelectorAll('.wc-edit-save').forEach(btn=>{
+      btn.addEventListener('click', async ()=>{
+        const key = btn.getAttribute('data-key');
+        const textarea = wallFeed.querySelector(`.wc-edit-textarea[data-key="${key}"]`);
+        const newMessage = textarea.value.trim();
+        if(!newMessage) return;
+        btn.disabled = true;
+        try {
+          await updateDoc(doc(db, 'wall_entries', key), { message: newMessage });
+          editingPosts.delete(key);
+        } catch(e){
+          await customAlert('Erreur lors de la modification.');
+          btn.disabled = false;
         }
       });
     });
@@ -1315,22 +2124,24 @@
 
     wallFeed.querySelectorAll('.wc-comment-toggle').forEach(btn=>{
       btn.addEventListener('click', ()=>{
-        const box = document.getElementById(`comments-${btn.getAttribute('data-key')}`);
-        box.style.display = box.style.display === 'none' ? 'flex' : 'none';
-        box.style.flexDirection = 'column';
+        const key = btn.getAttribute('data-key');
+        const box = document.getElementById(`comments-${key}`);
+        const nowOpen = box.style.display === 'none';
+        box.style.display = nowOpen ? 'flex' : 'none';
+        if(nowOpen) openComments.add(key); else openComments.delete(key);
       });
     });
 
     wallFeed.querySelectorAll('.wc-comment-form').forEach(form=>{
       form.addEventListener('submit', async (evt)=>{
         evt.preventDefault();
+        if(!currentUser) return;
         const key = form.getAttribute('data-key');
-        const name = form.querySelector('.cf-name').value.trim();
         const text = form.querySelector('.cf-text').value.trim();
-        if(!name || !text) return;
+        if(!text) return;
         const btn = form.querySelector('button');
         btn.disabled = true;
-        await addComment(key, name, text);
+        await addComment(key, currentUser.displayName || currentUser.email, text);
       });
     });
 
@@ -1340,30 +2151,30 @@
   }
 
   async function likePost(key){
-    if(likedPosts.has(key)) return;
-    likedPosts.add(key); // optimistic, prevents double-click spam
+    if(!currentUser){ await customAlert('Connecte-toi pour liker ce post.'); return; }
     try {
-      const r = await window.storage.get(key, true);
-      if(!r) return;
-      const post = JSON.parse(r.value);
-      post.likes = (post.likes || 0) + 1;
-      await window.storage.set(key, JSON.stringify(post), true);
-      renderWall();
+      const ref = doc(db, 'wall_entries', key);
+      const snap = await getDoc(ref);
+      if(!snap.exists()) return;
+      const post = snap.data();
+      const likedBy = post.likedBy || [];
+      const already = likedBy.includes(currentUser.uid);
+      const newLikedBy = already ? likedBy.filter(id => id !== currentUser.uid) : [...likedBy, currentUser.uid];
+      await updateDoc(ref, { likedBy: newLikedBy, likes: newLikedBy.length });
     } catch(e){
-      likedPosts.delete(key);
       console.error('likePost', e);
     }
   }
 
   async function addComment(key, name, text){
     try {
-      const r = await window.storage.get(key, true);
-      if(!r) return;
-      const post = JSON.parse(r.value);
-      post.comments = post.comments || [];
-      post.comments.push({ name, text, date: new Date().toISOString() });
-      await window.storage.set(key, JSON.stringify(post), true);
-      renderWall();
+      const ref = doc(db, 'wall_entries', key);
+      const snap = await getDoc(ref);
+      if(!snap.exists()) return;
+      const post = snap.data();
+      const comments = post.comments || [];
+      comments.push({ name, text, date: new Date().toISOString() });
+      await updateDoc(ref, { comments });
     } catch(e){
       await customAlert("Erreur lors de l'envoi du commentaire.");
     }
@@ -1372,12 +2183,12 @@
   async function deleteComment(key, idx){
     if(!(await customConfirm('Supprimer ce commentaire ?'))) return;
     try {
-      const r = await window.storage.get(key, true);
-      if(!r) return;
-      const post = JSON.parse(r.value);
-      post.comments = (post.comments || []).filter((_,i)=> i !== idx);
-      await window.storage.set(key, JSON.stringify(post), true);
-      renderWall();
+      const ref = doc(db, 'wall_entries', key);
+      const snap = await getDoc(ref);
+      if(!snap.exists()) return;
+      const post = snap.data();
+      const comments = (post.comments || []).filter((_,i)=> i !== idx);
+      await updateDoc(ref, { comments });
     } catch(e){
       await customAlert('Erreur lors de la suppression du commentaire.');
     }
@@ -1385,9 +2196,10 @@
 
   wallForm.addEventListener('submit', async (evt)=>{
     evt.preventDefault();
-    const name = document.getElementById('wfName').value.trim();
+    if(!isAdmin) return;
+    const name = currentUser.displayName || currentUser.email;
     const message = document.getElementById('wfMessage').value.trim();
-    if(!name || !message) return;
+    if(!message) return;
 
     wfSubmit.disabled = true;
     wfSubmit.textContent = 'Publication…';
@@ -1395,22 +2207,29 @@
 
     const entry = {
       name, message,
-      photo: photoDataUrl,
+      photos: mediaItems,
       date: new Date().toISOString(),
       likes: 0,
+      likedBy: [],
       comments: []
     };
-    const key = `entries:${Date.now()}-${Math.random().toString(36).slice(2,8)}`;
+
+    // Firestore limite un document à 1 Mo — les vidéos ne sont que des liens
+    // (quelques octets), mais les photos compressées inline peuvent s'accumuler.
+    if(new Blob([JSON.stringify(entry)]).size > 900 * 1024){
+      entry.photos = entry.photos.filter(m => m.type === 'video');
+      wfStatus.textContent = "⚠️ Photos trop lourdes, post publié sans les photos (vidéos conservées).";
+    }
 
     try {
-      const result = await window.storage.set(key, JSON.stringify(entry), true);
-      if(!result) throw new Error('no result returned by window.storage.set');
+      await addDoc(entriesCol, entry);
       wallForm.reset();
-      wfPreview.style.display = 'none';
-      photoDataUrl = null;
-      wfStatus.textContent = '✅ Posté !';
-      setTimeout(()=> wfStatus.textContent = '', 2000);
-      renderWall();
+      wfPreviewList.innerHTML = '';
+      mediaItems = [];
+      if(!wfStatus.textContent){
+        wfStatus.textContent = '✅ Posté !';
+        setTimeout(()=> wfStatus.textContent = '', 2000);
+      }
     } catch(e){
       console.error('wall submit error:', e);
       wfStatus.textContent = "❌ Erreur : " + (e && e.message ? e.message : 'inconnue') + " (voir la console pour le détail)";
@@ -1420,13 +2239,189 @@
     }
   });
 
+  // ============================================================
+  // REAL FLIGHT TRACKER — AeroDataBox (RapidAPI), cached in
+  // Firestore so we don't burn the free quota on every visitor.
+  // ============================================================
+  const RAPIDAPI_KEY = "1ae5f8b102msh9001f51dee7afddp1c9046jsn719e2aef7049";
+  const FLIGHT_CACHE_MS = 6 * 3600 * 1000; // re-check a flight at most every 6h
+
+  function pickFlightMatch(json, expectedDate, expectedOriginIata){
+    const arr = Array.isArray(json) ? json : (json ? [json] : []);
+    return arr.find(f => {
+      const depLocal = f?.departure?.scheduledTime?.local || '';
+      return depLocal.slice(0,10) === expectedDate && f?.departure?.airport?.iata === expectedOriginIata;
+    }) || arr[0] || null;
+  }
+
+  async function getFlightStatus(flightNumber, dateLocal, originIata){
+    const cacheRef = doc(db, 'flight_status', flightNumber + '_' + dateLocal);
+    try {
+      const snap = await getDoc(cacheRef);
+      if(snap.exists()){
+        const data = snap.data();
+        if(Date.now() - new Date(data.fetchedAt).getTime() < FLIGHT_CACHE_MS) return data;
+      }
+    } catch(e){ console.error('flight cache read', e); }
+
+    try {
+      const res = await fetch(`https://aerodatabox.p.rapidapi.com/flights/number/${flightNumber}/${dateLocal}`, {
+        headers: {
+          'X-RapidAPI-Key': RAPIDAPI_KEY,
+          'X-RapidAPI-Host': 'aerodatabox.p.rapidapi.com'
+        }
+      });
+      if(!res.ok) throw new Error('HTTP ' + res.status);
+      const json = await res.json();
+      const flight = pickFlightMatch(json, dateLocal, originIata);
+      if(!flight) throw new Error('vol introuvable pour cette date');
+
+      const bestTime = (node) => {
+        const raw = node?.actualTime?.utc || node?.revisedTime?.utc || node?.predictedTime?.utc || node?.scheduledTime?.utc || null;
+        return raw ? raw.replace(' ', 'T') : null; // "2026-08-02 08:20Z" -> "2026-08-02T08:20Z"
+      };
+
+      const result = {
+        status: flight.status || null,
+        depTerminal: flight.departure?.terminal || null,
+        depGate: flight.departure?.gate || null,
+        arrTerminal: flight.arrival?.terminal || null,
+        aircraft: flight.aircraft?.model || null,
+        depUtc: bestTime(flight.departure),
+        arrUtc: bestTime(flight.arrival),
+        fetchedAt: new Date().toISOString()
+      };
+      setDoc(cacheRef, result).catch(e=> console.error('flight cache write', e));
+      return result;
+    } catch(e){
+      console.error('getFlightStatus', flightNumber, e);
+      return null;
+    }
+  }
+
+  const FLIGHT_STATUS_LABELS = {
+    Unknown: '📡 Statut inconnu', Expected: '📡 Prévu à l\'heure', CheckIn: '📡 Enregistrement',
+    Boarding: '📡 Embarquement', GateClosed: '📡 Porte fermée', Departed: '📡 Décollé',
+    EnRoute: '📡 En vol', Delayed: '📡 Retardé', Approaching: '📡 En approche',
+    Landed: '📡 Atterri', Canceled: '📡 Annulé', Diverted: '📡 Dérouté'
+  };
+
+  async function loadRealFlightStatuses(){
+    const cards = document.querySelectorAll('.trk-card[data-flight]');
+    for(const card of cards){
+      const live = card.querySelector('.trk-live');
+      if(!live) continue;
+      const info = await getFlightStatus(card.dataset.flight, card.dataset.date, card.dataset.origin);
+      if(info && info.status){
+        let text = FLIGHT_STATUS_LABELS[info.status] || ('📡 ' + info.status);
+        if(info.depTerminal) text += ` · Départ term. ${info.depTerminal}`;
+        if(info.arrTerminal) text += ` · Arrivée term. ${info.arrTerminal}`;
+        live.textContent = text;
+        live.style.display = 'block';
+
+        // feed the real (actual/predicted) times into the visual progress bar
+        // instead of the estimated schedule, so the plane on the line reflects
+        // where the flight really is.
+        if(info.depUtc) card.dataset.dep = info.depUtc;
+        if(info.arrUtc) card.dataset.arr = info.arrUtc;
+      }
+    }
+    if(typeof updateFlightTrackers === 'function') updateFlightTrackers();
+  }
+
+  // ============================================================
+  // REAL TRAIN TRACKER — amtraker.com (free, no key). It only
+  // returns data for trains actually running *today*, so this
+  // will stay silent until the real travel day (6 août).
+  // ============================================================
+  const TRAIN_CACHE_MS = 6 * 3600 * 1000;
+
+  async function getTrainStatus(trainNum, dateLocal, originCode, destCode){
+    const cacheRef = doc(db, 'train_status', trainNum + '_' + dateLocal);
+    try {
+      const snap = await getDoc(cacheRef);
+      if(snap.exists()){
+        const data = snap.data();
+        if(Date.now() - new Date(data.fetchedAt).getTime() < TRAIN_CACHE_MS) return data;
+      }
+    } catch(e){ console.error('train cache read', e); }
+
+    try {
+      const res = await fetch(`https://api-v3.amtraker.com/v3/trains/${trainNum}`);
+      if(!res.ok) throw new Error('HTTP ' + res.status);
+      const json = await res.json();
+      const instances = json[trainNum] || [];
+      const match = instances.find(t => {
+        const origStation = t.stations?.find(s => s.code === originCode);
+        return origStation?.schDep?.slice(0,10) === dateLocal;
+      });
+
+      if(!match){
+        const result = { running: false, fetchedAt: new Date().toISOString() };
+        setDoc(cacheRef, result).catch(e=> console.error('train cache write', e));
+        return result;
+      }
+
+      const origStation = match.stations?.find(s => s.code === originCode);
+      const destStation = match.stations?.find(s => s.code === destCode);
+      const result = {
+        running: true,
+        timely: match.trainTimely || '',
+        origStatus: origStation?.status || null,
+        destStatus: destStation?.status || null,
+        depUtc: origStation?.dep || origStation?.schDep || null,
+        arrUtc: destStation?.arr || destStation?.schArr || null,
+        lat: typeof match.lat === 'number' ? match.lat : null,
+        lon: typeof match.lon === 'number' ? match.lon : null,
+        fetchedAt: new Date().toISOString()
+      };
+      setDoc(cacheRef, result).catch(e=> console.error('train cache write', e));
+      return result;
+    } catch(e){
+      console.error('getTrainStatus', trainNum, e);
+      return null;
+    }
+  }
+
+  async function loadRealTrainStatuses(){
+    const cards = document.querySelectorAll('.trk-card[data-train]');
+    for(const card of cards){
+      const live = card.querySelector('.trk-live');
+      if(!live) continue;
+      const info = await getTrainStatus(card.dataset.train, card.dataset.date, card.dataset.origin, card.dataset.dest);
+      if(!info) continue;
+
+      if(!info.running){
+        live.textContent = '🕐 Suivi en direct disponible le jour du trajet';
+        live.style.display = 'block';
+        continue;
+      }
+
+      let text = '📡 ' + (info.timely ? info.timely : 'À l\'heure');
+      if(info.origStatus) text += ` · Départ : ${info.origStatus}`;
+      if(info.destStatus) text += ` · Arrivée : ${info.destStatus}`;
+      live.textContent = text;
+      live.style.display = 'block';
+
+      if(info.depUtc) card.dataset.dep = new Date(info.depUtc).toISOString();
+      if(info.arrUtc) card.dataset.arr = new Date(info.arrUtc).toISOString();
+      if(info.lat != null && info.lon != null){
+        card.dataset.realLat = info.lat;
+        card.dataset.realLon = info.lon;
+      }
+    }
+    if(typeof updateFlightTrackers === 'function') updateFlightTrackers();
+  }
+
   // init
-  if(typeof window.storage === 'undefined'){
-    wfStatus.textContent = "⚠️ Le stockage partagé n'est pas disponible dans cet aperçu.";
-    wallFeed.innerHTML = '<div class="wall-empty">⚠️ window.storage indisponible ici — ouvre ce fichier en tant qu\'Artefact Claude (pas juste le fichier téléchargé) pour activer le mur.</div>';
+  if(!firebaseReady){
+    wfStatus.textContent = "⚠️ Firebase n'est pas configuré (firebaseConfig).";
+    wallFeed.innerHTML = '<div class="wall-empty">⚠️ Configure firebaseConfig dans le code (voir le guide) pour activer le mur.</div>';
   } else {
     loadEditableContent();
-    renderWall();
+    startWallListener();
+    loadRealFlightStatuses();
+    loadRealTrainStatuses();
   }
 </script>
 
@@ -1436,6 +2431,159 @@
     entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
   }, {threshold:.15});
   els.forEach(el=>io.observe(el));
+</script>
+
+<script>
+  // ============================================================
+  // LIVE CLOCKS — Paris vs New York/Miami (both US cities share
+  // the same America/New_York timezone, one clock covers both)
+  // ============================================================
+  const clockParis = document.getElementById('clockParis');
+  const clockParisDate = document.getElementById('clockParisDate');
+  const clockNY = document.getElementById('clockNY');
+  const clockNYDate = document.getElementById('clockNYDate');
+
+  function updateClocks(){
+    const now = new Date();
+    clockParis.textContent = now.toLocaleTimeString('fr-FR', { timeZone:'Europe/Paris', hour:'2-digit', minute:'2-digit', second:'2-digit' });
+    clockParisDate.textContent = now.toLocaleDateString('fr-FR', { timeZone:'Europe/Paris', weekday:'long', day:'numeric', month:'long' });
+    clockNY.textContent = now.toLocaleTimeString('fr-FR', { timeZone:'America/New_York', hour:'2-digit', minute:'2-digit', second:'2-digit' });
+    clockNYDate.textContent = now.toLocaleDateString('fr-FR', { timeZone:'America/New_York', weekday:'long', day:'numeric', month:'long' });
+  }
+  updateClocks();
+  setInterval(updateClocks, 1000);
+</script>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+<script>
+  // ============================================================
+  // LIVE FLIGHT/TRAIN TRACKER — each .trk-card auto-switches
+  // between "à venir" / "en cours" / "terminé" based on its
+  // data-dep / data-arr timestamps vs the current time.
+  // ============================================================
+  function updateFlightTrackers(){
+    const now = new Date();
+    document.querySelectorAll('.trk-card').forEach(card=>{
+      const dep = new Date(card.dataset.dep);
+      const arr = new Date(card.dataset.arr);
+      const fill = card.querySelector('.trk-line-fill');
+      const plane = card.querySelector('.trk-plane');
+      const status = card.querySelector('.trk-status');
+
+      let pct, label, cls;
+      if(now <= dep){ pct = 0; label = '🕐 À venir'; cls = 'upcoming'; }
+      else if(now >= arr){ pct = 100; label = '✅ Terminé'; cls = 'done'; }
+      else { pct = ((now - dep) / (arr - dep)) * 100; label = '🔴 En cours'; cls = 'active'; }
+
+      fill.style.width = pct + '%';
+      plane.style.left = pct + '%';
+      status.textContent = label;
+      status.className = 'trk-status ' + cls;
+      card.classList.toggle('is-active', cls === 'active');
+      card.classList.toggle('is-done', cls === 'done');
+      updateTrkMapMarker(card, pct);
+    });
+  }
+  // ============================================================
+  // PER-CARD MINI MAP — click "Voir sur la carte" to unfold a
+  // real Leaflet/OpenStreetMap view of the departure/arrival
+  // points, with a moving marker (real GPS for trains once
+  // running, interpolated progress % otherwise).
+  // ============================================================
+  function buildTrkMap(card){
+    const mapEl = card.querySelector('.trk-map');
+    if(!mapEl || mapEl.dataset.built) return;
+
+    const depLat = parseFloat(card.dataset.depLat), depLon = parseFloat(card.dataset.depLon);
+    const arrLat = parseFloat(card.dataset.arrLat), arrLon = parseFloat(card.dataset.arrLon);
+    if(isNaN(depLat) || isNaN(arrLat) || typeof L === 'undefined'){
+      mapEl.innerHTML = '<div style="color:var(--muted); font-size:.75rem; padding:1rem;">Carte indisponible pour ce trajet.</div>';
+      mapEl.dataset.built = '1';
+      return;
+    }
+
+    const isTrain = card.classList.contains('is-train');
+    const icon = isTrain ? '🚆' : '✈️';
+    const depPoint = [depLat, depLon];
+    const arrPoint = [arrLat, arrLon];
+
+    const map = L.map(mapEl, { scrollWheelZoom: false });
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap',
+      maxZoom: 18
+    }).addTo(map);
+
+    const dotIcon = L.divIcon({ className: 'trk-leaflet-dot', iconSize: [10, 10] });
+    L.marker(depPoint, { icon: dotIcon }).addTo(map);
+    L.marker(arrPoint, { icon: dotIcon }).addTo(map);
+    // white casing underneath so the colored dashed line stays readable over any map terrain
+    L.polyline([depPoint, arrPoint], { color: '#000', weight: 7, opacity: .35 }).addTo(map);
+    L.polyline([depPoint, arrPoint], { color: '#fff', weight: 5, opacity: .9 }).addTo(map);
+    L.polyline([depPoint, arrPoint], {
+      color: isTrain ? '#ffb703' : '#0077ff', weight: 3.5, dashArray: '10 8', opacity: 1
+    }).addTo(map);
+
+    const movingIcon = L.divIcon({ className: 'trk-leaflet-marker', html: icon, iconSize: [24, 24] });
+    const marker = L.marker(depPoint, { icon: movingIcon }).addTo(map);
+
+    map.fitBounds([depPoint, arrPoint], { padding: [30, 30] });
+
+    mapEl._leafletMap = map;
+    mapEl._leafletMarker = marker;
+    mapEl._leafletDep = depPoint;
+    mapEl._leafletArr = arrPoint;
+    mapEl.dataset.built = '1';
+
+    // Leaflet computes tile layout from the container's size at init time;
+    // it's still display:none-ish (mid-transition) at that point, so redo it
+    // once the box has its final on-screen size.
+    setTimeout(()=> map.invalidateSize(), 60);
+  }
+
+  function updateTrkMapMarker(card, pct){
+    const mapEl = card.querySelector('.trk-map');
+    if(!mapEl || mapEl.dataset.built !== '1' || !mapEl._leafletMarker) return;
+
+    // real GPS position (trains, once actually running) takes priority
+    if(card.dataset.realLat && card.dataset.realLon){
+      mapEl._leafletMarker.setLatLng([parseFloat(card.dataset.realLat), parseFloat(card.dataset.realLon)]);
+      return;
+    }
+
+    const [dLat, dLon] = mapEl._leafletDep;
+    const [aLat, aLon] = mapEl._leafletArr;
+    mapEl._leafletMarker.setLatLng([
+      dLat + (aLat - dLat) * (pct / 100),
+      dLon + (aLon - dLon) * (pct / 100)
+    ]);
+  }
+
+  document.querySelectorAll('.trk-expand').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const card = btn.closest('.trk-card');
+      const mapEl = card.querySelector('.trk-map');
+      const isOpen = mapEl.style.display !== 'none';
+      if(isOpen){
+        mapEl.style.display = 'none';
+        btn.textContent = '🗺️ Voir sur la carte';
+        btn.setAttribute('aria-expanded', 'false');
+      } else {
+        mapEl.style.display = 'block';
+        buildTrkMap(card);
+        btn.textContent = '▲ Fermer la carte';
+        btn.setAttribute('aria-expanded', 'true');
+        updateFlightTrackers();
+        if(mapEl._leafletMap){
+          const map = mapEl._leafletMap, dep = mapEl._leafletDep, arr = mapEl._leafletArr;
+          setTimeout(()=>{ map.invalidateSize(); map.fitBounds([dep, arr], { padding: [30, 30] }); }, 60);
+        }
+      }
+    });
+  });
+
+  updateFlightTrackers();
+  setInterval(updateFlightTrackers, 15000);
 </script>
 
 </body>
