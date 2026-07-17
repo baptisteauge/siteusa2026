@@ -36,10 +36,26 @@
   *{box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent;}
   html{scroll-behavior:smooth;}
   body{
-    background:var(--bg);
+    background:
+      radial-gradient(circle at 15% 20%, rgba(255,46,138,.32), transparent 42%),
+      radial-gradient(circle at 85% 15%, rgba(22,229,255,.28), transparent 42%),
+      radial-gradient(circle at 75% 85%, rgba(255,122,46,.28), transparent 45%),
+      radial-gradient(circle at 20% 90%, rgba(255,225,77,.16), transparent 40%),
+      var(--bg);
+    background-size:180% 180%;
+    background-attachment:fixed;
+    animation:bgFlow 24s ease-in-out infinite alternate;
     color:var(--ink);
     font-family:'Space Grotesk', sans-serif;
     overflow-x:hidden;
+  }
+  @keyframes bgFlow{
+    0%{   background-position: 0% 0%,   100% 0%,  100% 100%, 0% 100%; }
+    50%{  background-position: 25% 35%, 70% 40%,  65% 70%,   30% 65%; }
+    100%{ background-position: 10% 60%, 90% 20%,  80% 90%,   15% 80%; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    body{ animation:none; }
   }
   button, .auth-pill, .wc-like, .wc-comment-toggle, .wall-delete, .wc-comment-delete, .auth-tab{
     transition:transform .12s ease;
@@ -183,6 +199,10 @@
     background:linear-gradient(90deg, var(--ink), var(--muted));
     -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
   }
+  @media (max-width:600px){
+    /* keep long titles from running under the fixed auth pill (top-right) */
+    .section-head{ padding-right:110px; }
+  }
 
   .reveal{
     opacity:0; transform:translateY(30px);
@@ -193,7 +213,7 @@
   /* ---------- MISSIONS (flights) ---------- */
 
   /* ---------- HQ (hotels) ---------- */
-  .hq-grid{ display:grid; grid-template-columns:1.1fr 1.1fr .8fr; gap:1.4rem; }
+  .hq-grid{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:1.4rem; }
   @media (max-width:900px){ .hq-grid{ grid-template-columns:1fr; } }
   .hq-card{
     position:relative;
@@ -204,6 +224,9 @@
     overflow:hidden;
     border:1px solid rgba(255,255,255,.1);
   }
+  .hq-grid .hq-card:nth-child(1){ transition-delay:0s; }
+  .hq-grid .hq-card:nth-child(2){ transition-delay:.15s; }
+  .hq-grid .hq-card:nth-child(3){ transition-delay:.3s; }
   .hq-card.ny{ background:linear-gradient(160deg, #101a3a, #0a0014 70%); }
   .hq-card.mia{ background:linear-gradient(160deg, #3a1030, #0a0014 70%); }
   .hq-card.dc{ background:linear-gradient(160deg, #1a2a12, #0a0014 70%); border-style:dashed; }
@@ -221,7 +244,6 @@
   .hq-tag{ font-family:'Bebas Neue'; font-size:.8rem; letter-spacing:.3em; color:var(--yellow); margin-bottom:.6rem; z-index:2;}
   .hq-card.dc .hq-tag{ color:#8dffb0; }
   .hq-name{ font-family:'Bebas Neue'; font-size:2rem; z-index:2; }
-  .hq-card.dc .hq-name{ font-size:1.6rem; }
   .hq-meta{ color:var(--muted); font-size:.85rem; margin-top:.5rem; z-index:2; }
   .hq-badge{
     position:absolute; top:1.4rem; right:1.4rem; z-index:2;
@@ -229,20 +251,33 @@
     background:rgba(10,0,20,.55); backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px);
     border:1px solid rgba(141,255,176,.4); border-radius:999px; padding:.3rem .7rem;
   }
+  .hq-maps-link{
+    display:inline-flex; align-items:center; gap:.35rem; z-index:2;
+    margin-top:.8rem; width:fit-content;
+    font-family:'Space Grotesk'; font-size:.75rem; letter-spacing:.02em;
+    color:var(--cyan); text-decoration:none;
+    background:rgba(22,229,255,.12); border:1px solid rgba(22,229,255,.4); border-radius:999px;
+    padding:.35rem .8rem;
+    transition:background .2s ease;
+  }
+  .hq-maps-link:hover{ background:rgba(22,229,255,.22); }
 
-  /* ---------- OBJECTIVES ---------- */
-  .obj-grid{ display:grid; grid-template-columns:1fr 1fr; gap:1.4rem; }
-  @media (max-width:760px){ .obj-grid{ grid-template-columns:1fr; } }
-  .obj-card{
+  /* ---------- CITY MAPS ---------- */
+  .citymap-grid{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:1.4rem; }
+  @media (max-width:900px){ .citymap-grid{ grid-template-columns:1fr; } }
+  .citymap-card{
     border:1px solid rgba(255,255,255,.09);
     border-radius:16px;
-    padding:2rem;
+    overflow:hidden;
     background:rgba(255,255,255,.02);
   }
-  .obj-icon{ font-size:2.2rem; margin-bottom:1rem; display:block; }
-  .obj-title{ font-family:'Bebas Neue'; font-size:1.7rem; letter-spacing:.02em; margin-bottom:.4rem; }
-  .obj-list{ margin-top:1rem; padding-left:0; list-style:none; color:var(--muted); font-size:.9rem; line-height:1.9; }
-  .obj-list li::before{ content:"▸ "; color:var(--orange); }
+  .citymap-tag{
+    font-family:'Bebas Neue'; letter-spacing:.2em; font-size:.95rem;
+    color:var(--yellow); padding:1rem 1.2rem .8rem;
+  }
+  .citymap-map{ width:100%; height:220px; }
+  .citymap-map .leaflet-control-attribution{ font-size:9px; background:rgba(10,0,20,.6); color:var(--muted); }
+  .citymap-map .leaflet-control-attribution a{ color:var(--muted); }
 
   /* ---------- ROADMAP HORIZONTAL TIMELINE (glow, scrollable) ---------- */
   .roadmap-track{
@@ -379,6 +414,14 @@
   .trk-map .leaflet-control-attribution{ font-size:9px; background:rgba(10,0,20,.6); color:var(--muted); }
   .trk-map .leaflet-control-attribution a{ color:var(--muted); }
 
+  .wc-map{
+    margin-top:.6rem; height:180px; border-radius:10px; overflow:hidden;
+    border:1px solid rgba(255,255,255,.15); background:#0a0014;
+  }
+  .wc-map-marker{ font-size:20px; line-height:1; text-align:center; filter:drop-shadow(0 0 5px rgba(255,46,138,.9)); }
+  .wc-map .leaflet-control-attribution{ font-size:9px; background:rgba(10,0,20,.6); color:var(--muted); }
+  .wc-map .leaflet-control-attribution a{ color:var(--muted); }
+
   /* ticket stub — perforated tear-off with barcode */
   .trk-stub{
     flex:0 0 auto; width:64px; position:relative;
@@ -426,61 +469,26 @@
     text-align:center; padding:8vh 5vw 6vh; color:var(--muted); font-size:.8rem; letter-spacing:.1em;
     border-top:1px solid rgba(255,255,255,.06);
   }
-  footer .fbig{ font-family:'Bebas Neue'; font-size:clamp(1.8rem,4vw,3rem); color:var(--ink); letter-spacing:.03em; margin-bottom:.6rem;
-    background:linear-gradient(90deg,var(--magenta),var(--cyan)); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
-  }
+  footer .fbig{ margin-bottom:.6rem; }
+  footer .fbig img{ height:clamp(70px,12vw,120px); width:auto; }
 
   /* ---------- MAP ---------- */
   .map-wrap{
     position:relative;
-    border-radius:6px;
+    border-radius:16px;
     overflow:hidden;
-    border:10px solid #3b2a10;
-    outline:1px solid #6b4f20;
-    outline-offset:-4px;
+    border:1px solid rgba(255,255,255,.12);
     box-shadow:0 20px 50px rgba(0,0,0,.5);
   }
-  #tripmap{ position:relative; width:100%; }
-  #tripsvg{ display:block; width:100%; height:auto; cursor:grab; touch-action:none; }
-  #tripsvg.grabbing{ cursor:grabbing; }
-
-  .map-controls{
-    position:absolute; top:14px; right:14px; z-index:6;
-    display:flex; flex-direction:column; gap:4px;
-  }
-  .map-btn{
-    width:34px; height:34px;
-    background:#f6e9c9; color:#221607;
-    border:2px solid #3b2a10; border-radius:6px;
-    font-family:'Bebas Neue'; font-size:1.3rem; line-height:1;
-    cursor:pointer;
-    box-shadow:0 3px 0 #3b2a10;
-    transition:transform .1s ease;
-  }
-  .map-btn:hover{ background:#fff3d6; }
-  .map-btn:active{ transform:translateY(2px); box-shadow:0 1px 0 #3b2a10; }
-  .map-btn-reset{ font-size:1rem; margin-top:4px; }
-
-  .map-hint{
-    position:absolute; bottom:14px; left:14px; z-index:6;
-    background:rgba(20,14,4,.65); color:#f6e9c9;
-    font-size:.72rem; letter-spacing:.05em;
-    padding:.4rem .7rem; border-radius:6px;
-    pointer-events:none;
-    opacity:1; transition:opacity .6s ease;
-  }
-  .map-hint.hidden{ opacity:0; }
-
-  .map-tooltip{
-    position:absolute; z-index:5; pointer-events:none;
-    background:#170428; color:var(--ink);
-    border:1px solid rgba(255,255,255,.15); border-radius:10px;
-    padding:.6rem .8rem; font-size:.8rem; line-height:1.5;
-    max-width:200px;
-    opacity:0; transition:opacity .15s ease;
-    box-shadow:0 8px 24px rgba(0,0,0,.5);
-  }
-  .map-tooltip b{ font-family:'Bebas Neue'; font-size:.95rem; letter-spacing:.03em; color:var(--cyan); }
+  #tripmap{ width:100%; height:520px; }
+  #tripmap .leaflet-control-attribution{ font-size:9px; background:rgba(10,0,20,.6); color:var(--muted); }
+  #tripmap .leaflet-control-attribution a{ color:var(--muted); }
+  #tripmap .leaflet-popup-content-wrapper{ background:#170428; color:var(--ink); border:1px solid rgba(255,255,255,.15); border-radius:10px; }
+  #tripmap .leaflet-popup-content{ font-family:'Space Grotesk'; font-size:.82rem; line-height:1.5; margin:.7rem .9rem; }
+  #tripmap .leaflet-popup-content b{ font-family:'Bebas Neue'; font-size:1rem; letter-spacing:.03em; color:var(--cyan); }
+  #tripmap .leaflet-popup-tip{ background:#170428; }
+  .trip-map-marker{ font-size:22px; line-height:1; text-align:center; filter:drop-shadow(0 0 6px rgba(0,0,0,.8)); }
+  @media (max-width:600px){ #tripmap{ height:380px; } }
 
   .map-legend{
     display:flex; flex-wrap:wrap; gap:1.2rem; margin-top:1.4rem;
@@ -490,8 +498,9 @@
   .map-legend .dot{ width:14px; height:3px; border-radius:2px; display:inline-block; }
 
   /* ---------- ADMIN MODE ---------- */
-  [data-editable]{ transition:outline .2s ease; border-radius:6px; }
+  [data-editable]{ border-radius:6px; }
   body.admin-on [data-editable]{
+    transition:outline .2s ease;
     outline:1.5px dashed rgba(22,229,255,.5);
     outline-offset:4px;
     cursor:text;
@@ -594,9 +603,16 @@
   .wall-photos{ display:grid; gap:2px; }
   .wall-photos[data-count="1"]{ grid-template-columns:1fr; }
   .wall-photos[data-count="2"], .wall-photos[data-count="3"], .wall-photos[data-count="4"]{ grid-template-columns:1fr 1fr; }
-  .wall-photos img{ width:100%; height:100%; display:block; aspect-ratio:1/1; object-fit:cover; cursor:zoom-in; }
-  .wall-photos video{ width:100%; height:100%; display:block; aspect-ratio:1/1; object-fit:cover; background:#000; }
-  .wall-photos[data-count="1"] img{ aspect-ratio:4/3; }
+  .wall-photos[data-count="3"] .wp-tile:first-child{ grid-row:1 / span 2; }
+  .wp-tile{ position:relative; overflow:hidden; }
+  .wall-photos img, .wall-photos video{ width:100%; height:100%; display:block; aspect-ratio:1/1; object-fit:cover; cursor:zoom-in; }
+  .wall-photos video{ background:#000; }
+  .wall-photos[data-count="1"] img, .wall-photos[data-count="1"] video{ aspect-ratio:4/3; }
+  .wp-more-overlay{
+    position:absolute; inset:0; background:rgba(0,0,0,.55); color:#fff;
+    display:flex; align-items:center; justify-content:center; cursor:zoom-in;
+    font-family:'Bebas Neue'; font-size:1.6rem; letter-spacing:.05em;
+  }
   .wall-submit{
     grid-column:1/-1; justify-self:start;
     font-family:'Bebas Neue'; letter-spacing:.08em; font-size:1.1rem;
@@ -607,8 +623,54 @@
   .wall-submit:disabled{ opacity:.5; cursor:wait; }
   .wall-status{ grid-column:1/-1; font-size:.8rem; color:var(--muted); min-height:1em; }
 
+  /* ---------- TRIP BANNER — sticky recap: day X/Y + imminent flight/train glance ---------- */
+  .trip-banner{
+    position:sticky; top:0; z-index:110;
+    display:flex; align-items:center; justify-content:center; gap:.9rem;
+    flex-wrap:wrap; row-gap:.3rem;
+    background:rgba(10,0,20,.88); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+    border-bottom:1px solid rgba(255,255,255,.1);
+    padding:.85rem 1.2rem;
+    font-family:'Space Grotesk'; font-size:.92rem;
+    transition:transform .32s ease, opacity .32s ease;
+  }
+  .trip-banner.tb-hidden{
+    transform:translateY(-110%);
+    opacity:0;
+    pointer-events:none;
+  }
+  .trip-banner .tb-day{
+    font-family:'Bebas Neue'; letter-spacing:.06em; font-size:1.2rem;
+    color:var(--yellow); white-space:nowrap;
+  }
+  .trip-banner .tb-transit{
+    display:none; align-items:center; gap:.6rem; white-space:nowrap; color:var(--cyan);
+    border-left:1px solid rgba(255,255,255,.15); padding-left:.8rem;
+  }
+  .tb-view-btn{
+    font-family:'Space Grotesk'; font-size:.8rem; letter-spacing:.02em;
+    background:rgba(22,229,255,.12); color:var(--cyan);
+    border:1px solid rgba(22,229,255,.4); border-radius:999px;
+    padding:.25rem .75rem; cursor:pointer; white-space:nowrap;
+  }
+  .tb-view-btn:hover{ background:rgba(22,229,255,.22); }
+  @media (max-width:600px){
+    .trip-banner{ font-size:.8rem; padding:.7rem .9rem; gap:.5rem; }
+    .trip-banner .tb-day{ font-size:1rem; }
+    .trip-banner .tb-transit{ padding-left:.6rem; white-space:normal; text-align:center; }
+  }
+
+  @keyframes trkHighlightPulse{
+    0%, 100%{ box-shadow:0 0 0 rgba(255,225,77,0); }
+    30%{ box-shadow:0 0 40px rgba(255,225,77,.55); }
+  }
+  .trk-card.trk-highlight{
+    border-color:var(--yellow) !important;
+    animation:trkHighlightPulse 1.8s ease-out;
+  }
+
   /* ---------- AUTH DOCK — fixed top-left login/signup widget ---------- */
-  .auth-dock{ position:fixed; top:16px; right:16px; z-index:120; }
+  .auth-dock{ position:fixed; top:64px; right:16px; z-index:120; }
   .auth-pill{
     display:flex; align-items:center; gap:.5rem;
     font-family:'Bebas Neue'; letter-spacing:.06em; font-size:.85rem;
@@ -692,6 +754,28 @@
     padding:.6rem .8rem; resize:vertical;
   }
   .wc-edit-textarea:focus{ outline:none; border-color:var(--cyan); }
+  .wc-edit-photos{ display:flex; gap:.5rem; flex-wrap:wrap; margin-top:.6rem; }
+  .wc-edit-photo{ position:relative; width:60px; height:60px; }
+  .wc-edit-photo img, .wc-edit-photo video{
+    width:100%; height:100%; object-fit:cover; border-radius:6px; display:block;
+  }
+  .wc-edit-photo-remove{
+    position:absolute; top:-6px; right:-6px; width:18px; height:18px; border-radius:50%;
+    background:#ff2e5b; color:#fff; border:none; font-size:.6rem; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; padding:0; line-height:1;
+  }
+  .wc-edit-photo-resize{
+    position:absolute; top:-6px; left:-6px; width:18px; height:18px; border-radius:50%;
+    background:var(--cyan); color:#0a0014; border:none; font-size:.6rem; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; padding:0; line-height:1;
+  }
+  .wc-edit-addphoto{
+    display:inline-block; margin-top:.6rem; font-size:.8rem; color:var(--muted); cursor:pointer;
+  }
+  .wc-edit-addphoto input[type=file]{
+    display:block; margin-top:.3rem; color:var(--muted); font-size:.75rem;
+  }
+  .wc-edit-status{ font-size:.78rem; color:var(--muted); min-height:1em; margin-top:.3rem; }
   .wc-edit-actions{ display:flex; gap:.5rem; margin-top:.5rem; }
   .wc-edit-actions button{
     font-family:'Bebas Neue'; letter-spacing:.05em; font-size:.8rem;
@@ -700,6 +784,13 @@
   .wc-edit-save{ background:var(--cyan); color:#0a0014; }
   .wc-edit-cancel{ background:rgba(255,255,255,.1); color:var(--muted); }
   .wall-empty{ color:var(--muted); font-size:.9rem; grid-column:1/-1; text-align:center; padding:2rem; }
+  .wall-load-more{
+    display:block; margin:.5rem auto 0; font-family:'Bebas Neue'; letter-spacing:.06em;
+    font-size:.95rem; background:rgba(255,255,255,.08); color:var(--ink);
+    border:1px solid rgba(255,255,255,.15); border-radius:999px;
+    padding:.65rem 1.6rem; cursor:pointer;
+  }
+  .wall-load-more:hover{ border-color:var(--cyan); }
 
   /* likes & comments */
   .wc-actions{ display:flex; align-items:center; gap:.5rem; margin-top:.9rem; padding-top:.8rem; border-top:1px solid rgba(255,255,255,.08); }
@@ -721,6 +812,25 @@
     position:absolute; top:4px; right:6px; background:none; border:none; color:#ff6b6b;
     font-size:.75rem; cursor:pointer; display:block;
   }
+  .wc-comment-quote{
+    font-size:.72rem; color:var(--muted); border-left:2px solid rgba(255,255,255,.15);
+    padding-left:.5rem; margin-bottom:.3rem; opacity:.85;
+  }
+  .wc-comment-footer{ display:flex; align-items:center; gap:.9rem; margin-top:.3rem; }
+  .wc-comment-reply, .wc-thread-toggle{
+    background:none; border:none; color:var(--muted); font-size:.7rem; cursor:pointer;
+    text-decoration:underline; padding:0;
+  }
+  .wc-comment-reply:hover, .wc-thread-toggle:hover{ color:var(--cyan); }
+  .wc-reply-banner{
+    display:flex; align-items:center; gap:.4rem; font-size:.75rem; color:var(--muted);
+    background:rgba(255,255,255,.04); border-radius:6px; padding:.4rem .6rem;
+  }
+  .wc-reply-banner b{ color:var(--cyan); }
+  .wc-reply-cancel{
+    margin-left:auto; background:none; border:none; color:var(--muted);
+    font-size:.75rem; cursor:pointer; padding:0 .2rem;
+  }
   .wc-comment-form{ display:flex; gap:.4rem; margin-top:.6rem; flex-wrap:wrap; }
   .wc-comment-form input{
     background:rgba(0,0,0,.3); border:1px solid rgba(255,255,255,.15); border-radius:6px;
@@ -731,6 +841,57 @@
     background:var(--cyan); color:#0a0014; border:none; border-radius:6px;
     font-family:'Bebas Neue'; letter-spacing:.05em; font-size:.8rem; padding:.4rem .8rem; cursor:pointer;
   }
+
+  /* ---------- JOURNAL DE VOYAGE (Polarsteps-style day-by-day recap) ---------- */
+  .jr-stats{
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(120px,1fr)); gap:.8rem;
+    margin-bottom:1.4rem; max-width:900px; margin-left:auto; margin-right:auto;
+  }
+  .jr-stat{
+    background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.09);
+    border-radius:14px; padding:1rem; text-align:center;
+  }
+  .jr-stat-num{ font-family:'Bebas Neue'; font-size:1.9rem; letter-spacing:.03em; color:var(--cyan); line-height:1; }
+  .jr-stat-label{ font-size:.7rem; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; margin-top:.3rem; }
+
+  .jr-routemap{
+    height:340px; border-radius:16px; overflow:hidden; border:1px solid rgba(255,255,255,.12);
+    background:#0a0014; max-width:900px; margin:0 auto 2.4rem;
+  }
+  .jr-routemap .leaflet-control-attribution{ font-size:9px; background:rgba(10,0,20,.6); color:var(--muted); }
+  .jr-routemap .leaflet-control-attribution a{ color:var(--muted); }
+  .jr-route-dot{ width:13px; height:13px; border-radius:50%; background:#ff2e8a; border:2px solid #fff; box-shadow:0 0 6px rgba(255,46,138,.7); }
+  .jr-route-popup{ font-family:'Space Grotesk'; font-size:.8rem; }
+  .jr-route-popup b{ display:block; font-family:'Bebas Neue'; letter-spacing:.03em; color:var(--ink); font-size:.95rem; margin-bottom:.15rem; }
+  .jr-route-popup img{ width:100%; max-width:160px; border-radius:6px; margin-top:.4rem; display:block; }
+
+  .jr-days{ display:flex; flex-direction:column; gap:2.2rem; max-width:700px; margin:0 auto; }
+  .jr-day{ position:relative; padding-left:1.6rem; border-left:2px solid rgba(255,255,255,.12); padding-bottom:.2rem; }
+  .jr-day:last-child{ border-left-color:transparent; }
+  .jr-day::before{
+    content:''; position:absolute; left:-7px; top:2px; width:12px; height:12px; border-radius:50%;
+    background:var(--magenta); box-shadow:0 0 0 4px rgba(255,46,138,.2);
+  }
+  .jr-day-head{ display:flex; align-items:baseline; gap:.6rem; flex-wrap:wrap; margin-bottom:.7rem; }
+  .jr-day-num{ font-family:'Bebas Neue'; font-size:1.5rem; letter-spacing:.04em; color:var(--yellow); }
+  .jr-day-date{ font-size:.8rem; color:var(--muted); text-transform:capitalize; }
+  .jr-day-map{
+    height:160px; border-radius:10px; overflow:hidden; border:1px solid rgba(255,255,255,.12);
+    background:#0a0014; margin-bottom:.9rem;
+  }
+  .jr-day-map .leaflet-control-attribution{ font-size:8px; background:rgba(10,0,20,.6); color:var(--muted); }
+  .jr-day-posts{ display:flex; flex-direction:column; gap:1rem; }
+  .jr-post{
+    background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.08);
+    border-radius:12px; overflow:hidden;
+  }
+  .jr-post-photos{ display:grid; gap:2px; grid-auto-flow:column; grid-auto-columns:1fr; }
+  .jr-post-photos img, .jr-post-photos video{ width:100%; height:140px; object-fit:cover; display:block; }
+  .jr-post-body{ padding:.7rem .9rem; }
+  .jr-post-meta{ display:flex; gap:.6rem; flex-wrap:wrap; align-items:center; font-size:.72rem; color:var(--muted); margin-bottom:.35rem; }
+  .jr-post-name{ color:var(--yellow); font-family:'Bebas Neue'; letter-spacing:.03em; }
+  .jr-post-msg{ font-size:.85rem; line-height:1.5; color:var(--ink); white-space:pre-wrap; }
+  .jr-empty{ color:var(--muted); font-size:.9rem; text-align:center; padding:2rem; }
 
   /* ---------- CUSTOM MODAL (prompt/confirm/alert are blocked in sandboxed preview) ---------- */
   .custom-modal-overlay{
@@ -766,10 +927,23 @@
     padding:2rem; cursor:zoom-out;
   }
   .img-lightbox-overlay.show{ display:flex; }
-  .img-lightbox-overlay img{ max-width:100%; max-height:100%; object-fit:contain; border-radius:8px; }
+  .img-lightbox-overlay img, .img-lightbox-overlay video{ max-width:100%; max-height:100%; object-fit:contain; border-radius:8px; }
   .img-lightbox-close{
     position:absolute; top:1rem; right:1.2rem; background:none; border:none;
-    color:#fff; font-size:2rem; line-height:1; cursor:pointer;
+    color:#fff; font-size:2rem; line-height:1; cursor:pointer; z-index:2;
+  }
+  .img-lightbox-nav{
+    position:absolute; top:50%; transform:translateY(-50%);
+    background:rgba(255,255,255,.12); border:none; color:#fff;
+    width:44px; height:44px; border-radius:50%; font-size:1.6rem; cursor:pointer;
+    align-items:center; justify-content:center; z-index:2;
+  }
+  .img-lightbox-nav.prev{ left:1rem; }
+  .img-lightbox-nav.next{ right:1rem; }
+  .img-lightbox-nav:hover{ background:rgba(255,255,255,.25); }
+  .img-lightbox-counter{
+    position:absolute; bottom:1rem; left:50%; transform:translateX(-50%);
+    color:rgba(255,255,255,.75); font-size:.85rem; font-family:'Space Grotesk';
   }
 
   /* ---------- MOBILE POLISH ---------- */
@@ -783,12 +957,29 @@
     .wall-delete{ width:32px; height:32px; }
     .wc-comment-delete{ padding:.4rem; }
     .auth-pill{ padding:.65rem 1.1rem; }
-    .auth-dock{ top:12px; right:12px; }
+    .auth-dock{ top:76px; right:12px; }
     .admin-dock{ bottom:16px; right:12px; }
+  }
+
+  /* ---------- BRAND MARK — logo, pinned inside the trip banner, left side ---------- */
+  .brand-mark{
+    position:absolute; left:14px; top:50%; transform:translateY(-50%);
+    height:46px; width:auto; opacity:.96;
+    pointer-events:none; user-select:none;
+    filter:drop-shadow(0 2px 6px rgba(0,0,0,.5));
+  }
+  @media (max-width:600px){
+    .brand-mark{ left:8px; height:32px; }
   }
 </style>
 </head>
 <body>
+
+<div class="trip-banner" id="tripBanner">
+  <img src="rk_production_bold_gradient.png" alt="RK Production" class="brand-mark">
+  <span class="tb-day" id="tbDay">Jour 1 / 16</span>
+  <span class="tb-transit" id="tbTransit"></span>
+</div>
 
 <div class="grain"></div>
 <div class="scanlines"></div>
@@ -866,7 +1057,7 @@
 
   <div class="dates-strip">
     <span class="pill">2 → 17 AOÛT</span>
-    <span class="pill">15 JOURS</span>
+    <span class="pill">16 JOURS</span>
     <span class="pill">3 VILLES</span>
   </div>
 
@@ -931,10 +1122,27 @@
   </div>
 </section>
 
+<!-- JOURNAL DE VOYAGE (style Polarsteps) -->
+<section id="journal">
+  <div class="section-head reveal">
+    <span class="section-num">02</span>
+    <span class="section-title display">Journal de voyage</span>
+  </div>
+  <p class="reveal" style="color:var(--muted); margin-bottom:2rem; max-width:60ch;">
+    Le voyage jour par jour : le trajet parcouru, les lieux visités, et tout ce qui a été posté sur le mur.
+  </p>
+
+  <div class="jr-stats reveal" id="jrStats"></div>
+  <div class="jr-routemap reveal" id="jrRouteMap"></div>
+  <div class="jr-days" id="jrDays">
+    <div class="jr-empty">Chargement…</div>
+  </div>
+</section>
+
 <!-- TIMELINE -->
 <section id="roadmap">
   <div class="section-head reveal">
-    <span class="section-num">02</span>
+    <span class="section-num">03</span>
     <span class="section-title display">La roadmap</span>
   </div>
   <div class="roadmap-track" data-editable="roadmap" contenteditable="false">
@@ -1002,7 +1210,7 @@
 <!-- MISSIONS / FLIGHTS -->
 <section id="missions">
   <div class="section-head reveal">
-    <span class="section-num">03</span>
+    <span class="section-num">04</span>
     <span class="section-title display">Les trajets</span>
   </div>
 
@@ -1243,21 +1451,25 @@
 <!-- HQ / HOTELS -->
 <section id="hq">
   <div class="section-head reveal">
-    <span class="section-num">04</span>
-    <span class="section-title display">Le QG</span>
+    <span class="section-num">05</span>
+    <span class="section-title display">Au programme</span>
   </div>
   <div class="hq-grid">
     <div class="hq-card ny reveal" data-editable="hq-1" contenteditable="false">
       <img class="hq-photo" src="New york.jpg" alt="New York">
+      <div class="hq-badge">8 NUITS</div>
       <div class="hq-tag">NEW YORK</div>
       <div class="hq-name display">Sheraton Lincoln Harbor</div>
       <div class="hq-meta">Weehawken, NJ — vue sur Manhattan · 2 → 10 août</div>
+      <a class="hq-maps-link" href="https://www.google.com/maps/search/?api=1&query=Sheraton+Lincoln+Harbor+Weehawken+NJ" target="_blank" rel="noopener noreferrer">📍 Voir sur Maps</a>
     </div>
     <div class="hq-card mia reveal" data-editable="hq-2" contenteditable="false">
       <img class="hq-photo" src="Miami.jpg" alt="Miami">
+      <div class="hq-badge">6 NUITS</div>
       <div class="hq-tag">MIAMI</div>
       <div class="hq-name display">Hotel Trouvail</div>
       <div class="hq-meta">Miami Beach, FL · 10 → 16 août</div>
+      <a class="hq-maps-link" href="https://www.google.com/maps/search/?api=1&query=Hotel+Trouvail+Miami+Beach+FL" target="_blank" rel="noopener noreferrer">📍 Voir sur Maps</a>
     </div>
     <div class="hq-card dc reveal" data-editable="hq-3" contenteditable="false">
       <img class="hq-photo" src="washington.jpg" alt="Washington DC">
@@ -1265,37 +1477,29 @@
       <div class="hq-tag">WASHINGTON DC</div>
       <div class="hq-name display">La capitale</div>
       <div class="hq-meta">Aller-retour en train le 6 août, depuis New York</div>
+      <a class="hq-maps-link" href="https://www.google.com/maps/search/?api=1&query=Washington+DC" target="_blank" rel="noopener noreferrer">📍 Voir sur Maps</a>
     </div>
   </div>
 </section>
 
-<!-- OBJECTIVES -->
-<section id="objectives">
+<!-- CITY MAPS -->
+<section id="citymaps">
   <div class="section-head reveal">
-    <span class="section-num">05</span>
-    <span class="section-title display">Les objectifs</span>
+    <span class="section-num">06</span>
+    <span class="section-title display">Les cartes</span>
   </div>
-  <div class="obj-grid">
-    <div class="obj-card reveal" data-editable="obj-1" contenteditable="false">
-      <span class="obj-icon">🗽</span>
-      <div class="obj-title display">New York Explorer Pass</div>
-      <div class="sub" style="color:var(--muted); font-size:.9rem;">Go City · 10 activités au choix</div>
-      <ul class="obj-list">
-        <li>Empire State Building — 102ᵉ étage</li>
-        <li>Top of the Rock — The Beam & Skylift</li>
-        <li>One World Observatory</li>
-        <li>Madame Tussauds New York</li>
-      </ul>
+  <div class="citymap-grid">
+    <div class="citymap-card reveal">
+      <div class="citymap-tag">NEW YORK</div>
+      <div class="citymap-map" id="citymap-ny" data-lat="40.7128" data-lon="-74.0060"></div>
     </div>
-    <div class="obj-card reveal" data-editable="obj-2" contenteditable="false">
-      <span class="obj-icon">🐊</span>
-      <div class="obj-title display">Everglades Airboat</div>
-      <div class="sub" style="color:var(--muted); font-size:.9rem;">Big Bus Tours · 12 août, 9h30 — 5h</div>
-      <ul class="obj-list">
-        <li>RDV Soundscape Park, Miami Beach</li>
-        <li>Traversée hydroglisseur + faune sauvage</li>
-        <li>À prendre : crème solaire, eau, tenue confort</li>
-      </ul>
+    <div class="citymap-card reveal">
+      <div class="citymap-tag">WASHINGTON DC</div>
+      <div class="citymap-map" id="citymap-dc" data-lat="38.9072" data-lon="-77.0369"></div>
+    </div>
+    <div class="citymap-card reveal">
+      <div class="citymap-tag">MIAMI</div>
+      <div class="citymap-map" id="citymap-mia" data-lat="25.7617" data-lon="-80.1918"></div>
     </div>
   </div>
 </section>
@@ -1303,167 +1507,12 @@
 <!-- MAP -->
 <section id="map">
   <div class="section-head reveal">
-    <span class="section-num">06</span>
-    <span class="section-title display">La carte</span>
+    <span class="section-num">07</span>
+    <span class="section-title display">La map du voyage</span>
   </div>
 
   <div class="map-wrap reveal">
-    <div id="tripmap">
-      <div class="map-controls">
-        <button class="map-btn" id="zoomIn" aria-label="Zoomer">+</button>
-        <button class="map-btn" id="zoomOut" aria-label="Dézoomer">−</button>
-        <button class="map-btn map-btn-reset" id="zoomReset" aria-label="Réinitialiser">⤾</button>
-      </div>
-      <div class="map-hint" id="mapHint">Ctrl + molette pour zoomer · glisser pour déplacer</div>
-      <svg id="tripsvg" viewBox="0 0 1000 560" preserveAspectRatio="xMidYMid meet">
-        <defs>
-          <linearGradient id="waterGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#3d7a94"/>
-            <stop offset="100%" stop-color="#2a5b73"/>
-          </linearGradient>
-          <linearGradient id="paperGrad" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stop-color="#d8c896"/>
-            <stop offset="100%" stop-color="#c3b17e"/>
-          </linearGradient>
-          <pattern id="waves" width="60" height="24" patternUnits="userSpaceOnUse">
-            <path d="M0,12 Q15,4 30,12 T60,12" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="1.5"/>
-          </pattern>
-          <filter id="paperNoise">
-            <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" result="n"/>
-            <feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .05 0"/>
-          </filter>
-          <marker id="dot" markerWidth="4" markerHeight="4" refX="2" refY="2"><circle cx="2" cy="2" r="1.6" fill="#1a1204"/></marker>
-        </defs>
-
-        <!-- paper base + ocean -->
-        <rect x="0" y="0" width="1000" height="560" fill="url(#paperGrad)"/>
-        <rect x="0" y="0" width="1000" height="560" filter="url(#paperNoise)"/>
-        <rect x="330" y="0" width="380" height="560" fill="url(#waterGrad)"/>
-        <rect x="330" y="0" width="380" height="560" fill="url(#waves)"/>
-        <text x="520" y="60" text-anchor="middle" fill="rgba(255,255,255,.5)" font-family="Bebas Neue" font-size="20" letter-spacing="10">OCÉAN ATLANTIQUE</text>
-
-        <!-- grid reference (paper map style) -->
-        <g font-family="Bebas Neue" font-size="13" fill="rgba(35,25,10,.45)" letter-spacing="2">
-          <text x="60" y="24">A</text><text x="200" y="24">B</text><text x="340" y="24">C</text>
-          <text x="480" y="24">D</text><text x="620" y="24">E</text><text x="760" y="24">F</text><text x="900" y="24">G</text>
-          <text x="16" y="90">1</text><text x="16" y="220">2</text><text x="16" y="350">3</text><text x="16" y="480">4</text>
-        </g>
-        <g stroke="rgba(35,25,10,.12)" stroke-width="1">
-          <line x1="0" y1="140" x2="1000" y2="140"/><line x1="0" y1="280" x2="1000" y2="280"/><line x1="0" y1="420" x2="1000" y2="420"/>
-          <line x1="140" y1="0" x2="140" y2="560"/><line x1="280" y1="0" x2="280" y2="560"/><line x1="620" y1="0" x2="620" y2="560"/><line x1="760" y1="0" x2="760" y2="560"/><line x1="900" y1="0" x2="900" y2="560"/>
-        </g>
-
-        <!-- USA landmass — real coastline (East Coast crop, from GeoJSON, Douglas-Peucker simplified) -->
-        <path d="M0,0 L330,0 L330,560 L0,560 Z" fill="url(#paperGrad)"/>
-        <path d="M22.4,103.9 L31.4,105.1 L42.5,100.7 L85.8,122.4 L87.0,126.4 L90.0,128.0 L89.2,129.5 L94.9,128.4 L95.5,132.0 L98.0,134.5 L103.3,136.4 L101.7,139.1 L114.6,146.3 L119.7,173.8 L116.1,182.9 L107.6,196.8 L108.7,200.6 L112.9,203.1 L116.0,203.1 L130.4,194.8 L143.1,192.4 L159.3,184.7 L158.5,178.4 L156.5,175.4 L162.1,172.9 L185.6,172.9 L189.5,166.9 L209.8,151.7 L251.4,151.6 L252.6,147.8 L261.8,144.6 L266.2,137.6 L270.0,125.6 L279.5,113.9 L283.6,118.0 L291.9,115.4 L297.4,119.8 L297.4,140.9 L305.5,149.6 L307.6,154.7 L294.4,162.1 L268.6,172.0 L259.9,184.7 L259.8,192.9 L263.9,201.0 L269.0,201.4 L267.7,195.8 L271.4,199.2 L270.5,203.6 L234.4,210.1 L224.1,214.5 L242.3,211.6 L245.9,214.6 L228.6,219.2 L220.7,219.2 L221.1,217.3 L217.3,221.6 L221.0,222.3 L218.3,233.4 L209.3,245.3 L208.4,241.3 L201.6,236.7 L204.2,245.0 L207.2,247.7 L207.4,253.6 L196.5,271.9 L195.3,271.3 L199.2,260.8 L192.9,254.9 L191.4,242.0 L189.0,248.7 L191.7,258.5 L183.5,256.1 L192.0,261.1 L192.5,275.8 L196.1,276.8 L199.1,297.6 L191.2,309.1 L178.4,313.7 L170.3,322.7 L164.1,323.7 L157.8,329.4 L156.1,334.6 L142.5,344.6 L129.7,361.1 L127.8,372.0 L129.9,382.8 L134.1,396.0 L139.6,406.9 L139.6,413.6 L145.5,431.5 L144.6,447.9 L141.5,457.3 L137.8,459.3 L131.7,457.4 L129.7,450.6 L125.0,447.1 L110.9,416.0 L113.4,405.7 L109.9,397.2 L100.3,384.3 L95.4,381.9 L83.0,388.9 L74.7,381.0 L67.0,377.1 L53.0,379.1 L42.0,377.4 L32.5,378.4 L27.4,380.8 L29.7,385.0 L29.5,391.2 L32.1,394.3 L29.7,396.3 L25.1,394.0 L22.4,395.7 Z"
-              fill="#8a9a5b" stroke="#5c6a3a" stroke-width="1.6" stroke-linejoin="round"/>
-        <text x="45" y="70" fill="#4a3f1f" font-family="Bebas Neue" font-size="22" letter-spacing="6">USA</text>
-        <text x="45" y="88" fill="#4a3f1f" font-family="Bebas Neue" font-size="11" letter-spacing="3" opacity=".7">CÔTE EST</text>
-
-        <!-- France landmass — real coastline (Hexagone + Corse, from GeoJSON, Douglas-Peucker simplified) -->
-        <path d="M700,0 L1000,0 L1000,300 L700,300 Z" fill="url(#paperGrad)"/>
-        <path d="M884.6,55.1 L897.7,68.0 L907.4,65.9 L923.9,78.4 L928.1,80.8 L933.5,80.2 L942.4,87.4 L969.6,92.5 L960.1,111.3 L957.7,130.9 L952.5,135.6 L943.9,133.1 L944.5,140.1 L930.7,155.6 L930.5,168.0 L939.5,163.7 L945.9,175.8 L945.2,183.5 L950.7,193.9 L944.2,202.2 L949.0,223.5 L959.2,227.0 L957.1,238.9 L940.0,254.5 L902.8,247.0 L875.4,256.0 L873.2,272.5 L851.4,276.1 L830.2,263.6 L823.3,269.6 L788.6,257.1 L781.1,246.4 L790.9,229.9 L794.5,175.1 L775.0,146.2 L761.1,132.3 L732.3,121.7 L730.4,101.7 L754.8,95.7 L786.5,102.8 L780.5,71.7 L798.3,83.4 L842.2,62.0 L847.8,39.5 L864.3,33.9 L867.1,43.6 L875.8,44.0 Z"
-              fill="#8a9a5b" stroke="#5c6a3a" stroke-width="1.6" stroke-linejoin="round"/>
-        <path d="M997.1,281.3 L990.9,302.6 L982.3,297.0 L978.0,278.5 L981.8,268.3 L993.9,257.8 Z"
-              fill="#8a9a5b" stroke="#5c6a3a" stroke-width="1.4" stroke-linejoin="round"/>
-        <text x="740" y="290" fill="#4a3f1f" font-family="Bebas Neue" font-size="20" letter-spacing="6">FRANCE</text>
-
-        <!-- routes: black casing + colored dash on top, GPS style -->
-        <g fill="none" stroke-linecap="round">
-          <path d="M908,182 L865,93" stroke="#1a1204" stroke-width="5" opacity=".5"/>
-          <path class="flight-path" d="M908,182 L865,93" stroke="#ff2e8a" stroke-width="2.5" stroke-dasharray="6 10"/>
-
-          <path d="M865,93 L220,218" stroke="#1a1204" stroke-width="5" opacity=".5"/>
-          <path class="flight-path" d="M865,93 L220,218" stroke="#16e5ff" stroke-width="2.5" stroke-dasharray="6 10"/>
-
-          <path d="M220,218 Q197,225 183,246" stroke="#1a1204" stroke-width="4" opacity=".5"/>
-          <path class="flight-path" d="M220,218 Q197,225 183,246" stroke="#ff7a2e" stroke-width="2" stroke-dasharray="2 8" marker-end="url(#arrowOrange)"/>
-          <path d="M183,246 Q206,238 220,218" stroke="#1a1204" stroke-width="4" opacity=".5"/>
-          <path class="flight-path" d="M183,246 Q206,238 220,218" stroke="#ff7a2e" stroke-width="2" stroke-dasharray="2 8" marker-end="url(#arrowOrange)"/>
-
-          <path d="M220,218 L144,449" stroke="#1a1204" stroke-width="5" opacity=".5"/>
-          <path class="flight-path" d="M220,218 L144,449" stroke="#ffd400" stroke-width="2.5" stroke-dasharray="6 10"/>
-
-          <path d="M144,449 L865,93 L908,182" stroke="#1a1204" stroke-width="5" opacity=".5"/>
-          <path class="flight-path" d="M144,449 L865,93 L908,182" stroke="#ff2e8a" stroke-width="2.5" stroke-dasharray="6 10"/>
-
-          <path d="M144,449 Q136,444 135,453" stroke="#1a1204" stroke-width="4" opacity=".5"/>
-          <path class="flight-path" d="M144,449 Q136,444 135,453" stroke="#31c48d" stroke-width="2" stroke-dasharray="2 8" marker-end="url(#arrowGreen)"/>
-          <path d="M135,453 Q143,458 144,449" stroke="#1a1204" stroke-width="4" opacity=".5"/>
-          <path class="flight-path" d="M135,453 Q143,458 144,449" stroke="#31c48d" stroke-width="2" stroke-dasharray="2 8" marker-end="url(#arrowGreen)"/>
-        </g>
-
-        <defs>
-          <marker id="arrowOrange" markerWidth="8" markerHeight="8" refX="5" refY="3" orient="auto" markerUnits="userSpaceOnUse">
-            <path d="M0,0 L6,3 L0,6 Z" fill="#ff7a2e"/>
-          </marker>
-          <marker id="arrowGreen" markerWidth="8" markerHeight="8" refX="5" refY="3" orient="auto" markerUnits="userSpaceOnUse">
-            <path d="M0,0 L6,3 L0,6 Z" fill="#31c48d"/>
-          </marker>
-        </defs>
-
-        <!-- ============ BLIPS (GTA-style icons) ============ -->
-
-        <!-- LYON — home base -->
-        <g class="pin" data-name="LYON" data-info="Base — départ &amp; retour" transform="translate(908,182)">
-          <circle r="13" fill="rgba(20,14,4,.55)" stroke="#f6e9c9" stroke-width="1.5"/>
-          <path d="M-6,1 L0,-6 L6,1 L6,6 L-6,6 Z" fill="#ffd400" stroke="#1a1204" stroke-width=".8"/>
-          <text x="15" y="4" font-family="Bebas Neue" font-size="15" letter-spacing="2" fill="#221607" stroke="#f6e9c9" stroke-width="3" paint-order="stroke">LYON</text>
-        </g>
-
-        <!-- PARIS CDG — transit -->
-        <g class="pin" data-name="PARIS CDG" data-info="Correspondance" transform="translate(865,93)">
-          <circle r="11" fill="rgba(20,14,4,.55)" stroke="#f6e9c9" stroke-width="1.5"/>
-          <path d="M0,-7 L2,-1 L7,2 L7,4 L2,2.5 L1,6 L3,7.5 L3,8.5 L0,7.5 L-3,8.5 L-3,7.5 L-1,6 L-2,2.5 L-7,4 L-7,2 L-2,-1 Z" fill="#e8e2d4" stroke="#1a1204" stroke-width=".6"/>
-          <text x="14" y="4" font-family="Bebas Neue" font-size="13" letter-spacing="2" fill="#221607" stroke="#f6e9c9" stroke-width="3" paint-order="stroke">PARIS CDG</text>
-        </g>
-
-        <!-- NEW YORK — main hub -->
-        <g class="pin" data-name="NEW YORK" data-info="2 → 10 août · Sheraton Lincoln Harbor" transform="translate(220,218)">
-          <circle r="15" fill="rgba(20,14,4,.55)" stroke="#f6e9c9" stroke-width="1.5"/>
-          <path d="M0,-9 L2.2,-2.6 L9,-1.5 L3.8,3 L5,10 L0,6.2 L-5,10 L-3.8,3 L-9,-1.5 L-2.2,-2.6 Z" fill="#2e7dd1" stroke="#1a1204" stroke-width=".8"/>
-          <text x="17" y="5" font-family="Bebas Neue" font-size="17" letter-spacing="2" fill="#221607" stroke="#f6e9c9" stroke-width="3" paint-order="stroke">NEW YORK</text>
-        </g>
-
-        <!-- WASHINGTON DC — capital -->
-        <g class="pin" data-name="WASHINGTON DC" data-info="6 août · Amtrak aller 6h32, retour 21h15 vers New York" transform="translate(183,246)">
-          <circle r="11" fill="rgba(20,14,4,.55)" stroke="#f6e9c9" stroke-width="1.5"/>
-          <rect x="-1" y="-8" width="2" height="16" fill="#c9c2ac"/>
-          <path d="M1,-8 L8,-5 L1,-2 Z" fill="#d4342c" stroke="#1a1204" stroke-width=".6"/>
-          <text x="14" y="18" font-family="Bebas Neue" font-size="13" letter-spacing="2" fill="#221607" stroke="#f6e9c9" stroke-width="3" paint-order="stroke">WASHINGTON DC</text>
-        </g>
-
-        <!-- MIAMI — beach -->
-        <g class="pin" data-name="MIAMI" data-info="10 → 16 août · Hotel Trouvail" transform="translate(144,449)">
-          <circle r="13" fill="rgba(20,14,4,.55)" stroke="#f6e9c9" stroke-width="1.5"/>
-          <circle r="4.5" fill="#ffb020" stroke="#1a1204" stroke-width=".6"/>
-          <g stroke="#ffb020" stroke-width="1.6">
-            <line x1="0" y1="-6.5" x2="0" y2="-9.5"/><line x1="0" y1="6.5" x2="0" y2="9.5"/>
-            <line x1="-6.5" y1="0" x2="-9.5" y2="0"/><line x1="6.5" y1="0" x2="9.5" y2="0"/>
-            <line x1="-4.6" y1="-4.6" x2="-6.7" y2="-6.7"/><line x1="4.6" y1="4.6" x2="6.7" y2="6.7"/>
-            <line x1="-4.6" y1="4.6" x2="-6.7" y2="6.7"/><line x1="4.6" y1="-4.6" x2="6.7" y2="-6.7"/>
-          </g>
-          <text x="16" y="4" font-family="Bebas Neue" font-size="15" letter-spacing="2" fill="#221607" stroke="#f6e9c9" stroke-width="3" paint-order="stroke">MIAMI</text>
-        </g>
-
-        <!-- EVERGLADES — swamp excursion -->
-        <g class="pin" data-name="EVERGLADES" data-info="12 août · Excursion hydroglisseur, 9h30 - 5h (Big Bus Tours)" transform="translate(135,453)">
-          <circle r="9" fill="rgba(20,14,4,.55)" stroke="#f6e9c9" stroke-width="1.5"/>
-          <path d="M0,-6 C5,-3.5 5,3.5 0,6 C-5,3.5 -5,-3.5 0,-6 Z" fill="#31c48d" stroke="#1a1204" stroke-width=".6"/>
-          <line x1="0" y1="-5" x2="0" y2="5" stroke="#1a1204" stroke-width=".6"/>
-          <text x="-11" y="-11" text-anchor="end" font-family="Bebas Neue" font-size="12" letter-spacing="2" fill="#221607" stroke="#f6e9c9" stroke-width="3" paint-order="stroke">EVERGLADES</text>
-        </g>
-
-        <!-- compass rose -->
-        <g transform="translate(940,480)">
-          <circle r="30" fill="rgba(246,233,201,.5)" stroke="#3b2a10" stroke-width="1.5"/>
-          <path d="M0,-24 L6,0 L0,24 L-6,0 Z" fill="#3b2a10"/>
-          <path d="M-24,0 L0,-6 L24,0 L0,6 Z" fill="#3b2a10" opacity=".55"/>
-          <text x="0" y="-32" text-anchor="middle" font-family="Bebas Neue" font-size="14" fill="#221607">N</text>
-        </g>
-      </svg>
-      <div id="map-tooltip" class="map-tooltip"></div>
-    </div>
+    <div id="tripmap"></div>
   </div>
 
   <div class="map-legend reveal">
@@ -1477,8 +1526,8 @@
 </section>
 
 <footer>
-  <div class="fbig display">GOOD TRIP.</div>
-  15 jours · 3 villes · New York → Washington DC → Miami · zéro regret
+  <div class="fbig display"><img src="rk_production_bold_gradient.png" alt="RK Production"></div>
+  16 jours · 3 villes · New York → Washington DC → Miami
 </footer>
 
 <div class="admin-dock" id="adminDock">
@@ -1499,7 +1548,11 @@
 
 <div class="img-lightbox-overlay" id="imgLightboxOverlay">
   <button class="img-lightbox-close" id="imgLightboxClose">&times;</button>
+  <button class="img-lightbox-nav prev" id="imgLightboxPrev">&#8249;</button>
+  <button class="img-lightbox-nav next" id="imgLightboxNext">&#8250;</button>
   <img id="imgLightboxImg" src="" alt="">
+  <video id="imgLightboxVideo" controls playsinline style="display:none;"></video>
+  <div class="img-lightbox-counter" id="imgLightboxCounter"></div>
 </div>
 
 <div class="crop-modal" id="cropModal">
@@ -1522,156 +1575,6 @@
 </div>
 
 
-<script>
-  // animated dashes — pure CSS/SVG, no external tiles needed
-  let dashOffset = 0;
-  setInterval(()=>{
-    dashOffset = (dashOffset - 1) % 200;
-    document.querySelectorAll('#tripsvg path.flight-path').forEach(p=>{
-      p.style.strokeDashoffset = dashOffset;
-    });
-  }, 60);
-
-  // hover / tap tooltips on pins
-  const tooltip = document.getElementById('map-tooltip');
-  const mapWrap = document.getElementById('tripmap');
-  document.querySelectorAll('#tripsvg .pin').forEach(pin=>{
-    const show = (evt)=>{
-      const name = pin.getAttribute('data-name');
-      const info = pin.getAttribute('data-info');
-      tooltip.innerHTML = `<b>${name}</b><br>${info}`;
-      tooltip.style.opacity = 1;
-      const rect = mapWrap.getBoundingClientRect();
-      const x = (evt.touches ? evt.touches[0].clientX : evt.clientX) - rect.left;
-      const y = (evt.touches ? evt.touches[0].clientY : evt.clientY) - rect.top;
-      tooltip.style.left = Math.min(x + 16, rect.width - 200) + 'px';
-      tooltip.style.top = Math.max(y - 50, 10) + 'px';
-    };
-    pin.addEventListener('mouseenter', show);
-    pin.addEventListener('mousemove', show);
-    pin.addEventListener('mouseleave', ()=> tooltip.style.opacity = 0);
-    pin.addEventListener('click', show);
-    pin.style.cursor = 'pointer';
-  });
-
-  // ---------- ZOOM & PAN ----------
-  const svgEl = document.getElementById('tripsvg');
-  const hint = document.getElementById('mapHint');
-  const BASE = { x:0, y:0, w:1000, h:560 };
-  let vb = { ...BASE };
-  const MIN_W = 120;   // most zoomed-in
-  const MAX_W = 1000;  // most zoomed-out (= full map)
-
-  function applyViewBox(){
-    svgEl.setAttribute('viewBox', `${vb.x} ${vb.y} ${vb.w} ${vb.h}`);
-  }
-
-  function clampViewBox(){
-    vb.w = Math.min(Math.max(vb.w, MIN_W), MAX_W);
-    vb.h = vb.w * (BASE.h / BASE.w);
-    // keep view inside a generous bound around the base map
-    const margin = 200;
-    vb.x = Math.min(Math.max(vb.x, BASE.x - margin), BASE.x + BASE.w + margin - vb.w);
-    vb.y = Math.min(Math.max(vb.y, BASE.y - margin), BASE.y + BASE.h + margin - vb.h);
-  }
-
-  function zoomAt(svgX, svgY, factor){
-    const newW = vb.w * factor;
-    const newH = vb.h * factor;
-    vb.x = svgX - (svgX - vb.x) * (newW / vb.w);
-    vb.y = svgY - (svgY - vb.y) * (newH / vb.h);
-    vb.w = newW; vb.h = newH;
-    clampViewBox();
-    applyViewBox();
-  }
-
-  function zoomAtCenter(factor){
-    zoomAt(vb.x + vb.w/2, vb.y + vb.h/2, factor);
-  }
-
-  function screenToSVG(clientX, clientY){
-    const rect = svgEl.getBoundingClientRect();
-    const scaleX = vb.w / rect.width;
-    const scaleY = vb.h / rect.height;
-    return { x: vb.x + (clientX - rect.left) * scaleX, y: vb.y + (clientY - rect.top) * scaleY };
-  }
-
-  // buttons
-  document.getElementById('zoomIn').addEventListener('click', ()=> zoomAtCenter(0.75));
-  document.getElementById('zoomOut').addEventListener('click', ()=> zoomAtCenter(1.33));
-  document.getElementById('zoomReset').addEventListener('click', ()=>{ vb = { ...BASE }; applyViewBox(); });
-
-  // wheel zoom — Ctrl/Cmd required so page scroll stays free
-  let hintShown = false;
-  svgEl.addEventListener('wheel', (e)=>{
-    if(!(e.ctrlKey || e.metaKey)){
-      if(!hintShown){
-        hint.classList.remove('hidden');
-        clearTimeout(hint._t);
-        hint._t = setTimeout(()=> hint.classList.add('hidden'), 1800);
-      }
-      return; // let the page scroll normally
-    }
-    e.preventDefault();
-    const { x, y } = screenToSVG(e.clientX, e.clientY);
-    zoomAt(x, y, e.deltaY < 0 ? 0.9 : 1.1);
-  }, { passive:false });
-
-  // drag to pan (mouse)
-  let dragging = false, dragStart = null, vbStart = null;
-  svgEl.addEventListener('mousedown', (e)=>{
-    dragging = true;
-    svgEl.classList.add('grabbing');
-    dragStart = { x:e.clientX, y:e.clientY };
-    vbStart = { ...vb };
-  });
-  window.addEventListener('mousemove', (e)=>{
-    if(!dragging) return;
-    const rect = svgEl.getBoundingClientRect();
-    const scaleX = vbStart.w / rect.width, scaleY = vbStart.h / rect.height;
-    vb.x = vbStart.x - (e.clientX - dragStart.x) * scaleX;
-    vb.y = vbStart.y - (e.clientY - dragStart.y) * scaleY;
-    clampViewBox();
-    applyViewBox();
-  });
-  window.addEventListener('mouseup', ()=>{ dragging = false; svgEl.classList.remove('grabbing'); });
-
-  // touch: 1 finger pan, 2 finger pinch zoom
-  let touchMode = null, touchStart = null, touchVbStart = null, pinchStartDist = null;
-  function touchDist(t0,t1){ return Math.hypot(t1.clientX-t0.clientX, t1.clientY-t0.clientY); }
-  svgEl.addEventListener('touchstart', (e)=>{
-    if(e.touches.length === 1){
-      touchMode = 'pan';
-      touchStart = { x:e.touches[0].clientX, y:e.touches[0].clientY };
-      touchVbStart = { ...vb };
-    } else if(e.touches.length === 2){
-      touchMode = 'pinch';
-      pinchStartDist = touchDist(e.touches[0], e.touches[1]);
-      touchVbStart = { ...vb };
-    }
-  }, { passive:true });
-  svgEl.addEventListener('touchmove', (e)=>{
-    const rect = svgEl.getBoundingClientRect();
-    if(touchMode === 'pan' && e.touches.length === 1){
-      e.preventDefault();
-      const scaleX = touchVbStart.w / rect.width, scaleY = touchVbStart.h / rect.height;
-      vb.x = touchVbStart.x - (e.touches[0].clientX - touchStart.x) * scaleX;
-      vb.y = touchVbStart.y - (e.touches[0].clientY - touchStart.y) * scaleY;
-      clampViewBox();
-      applyViewBox();
-    } else if(touchMode === 'pinch' && e.touches.length === 2){
-      e.preventDefault();
-      const dist = touchDist(e.touches[0], e.touches[1]);
-      const factor = pinchStartDist / dist;
-      const midX = (e.touches[0].clientX + e.touches[1].clientX)/2;
-      const midY = (e.touches[0].clientY + e.touches[1].clientY)/2;
-      vb = { ...touchVbStart };
-      const { x, y } = screenToSVG(midX, midY);
-      zoomAt(x, y, factor);
-    }
-  }, { passive:false });
-  svgEl.addEventListener('touchend', ()=>{ touchMode = null; });
-</script>
 
 <script>
   // ============================================================
@@ -1744,21 +1647,198 @@
   // ============================================================
   const imgLightboxOverlay = document.getElementById('imgLightboxOverlay');
   const imgLightboxImg = document.getElementById('imgLightboxImg');
+  const imgLightboxVideo = document.getElementById('imgLightboxVideo');
   const imgLightboxClose = document.getElementById('imgLightboxClose');
+  const imgLightboxPrev = document.getElementById('imgLightboxPrev');
+  const imgLightboxNext = document.getElementById('imgLightboxNext');
+  const imgLightboxCounter = document.getElementById('imgLightboxCounter');
 
-  function openLightbox(src, alt){
-    imgLightboxImg.src = src;
-    imgLightboxImg.alt = alt || '';
+  let galleryMedia = [];
+  let galleryIndex = 0;
+
+  function showGallerySlide(){
+    const m = galleryMedia[galleryIndex];
+    if(!m) return;
+    if(m.type === 'video'){
+      imgLightboxImg.style.display = 'none';
+      imgLightboxImg.src = '';
+      imgLightboxVideo.style.display = 'block';
+      imgLightboxVideo.src = m.src;
+    } else {
+      imgLightboxVideo.style.display = 'none';
+      imgLightboxVideo.pause();
+      imgLightboxVideo.src = '';
+      imgLightboxImg.style.display = 'block';
+      imgLightboxImg.src = m.src;
+    }
+    const multi = galleryMedia.length > 1;
+    imgLightboxPrev.style.display = multi ? 'flex' : 'none';
+    imgLightboxNext.style.display = multi ? 'flex' : 'none';
+    imgLightboxCounter.textContent = multi ? `${galleryIndex + 1} / ${galleryMedia.length}` : '';
+  }
+  function openGallery(media, index){
+    galleryMedia = media;
+    galleryIndex = index;
+    showGallerySlide();
     imgLightboxOverlay.classList.add('show');
+  }
+  function openLightbox(src, alt){
+    openGallery([{ type:'image', src }], 0);
   }
   function closeLightbox(){
     imgLightboxOverlay.classList.remove('show');
     imgLightboxImg.src = '';
+    imgLightboxVideo.pause();
+    imgLightboxVideo.src = '';
+    galleryMedia = [];
   }
+  function galleryPrev(){ galleryIndex = (galleryIndex - 1 + galleryMedia.length) % galleryMedia.length; showGallerySlide(); }
+  function galleryNext(){ galleryIndex = (galleryIndex + 1) % galleryMedia.length; showGallerySlide(); }
+
   imgLightboxOverlay.addEventListener('click', closeLightbox);
   imgLightboxClose.addEventListener('click', (e)=>{ e.stopPropagation(); closeLightbox(); });
   imgLightboxImg.addEventListener('click', (e)=> e.stopPropagation());
-  document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') closeLightbox(); });
+  imgLightboxVideo.addEventListener('click', (e)=> e.stopPropagation());
+  imgLightboxPrev.addEventListener('click', (e)=>{ e.stopPropagation(); galleryPrev(); });
+  imgLightboxNext.addEventListener('click', (e)=>{ e.stopPropagation(); galleryNext(); });
+  document.addEventListener('keydown', (e)=>{
+    if(!imgLightboxOverlay.classList.contains('show')) return;
+    if(e.key === 'Escape') closeLightbox();
+    if(e.key === 'ArrowLeft') galleryPrev();
+    if(e.key === 'ArrowRight') galleryNext();
+  });
+</script>
+
+<script>
+  // ============================================================
+  // TRIP BANNER — sticky "Jour X / Y" recap + quick glance on the
+  // flight/train currently imminent (boarding soon / in transit /
+  // just landed), read straight off the .trk-card data attributes
+  // and their rendered endpoint labels so no extra fetch is needed.
+  // ============================================================
+  (function(){
+    const TRIP_START = new Date(2026, 7, 2); // 2 août 2026
+    const TRIP_TOTAL_DAYS = 16; // 2 → 17 août inclus
+
+    const tbDay = document.getElementById('tbDay');
+    const tbTransit = document.getElementById('tbTransit');
+    if(!tbDay || !tbTransit) return;
+
+    let activeLegEl = null;
+
+    function readLegs(){
+      return Array.from(document.querySelectorAll('.trk-card')).map(card => {
+        const depEnd = card.querySelector('.trk-endpoint:not(.trk-endpoint-end)');
+        const arrEnd = card.querySelector('.trk-endpoint-end');
+        return {
+          el: card,
+          dep: new Date(card.dataset.dep),
+          arr: new Date(card.dataset.arr),
+          icon: card.querySelector('.trk-icon')?.textContent.trim() || '✈️',
+          code: card.querySelector('.trk-code')?.textContent.trim() || '',
+          depPlace: depEnd?.querySelector('.trk-place')?.textContent.trim() || '',
+          arrPlace: arrEnd?.querySelector('.trk-place')?.textContent.trim() || '',
+          depTime: depEnd?.querySelector('.trk-time')?.textContent.trim() || '',
+          arrTime: arrEnd?.querySelector('.trk-time')?.textContent.trim() || '',
+          isTrain: card.classList.contains('is-train'),
+        };
+      }).sort((a,b) => a.dep - b.dep);
+    }
+
+    function formatCountdown(ms){
+      const totalMin = Math.max(0, Math.round(ms / 60000));
+      const h = Math.floor(totalMin / 60), m = totalMin % 60;
+      return h === 0 ? `${m} min` : `${h}h${String(m).padStart(2,'0')}`;
+    }
+
+    // the city we're currently in = where we last landed/arrived; before the
+    // very first leg it's that leg's departure city (the starting point)
+    function currentCity(now, legs){
+      if(legs.length === 0) return '';
+      let city = legs[0].depPlace;
+      for(const leg of legs){
+        if(now >= leg.arr) city = leg.arrPlace;
+      }
+      return city;
+    }
+
+    function updateBanner(){
+      const now = new Date();
+
+      const startMidnight = new Date(TRIP_START.getFullYear(), TRIP_START.getMonth(), TRIP_START.getDate());
+      const dayNum = Math.floor((now - startMidnight) / 86400000) + 1;
+      if(dayNum < 1){
+        tbDay.textContent = `Départ dans ${1 - dayNum} jour${1 - dayNum > 1 ? 's' : ''}`;
+      } else if(dayNum > TRIP_TOTAL_DAYS){
+        tbDay.textContent = `Voyage terminé 🎉`;
+      } else {
+        tbDay.textContent = `Jour ${dayNum} / ${TRIP_TOTAL_DAYS}`;
+      }
+
+      // shows up 3h before a departure, stays 45min after landing/arrival —
+      // outside that window we fall back to "currently in <city>" instead
+      const WINDOW_BEFORE = 3 * 3600 * 1000;
+      const WINDOW_AFTER = 45 * 60 * 1000;
+      const legs = readLegs();
+      const active = legs.find(leg =>
+        now >= (leg.dep - WINDOW_BEFORE) && now <= (leg.arr.getTime() + WINDOW_AFTER)
+      );
+
+      if(active){
+        activeLegEl = active.el;
+        let msg;
+        if(now < active.dep){
+          msg = `${active.icon} ${active.isTrain ? 'Départ' : 'Décollage'} ${active.code} à ${active.depTime} — dans ${formatCountdown(active.dep - now)}`;
+        } else if(now <= active.arr){
+          msg = `${active.icon} En route vers ${active.arrPlace} — arrivée prévue à ${active.arrTime}`;
+        } else {
+          msg = `${active.icon} ${active.isTrain ? 'Arrivé·e' : 'Atterri'} à ${active.arrPlace} (${active.arrTime})`;
+        }
+        tbTransit.style.display = 'flex';
+        tbTransit.innerHTML = `<span>${msg}</span><button type="button" class="tb-view-btn">Voir détail →</button>`;
+        return;
+      }
+
+      activeLegEl = null;
+      if(dayNum >= 1 && dayNum <= TRIP_TOTAL_DAYS){
+        const city = currentCity(now, legs);
+        tbTransit.style.display = city ? 'flex' : 'none';
+        tbTransit.textContent = city ? `📍 Actuellement à ${city}` : '';
+      } else {
+        tbTransit.style.display = 'none';
+        tbTransit.textContent = '';
+      }
+    }
+
+    // clicking "Voir détail" jumps to the matching boarding-pass card in
+    // the "Les trajets" section and flashes it so it's obvious which one
+    tbTransit.addEventListener('click', (e)=>{
+      if(!e.target.closest('.tb-view-btn') || !activeLegEl) return;
+      activeLegEl.scrollIntoView({ behavior:'smooth', block:'center' });
+      activeLegEl.classList.remove('trk-highlight');
+      void activeLegEl.offsetWidth; // restart the animation if clicked twice
+      activeLegEl.classList.add('trk-highlight');
+      setTimeout(()=> activeLegEl.classList.remove('trk-highlight'), 1800);
+    });
+
+    updateBanner();
+    setInterval(updateBanner, 60000);
+
+    // slide the banner away on scroll-down, bring it back on scroll-up
+    // (and always when near the very top of the page)
+    const tripBanner = document.getElementById('tripBanner');
+    const SCROLL_REVEAL_THRESHOLD = 40;
+    let lastScrollY = window.scrollY;
+    window.addEventListener('scroll', () => {
+      const y = window.scrollY;
+      if(y <= SCROLL_REVEAL_THRESHOLD || y < lastScrollY){
+        tripBanner.classList.remove('tb-hidden');
+      } else if(y > lastScrollY){
+        tripBanner.classList.add('tb-hidden');
+      }
+      lastScrollY = y;
+    }, { passive:true });
+  })();
 </script>
 
 <script type="module">
@@ -1996,6 +2076,25 @@
   let mediaItems = []; // [{type:'image', src: dataUrl} | {type:'video', src: storageUrl}]
   let wfGeo = null; // {lat, lon} captured via navigator.geolocation
 
+  // reverse-geocode (OpenStreetMap Nominatim, free/no key) to turn GPS coords
+  // into a short human-readable place name for the "Lieu" field
+  async function reverseGeocodePlace(lat, lon){
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}&zoom=16&addressdetails=1`);
+      if(!res.ok) return null;
+      const data = await res.json();
+      const a = data.address || {};
+      const spot = a.attraction || a.tourism || a.leisure || a.amenity || a.building
+        || a.commercial || a.neighbourhood || a.road || null;
+      const city = a.city || a.town || a.village || a.municipality || a.suburb || null;
+      if(spot && city) return `${spot}, ${city}`;
+      return spot || city || (data.display_name ? data.display_name.split(',').slice(0,2).join(',').trim() : null);
+    } catch(e){
+      console.error('reverseGeocodePlace', e);
+      return null;
+    }
+  }
+
   wfGeoBtn.addEventListener('click', ()=>{
     if(!navigator.geolocation){
       wfGeoStatus.textContent = "⚠️ Géolocalisation non supportée par ce navigateur.";
@@ -2008,6 +2107,17 @@
         wfGeo = { lat: pos.coords.latitude, lon: pos.coords.longitude };
         wfGeoStatus.textContent = `✓ Position capturée (±${Math.round(pos.coords.accuracy)}m)`;
         wfGeoBtn.disabled = false;
+        if(!wfPlace.value.trim()){
+          wfGeoStatus.textContent += ' · recherche du lieu…';
+          reverseGeocodePlace(wfGeo.lat, wfGeo.lon).then(place=>{
+            if(place && !wfPlace.value.trim()){
+              wfPlace.value = place;
+              wfGeoStatus.textContent = `✓ Position capturée (±${Math.round(pos.coords.accuracy)}m) · 📍 ${place}`;
+            } else if(!place){
+              wfGeoStatus.textContent = `✓ Position capturée (±${Math.round(pos.coords.accuracy)}m)`;
+            }
+          });
+        }
       },
       (err)=>{
         wfGeoStatus.textContent = "⚠️ Position indisponible (" + err.message + ")";
@@ -2120,20 +2230,55 @@
     });
   });
 
+  // ---------- resize/re-crop a single already-published photo (edit mode) ----------
+  let singleCropMode = false;
+  let singleCropResolve = null;
+
+  function openResizeModal(src){
+    return new Promise((resolve)=>{
+      singleCropMode = true;
+      singleCropResolve = resolve;
+      cropProgress.textContent = 'Redimensionner la photo';
+      cropSkipBtn.textContent = 'Annuler';
+      cropConfirmBtn.textContent = 'Valider le nouveau cadrage';
+      cropModal.querySelectorAll('.crop-ratios button').forEach((b,i)=> b.classList.toggle('active', i===0));
+      cropImg.src = src;
+      if(cropInstance) cropInstance.destroy();
+      cropInstance = new Cropper(cropImg, { viewMode:1, dragMode:'move', autoCropArea:1, background:false, aspectRatio:NaN });
+      cropModal.classList.add('show');
+    });
+  }
+
+  function closeResizeModal(result){
+    if(cropInstance){ cropInstance.destroy(); cropInstance = null; }
+    cropModal.classList.remove('show');
+    cropSkipBtn.textContent = 'Utiliser telle quelle';
+    cropConfirmBtn.textContent = 'Valider le cadrage';
+    singleCropMode = false;
+    const resolve = singleCropResolve;
+    singleCropResolve = null;
+    if(resolve) resolve(result);
+  }
+
   cropConfirmBtn.addEventListener('click', ()=>{
     if(!cropInstance) return;
     const canvas = cropInstance.getCroppedCanvas({ maxWidth:1000, maxHeight:1000 });
-    cropResolve({ type:'image', src: canvas.toDataURL('image/jpeg', 0.72) });
+    const src = canvas.toDataURL('image/jpeg', 0.72);
+    if(singleCropMode){ closeResizeModal(src); return; }
+    cropResolve({ type:'image', src });
   });
 
   cropSkipBtn.addEventListener('click', async ()=>{
+    if(singleCropMode){ closeResizeModal(null); return; }
     const file = cropQueue[cropIndex];
     const item = await readAndCompressImage(file);
     cropResolve(item);
   });
 
   function abortCropQueue(){
-    if(!cropModal.classList.contains('show') || !cropFinish) return;
+    if(!cropModal.classList.contains('show')) return;
+    if(singleCropMode){ closeResizeModal(null); return; }
+    if(!cropFinish) return;
     cropFinish();
     cropFinish = null;
   }
@@ -2187,12 +2332,50 @@
   let lastEntries = [];
   let openComments = new Set(); // keeps comment panels open across live re-renders
   let editingPosts = new Set(); // posts currently being edited by an admin
+  let editMedia = new Map(); // post key -> media array being edited (photos/videos)
+  let replyTarget = new Map(); // post key -> {id, name} of the comment currently being replied to
+  let collapsedThreads = new Set(); // comment ids whose replies are currently hidden
+  let openMaps = new Set(); // post keys whose inline location map is currently open
+  let wallVisibleCount = 5; // how many posts to render at once; "Voir plus" bumps this up
+
+  function genCommentId(){
+    return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+  }
+
+  // walks the flat comments array and returns it in threaded display order
+  // (each reply placed right after its parent, indented one level deeper).
+  // Children of a collapsed comment are left out of the result entirely.
+  function orderCommentsThreaded(comments){
+    const idxById = new Map();
+    comments.forEach((c,i)=>{ if(c.id) idxById.set(c.id, i); });
+    const childrenOf = new Map();
+    const roots = [];
+    comments.forEach((c,i)=>{
+      const parentIdx = c.replyTo?.id ? idxById.get(c.replyTo.id) : undefined;
+      if(parentIdx !== undefined && parentIdx !== i){
+        if(!childrenOf.has(parentIdx)) childrenOf.set(parentIdx, []);
+        childrenOf.get(parentIdx).push(i);
+      } else {
+        roots.push(i);
+      }
+    });
+    const ordered = [];
+    const visit = (i, depth) => {
+      const kids = childrenOf.get(i) || [];
+      const collapsed = comments[i].id && collapsedThreads.has(comments[i].id);
+      ordered.push({ i, depth, childCount: kids.length, collapsed });
+      if(!collapsed) kids.forEach(childIdx => visit(childIdx, depth + 1));
+    };
+    roots.forEach(i => visit(i, 0));
+    return ordered;
+  }
 
   function startWallListener(){
     const q = query(entriesCol, orderBy('date', 'desc'));
     onSnapshot(q, (snap)=>{
       lastEntries = snap.docs.map(d => ({ key: d.id, ...d.data() }));
       renderWallEntries(lastEntries);
+      renderJournal(lastEntries);
     }, (e)=>{
       console.error('wall snapshot error', e);
       wallFeed.innerHTML = '<div class="wall-empty">⚠️ Impossible de charger le mur.</div>';
@@ -2204,7 +2387,12 @@
       wallFeed.innerHTML = `<div class="wall-empty">Aucun post pour l'instant 👋</div>`;
       return;
     }
-    wallFeed.innerHTML = entries.map(e => {
+    // only render a capped slice of posts at a time — without this, the
+    // wall keeps growing forever as the trip goes on and the whole page
+    // becomes huge (thousands of DOM nodes, slow scroll, slow load)
+    const visible = entries.slice(0, wallVisibleCount);
+    const remaining = entries.length - visible.length;
+    wallFeed.innerHTML = visible.map(e => {
       const comments = e.comments || [];
       const likedBy = e.likedBy || [];
       const likes = e.likedBy ? likedBy.length : (e.likes || 0);
@@ -2218,11 +2406,21 @@
           // normalize legacy plain-string photo entries to {type, src} objects
           const media = raw.map(m => typeof m === 'string' ? { type: 'image', src: m } : m);
           if(media.length === 0) return '';
-          return `<div class="wall-photos" data-count="${media.length}">
-            ${media.map(m => m.type === 'video'
-              ? `<video src="${m.src}" controls playsinline></video>`
-              : `<img src="${m.src}" alt="photo de ${escapeHtml(e.name)}">`
-            ).join('')}
+          // cap visible tiles at 4 (Instagram-style) so a post with many photos
+          // can't stretch the card — extras are reachable via the "+N" tile
+          const visible = media.slice(0, 4);
+          const extra = media.length - visible.length;
+          return `<div class="wall-photos" data-count="${visible.length}">
+            ${visible.map((m, i) => {
+              const showOverlay = extra > 0 && i === visible.length - 1;
+              const mediaTag = m.type === 'video'
+                ? `<video src="${m.src}" ${showOverlay ? 'muted' : 'controls'} playsinline></video>`
+                : `<img src="${m.src}" alt="photo de ${escapeHtml(e.name)}">`;
+              return `<div class="wp-tile" data-key="${e.key}" data-idx="${i}">
+                ${mediaTag}
+                ${showOverlay ? `<div class="wp-more-overlay">+${extra}</div>` : ''}
+              </div>`;
+            }).join('')}
           </div>`;
         })()}
         <div class="wc-body">
@@ -2232,11 +2430,26 @@
           <div class="wc-tags">
             ${e.activity ? `<span class="wc-tag">🏷️ ${escapeHtml(e.activity)}</span>` : ''}
             ${e.place ? `<span class="wc-tag">📍 ${escapeHtml(e.place)}</span>` : ''}
-            ${e.geo ? `<a class="wc-tag" href="https://maps.google.com/?q=${e.geo.lat},${e.geo.lon}" target="_blank" rel="noopener">🗺️ Voir sur la carte</a>` : ''}
+            ${e.geo ? `<button type="button" class="wc-tag wc-map-toggle" data-key="${e.key}">${openMaps.has(e.key) ? '▲ Fermer la carte' : '🗺️ Voir sur la carte'}</button>` : ''}
           </div>` : ''}
+          ${e.geo ? `<div class="wc-map" id="wc-map-${e.key}" data-lat="${e.geo.lat}" data-lon="${e.geo.lon}" style="display:${openMaps.has(e.key) ? 'block' : 'none'};"></div>` : ''}
           ${editingPosts.has(e.key) ? `
           <div class="wc-edit">
             <textarea class="wc-edit-textarea" data-key="${e.key}" maxlength="500">${escapeHtml(e.message)}</textarea>
+            <div class="wc-edit-photos">
+              ${(editMedia.get(e.key) || []).map((m,mi) => `
+                <div class="wc-edit-photo">
+                  ${m.type === 'video' ? `<video src="${m.src}" muted></video>` : `<img src="${m.src}">`}
+                  ${m.type !== 'video' ? `<button type="button" class="wc-edit-photo-resize" data-key="${e.key}" data-idx="${mi}" title="Redimensionner">⤢</button>` : ''}
+                  <button type="button" class="wc-edit-photo-remove" data-key="${e.key}" data-idx="${mi}" title="Retirer">✕</button>
+                </div>
+              `).join('')}
+            </div>
+            <label class="wc-edit-addphoto">
+              📷 Ajouter des photos/vidéos
+              <input type="file" class="wc-edit-file" data-key="${e.key}" accept="image/*,video/*" multiple>
+            </label>
+            <div class="wc-edit-status" id="edit-status-${e.key}"></div>
             <div class="wc-edit-actions">
               <button class="wc-edit-save" data-key="${e.key}">Enregistrer</button>
               <button class="wc-edit-cancel" data-key="${e.key}">Annuler</button>
@@ -2249,13 +2462,29 @@
           </div>
 
           <div class="wc-comments" id="comments-${e.key}" style="display:${openComments.has(e.key) ? 'flex' : 'none'}; flex-direction:column;">
-            ${comments.map((c,i) => `
-              <div class="wc-comment">
-                ${isAdmin ? `<button class="wc-comment-delete" data-key="${e.key}" data-idx="${i}">✕</button>` : ''}
-                <b>${escapeHtml(c.name)}</b><span class="cm-date">${formatDate(c.date)}</span><br>${escapeHtml(c.text)}
-              </div>
-            `).join('') || '<div style="color:var(--muted); font-size:.8rem;">Sois le premier à commenter !</div>'}
+            ${(() => {
+              if(comments.length === 0) return '<div style="color:var(--muted); font-size:.8rem;">Sois le premier à commenter !</div>';
+              return orderCommentsThreaded(comments).map(({i, depth, childCount, collapsed}) => {
+                const c = comments[i];
+                return `
+                <div class="wc-comment" style="margin-left:${depth * 1.2}rem;">
+                  ${isAdmin ? `<button class="wc-comment-delete" data-key="${e.key}" data-idx="${i}">✕</button>` : ''}
+                  ${c.replyTo ? `<div class="wc-comment-quote">↪ réponse à ${escapeHtml(c.replyTo.name)}</div>` : ''}
+                  <b>${escapeHtml(c.name)}</b><span class="cm-date">${formatDate(c.date)}</span><br>${escapeHtml(c.text)}
+                  <div class="wc-comment-footer">
+                    ${currentUser ? `<button class="wc-comment-reply" data-key="${e.key}" data-id="${c.id || ''}" data-name="${escapeHtml(c.name)}">↩️ Répondre</button>` : ''}
+                    ${childCount > 0 ? `<button class="wc-thread-toggle" data-id="${c.id}">${collapsed ? `▸ Afficher ${childCount} réponse${childCount>1?'s':''}` : `▾ Masquer les réponses`}</button>` : ''}
+                  </div>
+                </div>
+              `;
+              }).join('');
+            })()}
             ${currentUser ? `
+            ${replyTarget.has(e.key) ? `
+            <div class="wc-reply-banner">
+              En réponse à <b>${escapeHtml(replyTarget.get(e.key).name)}</b>
+              <button type="button" class="wc-reply-cancel" data-key="${e.key}">✕</button>
+            </div>` : ''}
             <form class="wc-comment-form" data-key="${e.key}">
               <input class="cf-text" type="text" placeholder="Ton commentaire..." maxlength="200" required>
               <button type="submit">Envoyer</button>
@@ -2264,9 +2493,32 @@
         </div>
       </div>
     `;
-    }).join('');
+    }).join('') + (remaining > 0
+      ? `<button type="button" class="wall-load-more" id="wallLoadMore">Voir ${Math.min(remaining, 5)} post${Math.min(remaining, 5) > 1 ? 's' : ''} de plus (${remaining} restant${remaining > 1 ? 's' : ''})</button>`
+      : '');
 
-    wallFeed.querySelectorAll('.wall-card img').forEach(img=>{
+    if(remaining > 0){
+      document.getElementById('wallLoadMore').addEventListener('click', ()=>{
+        wallVisibleCount += 5;
+        renderWallEntries(lastEntries);
+      });
+    }
+
+    wallFeed.querySelectorAll('.wall-photos .wp-tile').forEach(tile=>{
+      // bare video tiles (no "+N" overlay) keep their native play controls;
+      // everything else opens the full gallery for that post
+      if(tile.querySelector('video') && !tile.querySelector('.wp-more-overlay')) return;
+      tile.addEventListener('click', ()=>{
+        const key = tile.getAttribute('data-key');
+        const idx = Number(tile.getAttribute('data-idx'));
+        const post = lastEntries.find(x => x.key === key);
+        if(!post) return;
+        const raw = post.photos || (post.photo ? [post.photo] : []);
+        const media = raw.map(m => typeof m === 'string' ? { type: 'image', src: m } : m);
+        openGallery(media, idx);
+      });
+    });
+    wallFeed.querySelectorAll('.wc-edit-photo img').forEach(img=>{
       img.addEventListener('click', ()=> openLightbox(img.src, img.alt));
     });
 
@@ -2283,14 +2535,20 @@
 
     wallFeed.querySelectorAll('.wall-edit').forEach(btn=>{
       btn.addEventListener('click', ()=>{
-        editingPosts.add(btn.getAttribute('data-key'));
+        const key = btn.getAttribute('data-key');
+        editingPosts.add(key);
+        const post = lastEntries.find(x => x.key === key);
+        const raw = post?.photos || (post?.photo ? [post.photo] : []);
+        editMedia.set(key, raw.map(m => typeof m === 'string' ? { type:'image', src:m } : m));
         renderWallEntries(lastEntries);
       });
     });
 
     wallFeed.querySelectorAll('.wc-edit-cancel').forEach(btn=>{
       btn.addEventListener('click', ()=>{
-        editingPosts.delete(btn.getAttribute('data-key'));
+        const key = btn.getAttribute('data-key');
+        editingPosts.delete(key);
+        editMedia.delete(key);
         renderWallEntries(lastEntries);
       });
     });
@@ -2303,11 +2561,76 @@
         if(!newMessage) return;
         btn.disabled = true;
         try {
-          await updateDoc(doc(db, 'wall_entries', key), { message: newMessage });
+          await updateDoc(doc(db, 'wall_entries', key), { message: newMessage, photos: editMedia.get(key) || [] });
           editingPosts.delete(key);
+          editMedia.delete(key);
         } catch(e){
           await customAlert('Erreur lors de la modification.');
           btn.disabled = false;
+        }
+      });
+    });
+
+    wallFeed.querySelectorAll('.wc-edit-photo-resize').forEach(btn=>{
+      btn.addEventListener('click', async ()=>{
+        const key = btn.getAttribute('data-key');
+        const idx = parseInt(btn.getAttribute('data-idx'));
+        const media = editMedia.get(key) || [];
+        const item = media[idx];
+        if(!item || item.type === 'video') return;
+        const newSrc = await openResizeModal(item.src);
+        if(newSrc){
+          const current = editMedia.get(key) || [];
+          current[idx] = { type: 'image', src: newSrc };
+          editMedia.set(key, current);
+          renderWallEntries(lastEntries);
+        }
+      });
+    });
+
+    wallFeed.querySelectorAll('.wc-edit-photo-remove').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const key = btn.getAttribute('data-key');
+        const idx = parseInt(btn.getAttribute('data-idx'));
+        const media = editMedia.get(key) || [];
+        editMedia.set(key, media.filter((_,i)=> i !== idx));
+        renderWallEntries(lastEntries);
+      });
+    });
+
+    wallFeed.querySelectorAll('.wc-edit-file').forEach(input=>{
+      input.addEventListener('change', async ()=>{
+        const key = input.getAttribute('data-key');
+        const status = document.getElementById(`edit-status-${key}`);
+        let files = Array.from(input.files);
+        if(files.length === 0) return;
+        const current = editMedia.get(key) || [];
+        const room = MAX_MEDIA - current.length;
+        const tooMany = files.length > room;
+        if(tooMany) files = files.slice(0, Math.max(room, 0));
+        if(status) status.textContent = tooMany ? `⚠️ ${MAX_MEDIA} fichiers maximum au total, les suivants seront ignorés.` : '';
+        if(files.length === 0) return;
+        const videoFiles = files.filter(f => f.type.startsWith('video/'));
+        const imageFiles = files.filter(f => !f.type.startsWith('video/'));
+        try {
+          if(videoFiles.length){
+            if(status) status.textContent = 'Chargement des vidéos…';
+            const uploaded = await Promise.all(videoFiles.map(uploadVideo));
+            editMedia.set(key, [...(editMedia.get(key) || []), ...uploaded]);
+            renderWallEntries(lastEntries);
+          }
+          if(imageFiles.length){
+            const cropped = await cropImagesSequentially(imageFiles);
+            editMedia.set(key, [...(editMedia.get(key) || []), ...cropped]);
+            renderWallEntries(lastEntries);
+          }
+          const finalStatus = document.getElementById(`edit-status-${key}`);
+          if(finalStatus && !tooMany) finalStatus.textContent = '';
+        } catch(e){
+          const errStatus = document.getElementById(`edit-status-${key}`);
+          if(errStatus) errStatus.textContent = e.message === 'video-too-large'
+            ? '⚠️ Vidéo trop lourde (50 Mo max).'
+            : "Impossible de lire ces fichiers.";
         }
       });
     });
@@ -2335,13 +2658,71 @@
         if(!text) return;
         const btn = form.querySelector('button');
         btn.disabled = true;
-        await addComment(key, currentUser.displayName || currentUser.email, text);
+        const reply = replyTarget.get(key);
+        const replyTo = reply ? { id: reply.id || null, name: reply.name } : null;
+        replyTarget.delete(key);
+        await addComment(key, currentUser.displayName || currentUser.email, text, replyTo);
       });
     });
 
     wallFeed.querySelectorAll('.wc-comment-delete').forEach(btn=>{
       btn.addEventListener('click', ()=> deleteComment(btn.getAttribute('data-key'), parseInt(btn.getAttribute('data-idx'))));
     });
+
+    wallFeed.querySelectorAll('.wc-comment-reply').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const key = btn.getAttribute('data-key');
+        replyTarget.set(key, { id: btn.getAttribute('data-id'), name: btn.getAttribute('data-name') });
+        openComments.add(key);
+        renderWallEntries(lastEntries);
+        const input = document.querySelector(`.wc-comment-form[data-key="${key}"] .cf-text`);
+        if(input) input.focus();
+      });
+    });
+
+    wallFeed.querySelectorAll('.wc-thread-toggle').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const id = btn.getAttribute('data-id');
+        if(collapsedThreads.has(id)) collapsedThreads.delete(id); else collapsedThreads.add(id);
+        renderWallEntries(lastEntries);
+      });
+    });
+
+    wallFeed.querySelectorAll('.wc-reply-cancel').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        replyTarget.delete(btn.getAttribute('data-key'));
+        renderWallEntries(lastEntries);
+      });
+    });
+
+    wallFeed.querySelectorAll('.wc-map-toggle').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const key = btn.getAttribute('data-key');
+        if(openMaps.has(key)) openMaps.delete(key); else openMaps.add(key);
+        renderWallEntries(lastEntries);
+      });
+    });
+
+    // the whole feed is re-rendered from scratch on every live update, so any
+    // map that was left open needs to be rebuilt against its fresh container
+    openMaps.forEach(key => buildWcMap(key));
+  }
+
+  function buildWcMap(key){
+    const mapEl = document.getElementById(`wc-map-${key}`);
+    if(!mapEl || typeof L === 'undefined') return;
+    const lat = parseFloat(mapEl.dataset.lat), lon = parseFloat(mapEl.dataset.lon);
+    if(isNaN(lat) || isNaN(lon)) return;
+
+    const map = L.map(mapEl, { scrollWheelZoom: false }).setView([lat, lon], 15);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap',
+      maxZoom: 18
+    }).addTo(map);
+    const markerIcon = L.divIcon({ className: 'wc-map-marker', html: '📍', iconSize: [24, 24] });
+    L.marker([lat, lon], { icon: markerIcon }).addTo(map);
+
+    setTimeout(()=> map.invalidateSize(), 60);
   }
 
   async function likePost(key){
@@ -2360,14 +2741,14 @@
     }
   }
 
-  async function addComment(key, name, text){
+  async function addComment(key, name, text, replyTo){
     try {
       const ref = doc(db, 'wall_entries', key);
       const snap = await getDoc(ref);
       if(!snap.exists()) return;
       const post = snap.data();
       const comments = post.comments || [];
-      comments.push({ name, text, date: new Date().toISOString() });
+      comments.push({ id: genCommentId(), name, text, date: new Date().toISOString(), ...(replyTo ? { replyTo } : {}) });
       await updateDoc(ref, { comments });
     } catch(e){
       await customAlert("Erreur lors de l'envoi du commentaire.");
@@ -2386,6 +2767,196 @@
     } catch(e){
       await customAlert('Erreur lors de la suppression du commentaire.');
     }
+  }
+
+  // ============================================================
+  // JOURNAL DE VOYAGE — Polarsteps-style day-by-day recap built
+  // from the same wall_entries data (route map + per-day mini-map).
+  // ============================================================
+  const TRIP_START_DATE = new Date(2026, 7, 2); // 2 août 2026
+  const jrStatsEl = document.getElementById('jrStats');
+  const jrRouteMapEl = document.getElementById('jrRouteMap');
+  const jrDaysEl = document.getElementById('jrDays');
+  let jrRouteMapInstance = null;
+  let jrDayMapInstances = new Map();
+  let lastJournalSignature = '';
+
+  function dayKeyOf(iso){
+    const d = new Date(iso);
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  }
+
+  function dayNumberOf(key){
+    const [y,m,d] = key.split('-').map(Number);
+    return Math.round((new Date(y, m-1, d) - TRIP_START_DATE) / 86400000) + 1;
+  }
+
+  function haversineKm(lat1, lon1, lat2, lon2){
+    const R = 6371;
+    const dLat = (lat2-lat1) * Math.PI/180, dLon = (lon2-lon1) * Math.PI/180;
+    const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  }
+
+  function jrMediaOf(e){
+    return (e.photos || (e.photo ? [e.photo] : [])).map(m => typeof m === 'string' ? { type:'image', src:m } : m);
+  }
+
+  function buildJourneyRouteMap(geoChrono){
+    if(!jrRouteMapEl) return;
+    if(jrRouteMapInstance){ jrRouteMapInstance.remove(); jrRouteMapInstance = null; }
+    jrRouteMapEl.innerHTML = '';
+    if(geoChrono.length === 0 || typeof L === 'undefined'){
+      if(geoChrono.length === 0) jrRouteMapEl.innerHTML = '<div class="jr-empty">Aucun lieu géolocalisé pour l’instant.</div>';
+      return;
+    }
+
+    const map = L.map(jrRouteMapEl, { scrollWheelZoom: false });
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap', maxZoom: 18
+    }).addTo(map);
+
+    const points = geoChrono.map(e => [e.geo.lat, e.geo.lon]);
+    if(points.length > 1){
+      L.polyline(points, { color:'#000', weight:6, opacity:.3 }).addTo(map);
+      L.polyline(points, { color:'#ff2e8a', weight:3, dashArray:'8 6', opacity:.95 }).addTo(map);
+    }
+
+    const dotIcon = L.divIcon({ className:'jr-route-dot', iconSize:[13,13] });
+    geoChrono.forEach((e,i) => {
+      const thumb = jrMediaOf(e).find(m => m.type !== 'video');
+      const popupHtml = `
+        <div class="jr-route-popup">
+          <b>${escapeHtml(e.place || ('Étape ' + (i+1)))}</b>
+          ${formatDate(e.date)}
+          ${thumb ? `<img src="${thumb.src}">` : ''}
+        </div>
+      `;
+      L.marker([e.geo.lat, e.geo.lon], { icon: dotIcon }).addTo(map).bindPopup(popupHtml);
+    });
+
+    map.fitBounds(points, { padding:[30,30] });
+    jrRouteMapInstance = map;
+    setTimeout(()=> map.invalidateSize(), 60);
+  }
+
+  function buildDayMap(key, dayGeo){
+    const el = document.getElementById(`jr-day-map-${key}`);
+    if(!el || typeof L === 'undefined') return;
+
+    const map = L.map(el, { scrollWheelZoom:false, zoomControl:false });
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap', maxZoom: 18
+    }).addTo(map);
+
+    const points = dayGeo.map(e => [e.geo.lat, e.geo.lon]);
+    if(points.length > 1){
+      L.polyline(points, { color:'#000', weight:5, opacity:.3 }).addTo(map);
+      L.polyline(points, { color:'#16e5ff', weight:2.5, dashArray:'6 5' }).addTo(map);
+    }
+    const dotIcon = L.divIcon({ className:'jr-route-dot', iconSize:[11,11] });
+    points.forEach(p => L.marker(p, { icon: dotIcon }).addTo(map));
+
+    if(points.length === 1) map.setView(points[0], 14); else map.fitBounds(points, { padding:[20,20] });
+
+    jrDayMapInstances.set(key, map);
+    setTimeout(()=> map.invalidateSize(), 60);
+  }
+
+  function renderJournal(entries){
+    if(!jrDaysEl) return;
+    const sig = entries.map(e => `${e.key}:${e.date}:${e.geo ? e.geo.lat+','+e.geo.lon : ''}:${jrMediaOf(e).length}:${e.place||''}:${e.activity||''}:${e.message ? e.message.length : 0}`).join('|');
+    if(sig === lastJournalSignature) return;
+    lastJournalSignature = sig;
+
+    jrDayMapInstances.forEach(map => map.remove());
+    jrDayMapInstances.clear();
+
+    if(entries.length === 0){
+      jrStatsEl.innerHTML = '';
+      jrDaysEl.innerHTML = '<div class="jr-empty">Aucun post pour l’instant 👋</div>';
+      try { buildJourneyRouteMap([]); } catch(err){ console.error('buildJourneyRouteMap', err); }
+      return;
+    }
+
+    const chrono = [...entries].sort((a,b)=> new Date(a.date) - new Date(b.date));
+    const geoChrono = chrono.filter(e => e.geo);
+
+    const dayGroups = new Map();
+    chrono.forEach(e => {
+      const key = dayKeyOf(e.date);
+      if(!dayGroups.has(key)) dayGroups.set(key, []);
+      dayGroups.get(key).push(e);
+    });
+
+    let totalPhotos = 0;
+    const placesSet = new Set();
+    chrono.forEach(e => {
+      totalPhotos += jrMediaOf(e).length;
+      if(e.place) placesSet.add(e.place.trim().toLowerCase());
+      else if(e.geo) placesSet.add(`${e.geo.lat.toFixed(2)},${e.geo.lon.toFixed(2)}`);
+    });
+    let totalKm = 0;
+    for(let i=1;i<geoChrono.length;i++){
+      totalKm += haversineKm(geoChrono[i-1].geo.lat, geoChrono[i-1].geo.lon, geoChrono[i].geo.lat, geoChrono[i].geo.lon);
+    }
+
+    jrStatsEl.innerHTML = `
+      <div class="jr-stat"><div class="jr-stat-num">${dayGroups.size}</div><div class="jr-stat-label">Jours</div></div>
+      <div class="jr-stat"><div class="jr-stat-num">${placesSet.size}</div><div class="jr-stat-label">Lieux</div></div>
+      <div class="jr-stat"><div class="jr-stat-num">${totalPhotos}</div><div class="jr-stat-label">Photos/vidéos</div></div>
+      <div class="jr-stat"><div class="jr-stat-num">${Math.round(totalKm)}</div><div class="jr-stat-label">Km parcourus</div></div>
+    `;
+
+    const sortedDayKeys = [...dayGroups.keys()].sort();
+    jrDaysEl.innerHTML = sortedDayKeys.map(key => {
+      const dayEntries = dayGroups.get(key);
+      const dayNum = dayNumberOf(key);
+      const dateLabel = new Date(dayEntries[0].date).toLocaleDateString('fr-FR', { weekday:'long', day:'numeric', month:'long' });
+      const dayGeo = dayEntries.filter(e => e.geo);
+      return `
+        <div class="jr-day">
+          <div class="jr-day-head">
+            <span class="jr-day-num">Jour ${dayNum}</span>
+            <span class="jr-day-date">${dateLabel}</span>
+          </div>
+          ${dayGeo.length ? `<div class="jr-day-map" id="jr-day-map-${key}"></div>` : ''}
+          <div class="jr-day-posts">
+            ${dayEntries.map(e => {
+              const media = jrMediaOf(e);
+              return `
+              <div class="jr-post">
+                ${media.length ? `<div class="jr-post-photos">
+                  ${media.slice(0,3).map(m => m.type === 'video'
+                    ? `<video src="${m.src}" muted></video>`
+                    : `<img src="${m.src}" alt="">`
+                  ).join('')}
+                </div>` : ''}
+                <div class="jr-post-body">
+                  <div class="jr-post-meta">
+                    <span class="jr-post-name">${escapeHtml(e.name)}</span>
+                    ${e.place ? `<span>📍 ${escapeHtml(e.place)}</span>` : ''}
+                    ${e.activity ? `<span>🏷️ ${escapeHtml(e.activity)}</span>` : ''}
+                  </div>
+                  <div class="jr-post-msg">${escapeHtml(e.message)}</div>
+                </div>
+              </div>`;
+            }).join('')}
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    // maps are a nice-to-have on top of the already-rendered content above:
+    // if Leaflet chokes on anything here, the stats/timeline must stay visible
+    // instead of the whole journal getting stuck mid-render.
+    try { buildJourneyRouteMap(geoChrono); } catch(err){ console.error('buildJourneyRouteMap', err); }
+    sortedDayKeys.forEach(key => {
+      const dayGeo = dayGroups.get(key).filter(e => e.geo);
+      if(dayGeo.length){
+        try { buildDayMap(key, dayGeo); } catch(err){ console.error('buildDayMap', key, err); }
+      }
+    });
   }
 
   wallForm.addEventListener('submit', async (evt)=>{
@@ -2443,7 +3014,24 @@
   // Firestore so we don't burn the free quota on every visitor.
   // ============================================================
   const RAPIDAPI_KEY = "1ae5f8b102msh9001f51dee7afddp1c9046jsn719e2aef7049";
-  const FLIGHT_CACHE_MS = 6 * 3600 * 1000; // re-check a flight at most every 6h
+
+  // Adaptive cache: far from the flight we barely need updates, so cache long
+  // to save quota. Close to departure/arrival we want near-live status, so
+  // cache short. Window: from 2h before departure to 1h after arrival.
+  const FLIGHT_CACHE_MS_FAR = 12 * 3600 * 1000;
+  const FLIGHT_CACHE_MS_LIVE = 10 * 60 * 1000;
+  const LIVE_WINDOW_BEFORE_MS = 2 * 3600 * 1000;
+  const LIVE_WINDOW_AFTER_MS = 1 * 3600 * 1000;
+
+  function flightCacheTtl(depIso, arrIso){
+    const now = Date.now();
+    const dep = depIso ? new Date(depIso).getTime() : null;
+    const arr = arrIso ? new Date(arrIso).getTime() : null;
+    const inLiveWindow = dep != null
+      && now >= dep - LIVE_WINDOW_BEFORE_MS
+      && now <= (arr != null ? arr + LIVE_WINDOW_AFTER_MS : dep + LIVE_WINDOW_AFTER_MS);
+    return inLiveWindow ? FLIGHT_CACHE_MS_LIVE : FLIGHT_CACHE_MS_FAR;
+  }
 
   function pickFlightMatch(json, expectedDate, expectedOriginIata){
     const arr = Array.isArray(json) ? json : (json ? [json] : []);
@@ -2453,18 +3041,37 @@
     }) || arr[0] || null;
   }
 
-  async function getFlightStatus(flightNumber, dateLocal, originIata){
+  const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
+  // RapidAPI free plan caps at ~1 request/second across ALL calls (flights
+  // AND trains share it). Gate every real network call through this so
+  // back-to-back cards never fire within the same second, and retry once
+  // with backoff on 429 as a safety net.
+  let lastApiCallAt = 0;
+  async function fetchWithRetry(url, opts, retries = 2){
+    const wait = 1100 - (Date.now() - lastApiCallAt);
+    if(wait > 0) await sleep(wait);
+    for(let attempt = 0; ; attempt++){
+      lastApiCallAt = Date.now();
+      const res = await fetch(url, opts);
+      if(res.status !== 429 || attempt >= retries) return res;
+      await sleep(1200 * (attempt + 1));
+    }
+  }
+
+  async function getFlightStatus(flightNumber, dateLocal, originIata, depIso, arrIso){
     const cacheRef = doc(db, 'flight_status', flightNumber + '_' + dateLocal);
+    const ttl = flightCacheTtl(depIso, arrIso);
     try {
       const snap = await getDoc(cacheRef);
       if(snap.exists()){
         const data = snap.data();
-        if(Date.now() - new Date(data.fetchedAt).getTime() < FLIGHT_CACHE_MS) return data;
+        if(Date.now() - new Date(data.fetchedAt).getTime() < ttl) return data;
       }
     } catch(e){ console.error('flight cache read', e); }
 
     try {
-      const res = await fetch(`https://aerodatabox.p.rapidapi.com/flights/number/${flightNumber}/${dateLocal}`, {
+      const res = await fetchWithRetry(`https://aerodatabox.p.rapidapi.com/flights/number/${flightNumber}/${dateLocal}`, {
         headers: {
           'X-RapidAPI-Key': RAPIDAPI_KEY,
           'X-RapidAPI-Host': 'aerodatabox.p.rapidapi.com'
@@ -2510,7 +3117,7 @@
     for(const card of cards){
       const live = card.querySelector('.trk-live');
       if(!live) continue;
-      const info = await getFlightStatus(card.dataset.flight, card.dataset.date, card.dataset.origin);
+      const info = await getFlightStatus(card.dataset.flight, card.dataset.date, card.dataset.origin, card.dataset.dep, card.dataset.arr);
       if(info && info.status){
         let text = FLIGHT_STATUS_LABELS[info.status] || ('📡 ' + info.status);
         if(info.depTerminal) text += ` · Départ term. ${info.depTerminal}`;
@@ -2616,6 +3223,7 @@
   if(!firebaseReady){
     wfStatus.textContent = "⚠️ Firebase n'est pas configuré (firebaseConfig).";
     wallFeed.innerHTML = '<div class="wall-empty">⚠️ Configure firebaseConfig dans le code (voir le guide) pour activer le mur.</div>';
+    jrDaysEl.innerHTML = '<div class="jr-empty">⚠️ Configure firebaseConfig dans le code pour activer le journal.</div>';
   } else {
     loadEditableContent();
     startWallListener();
@@ -2655,6 +3263,68 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script src="https://unpkg.com/cropperjs@1.6.2/dist/cropper.min.js"></script>
+
+<script>
+  // ============================================================
+  // CITY MAPS — one small Leaflet map per city (New York,
+  // Washington DC, Miami), centered on the city with a marker.
+  // ============================================================
+  document.querySelectorAll('.citymap-map').forEach(el => {
+    const lat = parseFloat(el.dataset.lat), lon = parseFloat(el.dataset.lon);
+    if(isNaN(lat) || isNaN(lon) || typeof L === 'undefined') return;
+    const map = L.map(el, { scrollWheelZoom: false }).setView([lat, lon], 11);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap', maxZoom: 18
+    }).addTo(map);
+    const markerIcon = L.divIcon({ className: 'wc-map-marker', html: '📍', iconSize: [24, 24] });
+    L.marker([lat, lon], { icon: markerIcon }).addTo(map);
+    setTimeout(()=> map.invalidateSize(), 60);
+  });
+</script>
+
+<script>
+  // ============================================================
+  // TRIP MAP — real interactive Leaflet map of the whole route
+  // (Lyon, Paris CDG, New York, Washington DC, Miami, Everglades)
+  // ============================================================
+  (function(){
+    const el = document.getElementById('tripmap');
+    if(!el || typeof L === 'undefined') return;
+
+    const map = L.map(el, { scrollWheelZoom:false }).setView([38, -45], 3);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap', maxZoom: 18
+    }).addTo(map);
+
+    const PT = {
+      lyon: { ll:[45.7640, 4.8357],   name:'LYON',          info:'Base — départ &amp; retour', icon:'🏠' },
+      cdg:  { ll:[49.0128, 2.5500],   name:'PARIS CDG',     info:'Correspondance', icon:'✈️' },
+      ny:   { ll:[40.7128, -74.0060], name:'NEW YORK',      info:'2 → 10 août · Sheraton Lincoln Harbor', icon:'🗽' },
+      dc:   { ll:[38.9072, -77.0369], name:'WASHINGTON DC', info:'6 août · Amtrak aller 6h32, retour 21h15 vers New York', icon:'🏛️' },
+      mia:  { ll:[25.7617, -80.1918], name:'MIAMI',         info:'10 → 16 août · Hotel Trouvail', icon:'🏖️' },
+      ever: { ll:[25.5, -80.9],       name:'EVERGLADES',    info:'12 août · Excursion hydroglisseur, 9h30 - 5h (Big Bus Tours)', icon:'🐊' }
+    };
+
+    Object.values(PT).forEach(p => {
+      const icon = L.divIcon({ className:'trip-map-marker', html:p.icon, iconSize:[26,26] });
+      L.marker(p.ll, { icon }).addTo(map).bindPopup(`<b>${p.name}</b><br>${p.info}`);
+    });
+
+    function route(points, color){
+      L.polyline(points, { color:'#000', weight:5, opacity:.35 }).addTo(map);
+      L.polyline(points, { color, weight:2.5, dashArray:'6 10' }).addTo(map);
+    }
+    route([PT.lyon.ll, PT.cdg.ll], '#ff2e8a');
+    route([PT.cdg.ll, PT.ny.ll], '#16e5ff');
+    route([PT.ny.ll, PT.dc.ll], '#ff7a2e');
+    route([PT.ny.ll, PT.mia.ll], '#ffd400');
+    route([PT.mia.ll, PT.ever.ll], '#31c48d');
+    route([PT.mia.ll, PT.cdg.ll, PT.lyon.ll], '#ff2e8a');
+
+    map.fitBounds(Object.values(PT).map(p => p.ll), { padding:[30,30] });
+    setTimeout(()=> map.invalidateSize(), 60);
+  })();
+</script>
 
 <script>
   // ============================================================
