@@ -1160,7 +1160,21 @@
   <div id="wallFormWrap" style="display:none;">
     <form class="wall-form reveal" id="wallForm">
       <input type="text" id="wfPlace" placeholder="📍 Lieu (ex: Times Square)" maxlength="80">
-      <input type="text" id="wfActivity" placeholder="🏷️ Activité (ex: Visite, Resto, Plage...)" maxlength="60">
+      <select id="wfActivity">
+        <option value="">🏷️ Choisir une activité (optionnel)</option>
+        <option value="Visite">🏛️ Visite</option>
+        <option value="Resto">🍽️ Resto</option>
+        <option value="Plage">🏖️ Plage</option>
+        <option value="Shopping">🛍️ Shopping</option>
+        <option value="Musée">🖼️ Musée</option>
+        <option value="Randonnée">🥾 Randonnée</option>
+        <option value="Sport">⚽ Sport</option>
+        <option value="Transport">🚗 Transport</option>
+        <option value="Soirée">🎉 Soirée</option>
+        <option value="Détente">🛋️ Détente</option>
+        <option value="Concert / Spectacle">🎭 Concert / Spectacle</option>
+        <option value="Autre">✨ Autre</option>
+      </select>
       <div class="wf-geo-row">
         <button type="button" class="wf-geo-btn" id="wfGeoBtn">📍 Utiliser ma position</button>
         <span class="wf-geo-status" id="wfGeoStatus"></span>
@@ -2068,6 +2082,7 @@
 
     wallFormWrap.style.display = isAdmin ? 'block' : 'none';
     wallLockedNote.style.display = isAdmin ? 'none' : 'block';
+    if(isAdmin) autoCaptureLocationOnce();
 
     adminDock.classList.toggle('show', isAdmin);
     if(!isAdmin && editModeOn){
@@ -2162,7 +2177,9 @@
     }
   }
 
-  wfGeoBtn.addEventListener('click', ()=>{
+  // shared by the manual "Utiliser ma position" button and the automatic
+  // capture below, so both fill wfPlace/wfGeo the same way
+  function captureLocation(){
     if(!navigator.geolocation){
       wfGeoStatus.textContent = "⚠️ Géolocalisation non supportée par ce navigateur.";
       return;
@@ -2192,7 +2209,19 @@
       },
       { enableHighAccuracy:true, timeout:10000 }
     );
-  });
+  }
+
+  wfGeoBtn.addEventListener('click', captureLocation);
+
+  // auto-fill "Lieu" with the current position as soon as the post form
+  // shows up for an admin, so they don't have to tap the button by hand —
+  // only tried once per page load (the button stays there to retry/refresh)
+  let autoGeoTried = false;
+  function autoCaptureLocationOnce(){
+    if(autoGeoTried || !navigator.geolocation) return;
+    autoGeoTried = true;
+    captureLocation();
+  }
 
   // photos are stored as inline base64 in the Firestore doc (1 Mo hard cap),
   // so a full batch of MAX_MEDIA photos needs tighter compression per photo
