@@ -153,6 +153,15 @@
   .route-line span.city{ }
   .route-line span.arrow{ color:var(--orange); }
 
+  .hero-intro{
+    margin-top:1.8rem;
+    max-width:56ch;
+    font-size:clamp(.9rem, 1.6vw, 1.05rem);
+    line-height:1.6;
+    color:var(--muted);
+    z-index:2;
+  }
+
   .clocks{
     display:flex; align-items:center; justify-content:center; gap:1.2rem;
     margin-top:1.8rem; flex-wrap:wrap; z-index:2; position:relative;
@@ -948,7 +957,7 @@
     border-radius:12px; overflow:hidden;
   }
   .jr-post-photos{ display:grid; gap:2px; grid-auto-flow:column; grid-auto-columns:1fr; }
-  .jr-post-photos img, .jr-post-photos video{ width:100%; height:140px; object-fit:cover; display:block; }
+  .jr-post-photos img, .jr-post-photos video{ width:100%; height:140px; object-fit:cover; display:block; cursor:pointer; }
   .jr-post-body{ padding:.7rem .9rem; }
   .jr-post-meta{ display:flex; gap:.6rem; flex-wrap:wrap; align-items:center; font-size:.72rem; color:var(--muted); margin-bottom:.35rem; }
   .jr-post-name{ color:var(--yellow); font-family:'Bebas Neue'; letter-spacing:.03em; }
@@ -1019,6 +1028,9 @@
 
   /* ---------- MOBILE POLISH ---------- */
   @media (max-width:600px){
+    /* stack Lieu/Activité instead of squeezing them into two narrow
+       columns, which was truncating their placeholder text */
+    .wall-form{ grid-template-columns:1fr; }
     /* 16px min prevents iOS Safari from auto-zooming in on focus */
     .wall-form input[type=text], .wall-form select, .wall-form textarea,
     .auth-form input, .wc-comment-form input{
@@ -1122,7 +1134,7 @@
     <rect x="1135" y="150" width="65" height="110" fill="url(#skylineGrad)"/>
   </svg>
 
-  <div class="eyebrow">route trip // été 2026</div>
+  <div class="eyebrow">usa roadtrip // été 2026</div>
   <div class="title-usa display">USA</div>
   <div class="title-year display">2026</div>
 
@@ -1139,6 +1151,11 @@
     <span class="city">MIAMI</span><span class="arrow">→</span>
     <span class="city">LYON</span>
   </div>
+
+  <p class="hero-intro reveal">
+    Baptiste &amp; Martin prennent la route pour 16 jours entre New York, Washington DC et Miami.
+    Ce site suit le voyage en direct : le mur photo, le journal jour par jour, et tout l'itinéraire — vols, trains et étapes.
+  </p>
 
   <div class="clocks">
     <div class="clock-card">
@@ -1165,7 +1182,7 @@
     <button type="button" id="wallNotifBtn" class="wall-notif-btn" title="Reçois une notif à chaque nouveau post, tant que ce site est ouvert dans un onglet">🔔 Activer les notifs</button>
   </div>
   <p class="reveal" style="color:var(--muted); margin-bottom:2rem; max-width:60ch;">
-    Tout le monde peut lire le mur. Connecte-toi (en haut à droite) pour liker ❤️ et laisser un commentaire — les nouveaux posts restent publiés par Baptiste & Martin.
+    Tout le monde peut lire le mur. Connecte-toi (en haut à droite) pour liker ❤️ et laisser un commentaire.
   </p>
 
   <div id="wallFormWrap" style="display:none;">
@@ -1237,7 +1254,7 @@
   </div>
   <div class="roadmap-track reveal" data-editable="roadmap" contenteditable="false">
    <div class="roadmap-line-wrap">
-    <div class="rm-item reveal">
+    <div class="rm-item">
       <div class="rm-dot"></div>
       <div class="rm-card">
         <div class="rm-icon">✈️</div>
@@ -1245,7 +1262,7 @@
         <div class="rm-text">Décollage Lyon → New York (via Paris)</div>
       </div>
     </div>
-    <div class="rm-item reveal">
+    <div class="rm-item">
       <div class="rm-dot"></div>
       <div class="rm-card">
         <div class="rm-icon">🗽</div>
@@ -1253,7 +1270,7 @@
         <div class="rm-text">New York, quartier général Weehawken</div>
       </div>
     </div>
-    <div class="rm-item reveal">
+    <div class="rm-item">
       <div class="rm-dot"></div>
       <div class="rm-card">
         <div class="rm-icon">🏛️</div>
@@ -1261,7 +1278,7 @@
         <div class="rm-text">Excursion éclair à Washington DC</div>
       </div>
     </div>
-    <div class="rm-item reveal">
+    <div class="rm-item">
       <div class="rm-dot"></div>
       <div class="rm-card">
         <div class="rm-icon">✈️</div>
@@ -1269,7 +1286,7 @@
         <div class="rm-text">New York → Miami</div>
       </div>
     </div>
-    <div class="rm-item reveal">
+    <div class="rm-item">
       <div class="rm-dot"></div>
       <div class="rm-card">
         <div class="rm-icon">🌴</div>
@@ -1277,7 +1294,7 @@
         <div class="rm-text">Miami, quartier général Miami Beach</div>
       </div>
     </div>
-    <div class="rm-item reveal">
+    <div class="rm-item">
       <div class="rm-dot"></div>
       <div class="rm-card">
         <div class="rm-icon">🐊</div>
@@ -1285,7 +1302,7 @@
         <div class="rm-text">Airboat dans les Everglades</div>
       </div>
     </div>
-    <div class="rm-item reveal">
+    <div class="rm-item">
       <div class="rm-dot"></div>
       <div class="rm-card">
         <div class="rm-icon">✈️</div>
@@ -1962,9 +1979,8 @@
   };
 
   // 🔑 Comptes admin (Baptiste & Martin) — édition du contenu du site
-  // + suppression de posts/commentaires. Ajoute l'email de Martin ici
-  // une fois qu'il a créé son compte.
-  const ADMIN_EMAILS = ["baptiste.auge1@gmail.com"];
+  // + suppression de posts/commentaires.
+  const ADMIN_EMAILS = ["baptiste.auge1@gmail.com", "martin.minola@gmx.fr"];
 
   const firebaseReady = firebaseConfig.apiKey !== "YOUR_API_KEY";
   const app = firebaseReady ? initializeApp(firebaseConfig) : null;
@@ -2616,11 +2632,6 @@
           </div>` : ''}`;
         })()}
         <div class="wc-body">
-          <div class="wc-actionbar">
-            <button class="wc-like ${liked ? 'liked' : ''}" data-key="${e.key}" title="J'aime">${liked ? '❤️' : '🤍'}</button>
-            <button class="wc-comment-toggle" data-key="${e.key}" title="Commenter">💬</button>
-          </div>
-          ${likes > 0 ? `<div class="wc-likes">${likes} j'aime</div>` : ''}
           ${editingPosts.has(e.key) ? `
           <div class="wc-edit">
             <div class="wc-edit-tags">
@@ -2654,6 +2665,12 @@
             ${e.geo ? `<button type="button" class="wc-tag wc-map-toggle" data-key="${e.key}">${openMaps.has(e.key) ? '▲ Fermer la carte' : '🗺️ Voir sur la carte'}</button>` : ''}
           </div>` : ''}
           ${e.geo ? `<div class="wc-map" id="wc-map-${e.key}" data-lat="${e.geo.lat}" data-lon="${e.geo.lon}" style="display:${openMaps.has(e.key) ? 'block' : 'none'};"></div>` : ''}
+
+          <div class="wc-actionbar">
+            <button class="wc-like ${liked ? 'liked' : ''}" data-key="${e.key}" title="J'aime">${liked ? '❤️' : '🤍'}</button>
+            <button class="wc-comment-toggle" data-key="${e.key}" title="Commenter">💬</button>
+          </div>
+          ${likes > 0 ? `<div class="wc-likes">${likes} j'aime</div>` : ''}
 
           ${comments.length > 0 ? `<button class="wc-comment-toggle wc-comment-viewall" data-key="${e.key}">${openComments.has(e.key) ? 'Masquer les commentaires' : `Voir les ${comments.length} commentaire${comments.length>1?'s':''}`}</button>` : ''}
           <div class="wc-time">${formatDate(e.date)}</div>
@@ -3000,9 +3017,12 @@
     if(isNaN(lat) || isNaN(lon)) return;
 
     const map = L.map(mapEl, { scrollWheelZoom: false }).setView([lat, lon], 15);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap',
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      attribution: 'Tiles &copy; Esri',
       maxZoom: 18
+    }).addTo(map);
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', {
+      attribution: 'Tiles &copy; Esri', maxZoom: 18
     }).addTo(map);
     const markerIcon = L.divIcon({ className: 'wc-map-marker', html: '📍', iconSize: [24, 24] });
     L.marker([lat, lon], { icon: markerIcon }).addTo(map);
@@ -3075,6 +3095,7 @@
   let jrRouteMapInstance = null;
   let jrDayMapInstances = new Map();
   let lastJournalSignature = null;
+  let jrVisibleDayCount = 3; // how many days to render at once; "Voir plus" bumps this up
 
   function dayKeyOf(iso){
     const d = new Date(iso);
@@ -3107,8 +3128,11 @@
     }
 
     const map = L.map(jrRouteMapEl, { scrollWheelZoom: false });
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap', maxZoom: 18
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      attribution: 'Tiles &copy; Esri', maxZoom: 18
+    }).addTo(map);
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', {
+      attribution: 'Tiles &copy; Esri', maxZoom: 18
     }).addTo(map);
 
     const points = geoChrono.map(e => [e.geo.lat, e.geo.lon]);
@@ -3140,8 +3164,11 @@
     if(!el || typeof L === 'undefined') return;
 
     const map = L.map(el, { scrollWheelZoom:false, zoomControl:false });
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap', maxZoom: 18
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      attribution: 'Tiles &copy; Esri', maxZoom: 18
+    }).addTo(map);
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', {
+      attribution: 'Tiles &copy; Esri', maxZoom: 18
     }).addTo(map);
 
     const points = dayGeo.map(e => [e.geo.lat, e.geo.lon]);
@@ -3160,7 +3187,7 @@
 
   function renderJournal(entries){
     if(!jrDaysEl) return;
-    const sig = entries.map(e => `${e.key}:${e.date}:${e.geo ? e.geo.lat+','+e.geo.lon : ''}:${jrMediaOf(e).length}:${e.place||''}:${e.activity||''}:${e.message ? e.message.length : 0}`).join('|');
+    const sig = jrVisibleDayCount + '|' + entries.map(e => `${e.key}:${e.date}:${e.geo ? e.geo.lat+','+e.geo.lon : ''}:${jrMediaOf(e).length}:${e.place||''}:${e.activity||''}:${e.message ? e.message.length : 0}`).join('|');
     if(sig === lastJournalSignature) return;
     lastJournalSignature = sig;
 
@@ -3209,7 +3236,12 @@
     `;
 
     const sortedDayKeys = [...dayGroups.keys()].sort();
-    jrDaysEl.innerHTML = sortedDayKeys.map(key => {
+    // only render a capped slice of days at a time — without this, the
+    // journal keeps growing forever as the trip goes on and the whole page
+    // becomes huge (thousands of DOM nodes, slow scroll, slow load)
+    const visibleDayKeys = sortedDayKeys.slice(0, jrVisibleDayCount);
+    const remainingDays = sortedDayKeys.length - visibleDayKeys.length;
+    jrDaysEl.innerHTML = visibleDayKeys.map(key => {
       const dayEntries = dayGroups.get(key);
       const dayNum = dayNumberOf(key);
       const dateLabel = new Date(dayEntries[0].date).toLocaleDateString('fr-FR', { weekday:'long', day:'numeric', month:'long' });
@@ -3227,9 +3259,9 @@
               return `
               <div class="jr-post">
                 ${media.length ? `<div class="jr-post-photos">
-                  ${media.slice(0,3).map(m => m.type === 'video'
-                    ? `<video src="${m.src}" muted></video>`
-                    : `<img src="${m.src}" alt="">`
+                  ${media.slice(0,3).map((m,i) => m.type === 'video'
+                    ? `<video src="${m.src}" muted data-key="${e.key}" data-idx="${i}"></video>`
+                    : `<img src="${m.src}" alt="" data-key="${e.key}" data-idx="${i}">`
                   ).join('')}
                 </div>` : ''}
                 <div class="jr-post-body">
@@ -3245,13 +3277,36 @@
           </div>
         </div>
       `;
-    }).join('');
+    }).join('') + (remainingDays > 0
+      ? `<button type="button" class="wall-load-more" id="jrLoadMore">Voir ${Math.min(remainingDays, 3)} jour${Math.min(remainingDays, 3) > 1 ? 's' : ''} de plus (${remainingDays} restant${remainingDays > 1 ? 's' : ''})</button>`
+      : '');
+
+    if(remainingDays > 0){
+      document.getElementById('jrLoadMore').addEventListener('click', ()=>{
+        jrVisibleDayCount += 3;
+        lastJournalSignature = null;
+        renderJournal(entries);
+      });
+    }
+
+    // tapping a journal photo opens it full-size in the shared lightbox,
+    // with all of that post's media reachable via prev/next (not just the
+    // first 3 thumbnails shown here)
+    jrDaysEl.querySelectorAll('.jr-post-photos img, .jr-post-photos video').forEach(el=>{
+      el.addEventListener('click', ()=>{
+        const key = el.getAttribute('data-key');
+        const idx = Number(el.getAttribute('data-idx'));
+        const post = entries.find(x => x.key === key);
+        if(!post) return;
+        openGallery(jrMediaOf(post), idx);
+      });
+    });
 
     // maps are a nice-to-have on top of the already-rendered content above:
     // if Leaflet chokes on anything here, the stats/timeline must stay visible
     // instead of the whole journal getting stuck mid-render.
     try { buildJourneyRouteMap(geoChrono); } catch(err){ console.error('buildJourneyRouteMap', err); }
-    sortedDayKeys.forEach(key => {
+    visibleDayKeys.forEach(key => {
       const dayGeo = dayGroups.get(key).filter(e => e.geo);
       if(dayGeo.length){
         try { buildDayMap(key, dayGeo); } catch(err){ console.error('buildDayMap', key, err); }
@@ -3573,8 +3628,11 @@
     const lat = parseFloat(el.dataset.lat), lon = parseFloat(el.dataset.lon);
     if(isNaN(lat) || isNaN(lon) || typeof L === 'undefined') return;
     const map = L.map(el, { scrollWheelZoom: false }).setView([lat, lon], 11);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap', maxZoom: 18
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      attribution: 'Tiles &copy; Esri', maxZoom: 18
+    }).addTo(map);
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', {
+      attribution: 'Tiles &copy; Esri', maxZoom: 18
     }).addTo(map);
     const markerIcon = L.divIcon({ className: 'wc-map-marker', html: '📍', iconSize: [24, 24] });
     L.marker([lat, lon], { icon: markerIcon }).addTo(map);
@@ -3592,8 +3650,11 @@
     if(!el || typeof L === 'undefined') return;
 
     const map = L.map(el, { scrollWheelZoom:false }).setView([38, -45], 3);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap', maxZoom: 18
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      attribution: 'Tiles &copy; Esri', maxZoom: 18
+    }).addTo(map);
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', {
+      attribution: 'Tiles &copy; Esri', maxZoom: 18
     }).addTo(map);
 
     const PT = {
@@ -3679,9 +3740,12 @@
     const arrPoint = [arrLat, arrLon];
 
     const map = L.map(mapEl, { scrollWheelZoom: false });
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap',
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      attribution: 'Tiles &copy; Esri',
       maxZoom: 18
+    }).addTo(map);
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', {
+      attribution: 'Tiles &copy; Esri', maxZoom: 18
     }).addTo(map);
 
     const dotIcon = L.divIcon({ className: 'trk-leaflet-dot', iconSize: [10, 10] });
