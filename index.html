@@ -282,7 +282,8 @@
   /* ---------- ROADMAP HORIZONTAL TIMELINE (glow, scrollable) ---------- */
   .roadmap-track{
     height:400px; padding:0 2rem; overflow-x:auto; overflow-y:hidden;
-    scroll-snap-type:x proximity; display:flex; align-items:center; justify-content:center;
+    scroll-snap-type:x proximity; display:flex; align-items:center;
+    justify-content:flex-start; justify-content:safe center;
   }
   .roadmap-line-wrap{
     position:relative; display:flex; align-items:center; gap:2.4rem;
@@ -575,6 +576,15 @@
   .wf-geo-btn:hover{ background:rgba(22,229,255,.2); }
   .wf-geo-btn:disabled{ opacity:.5; cursor:wait; }
   .wf-geo-status{ font-size:.8rem; color:var(--muted); }
+
+  .wall-notif-btn{
+    background:rgba(22,229,255,.12); border:1px solid rgba(22,229,255,.4); color:var(--cyan);
+    border-radius:999px; padding:.4rem .9rem; font-size:.78rem; cursor:pointer; font-family:'Space Grotesk';
+    margin-left:auto;
+  }
+  .wall-notif-btn:hover{ background:rgba(22,229,255,.2); }
+  .wall-notif-btn.is-on{ background:rgba(22,229,255,.3); }
+  .wall-notif-btn:disabled{ opacity:.5; cursor:not-allowed; }
 
   .wc-tags{ display:flex; flex-wrap:wrap; gap:.4rem; margin-bottom:.5rem; }
   .wc-tag{
@@ -1152,6 +1162,7 @@
   <div class="section-head reveal">
     <span class="section-num">01</span>
     <span class="section-title display">Le mur</span>
+    <button type="button" id="wallNotifBtn" class="wall-notif-btn" title="Reçois une notif à chaque nouveau post, tant que ce site est ouvert dans un onglet">🔔 Activer les notifs</button>
   </div>
   <p class="reveal" style="color:var(--muted); margin-bottom:2rem; max-width:60ch;">
     Tout le monde peut lire le mur. Connecte-toi (en haut à droite) pour liker ❤️ et laisser un commentaire — les nouveaux posts restent publiés par Baptiste & Martin.
@@ -2153,6 +2164,58 @@
   const wfPreviewList = document.getElementById('wfPreviewList');
   const wfSubmit = document.getElementById('wfSubmit');
   const wfStatus = document.getElementById('wfStatus');
+  const wallNotifBtn = document.getElementById('wallNotifBtn');
+
+  // browser notifications for new wall posts — only fire while this tab is
+  // open (no service worker/backend), so no Firebase Blaze plan needed.
+  // Notification.permission can't be revoked from JS once granted, so we
+  // keep a separate in-app on/off flag in localStorage for the "disable" case.
+  function wallNotifsEnabled(){
+    return localStorage.getItem('wallNotifsEnabled') !== 'false';
+  }
+  function setWallNotifsEnabled(v){
+    localStorage.setItem('wallNotifsEnabled', v ? 'true' : 'false');
+    updateWallNotifBtn();
+  }
+
+  function updateWallNotifBtn(){
+    if(!wallNotifBtn) return;
+    if(!('Notification' in window)){ wallNotifBtn.style.display = 'none'; return; }
+    if(Notification.permission === 'denied'){
+      wallNotifBtn.textContent = '🔕 Notifs bloquées (autorise-les dans le navigateur)';
+      wallNotifBtn.classList.remove('is-on');
+      wallNotifBtn.disabled = true;
+      return;
+    }
+    wallNotifBtn.disabled = false;
+    if(Notification.permission === 'granted' && wallNotifsEnabled()){
+      wallNotifBtn.textContent = '🔔 Notifs activées (cliquer pour désactiver)';
+      wallNotifBtn.classList.add('is-on');
+    } else {
+      wallNotifBtn.textContent = '🔕 Activer les notifs';
+      wallNotifBtn.classList.remove('is-on');
+    }
+  }
+  updateWallNotifBtn();
+  wallNotifBtn?.addEventListener('click', async ()=>{
+    if(!('Notification' in window) || Notification.permission === 'denied') return;
+    // already granted + on → this click means "turn off"
+    if(Notification.permission === 'granted' && wallNotifsEnabled()){
+      setWallNotifsEnabled(false);
+      return;
+    }
+    if(Notification.permission !== 'granted') await Notification.requestPermission();
+    if(Notification.permission === 'granted') setWallNotifsEnabled(true);
+    else updateWallNotifBtn();
+  });
+
+  function notifyNewWallPost(entry){
+    if(!('Notification' in window) || Notification.permission !== 'granted' || !wallNotifsEnabled()) return;
+    const body = entry.message ? entry.message.slice(0, 100) : (entry.place || 'Nouveau post sur le mur');
+    try {
+      new Notification(`${entry.name} a posté sur le mur`, { body, icon: 'icon-192.png' });
+    } catch(e){ console.error('notify', e); }
+  }
 
   const MAX_MEDIA = 10;
   let mediaItems = []; // [{type:'image', src: dataUrl}]
@@ -2471,12 +2534,26 @@
     return ordered;
   }
 
+  let wallListenerReady = false;
+
   function startWallListener(){
     const q = query(entriesCol, orderBy('date', 'desc'));
     onSnapshot(q, (snap)=>{
       lastEntries = snap.docs.map(d => ({ key: d.id, ...d.data() }));
       renderWallEntries(lastEntries);
       renderJournal(lastEntries);
+
+      // skip the initial snapshot (it reports every existing doc as "added")
+      // and skip posts authored by the person currently viewing the page
+      if(wallListenerReady){
+        const myName = currentUser ? (currentUser.displayName || currentUser.email) : null;
+        snap.docChanges().forEach(change => {
+          if(change.type === 'added' && change.doc.data().name !== myName){
+            notifyNewWallPost(change.doc.data());
+          }
+        });
+      }
+      wallListenerReady = true;
     }, (e)=>{
       console.error('wall snapshot error', e);
       wallFeed.innerHTML = '<div class="wall-empty">⚠️ Impossible de charger le mur.</div>';
