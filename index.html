@@ -616,6 +616,19 @@
   .wc-media-track{ display:flex; transition:transform .25s ease; touch-action:pan-y; }
   .wc-media-slide{ flex:0 0 100%; min-width:0; }
   .wc-media-slide img, .wc-media-slide video{ width:100%; display:block; aspect-ratio:1/1; object-fit:cover; cursor:zoom-in; }
+  .wc-heart-burst{
+    position:absolute; top:50%; left:50%; z-index:5; pointer-events:none;
+    font-size:5rem; transform:translate(-50%,-50%) scale(0); opacity:0;
+    filter:drop-shadow(0 2px 10px rgba(0,0,0,.5));
+    animation: wc-heart-pop .8s ease forwards;
+  }
+  @keyframes wc-heart-pop{
+    0%{ transform:translate(-50%,-50%) scale(0); opacity:0; }
+    15%{ transform:translate(-50%,-50%) scale(1.15); opacity:1; }
+    30%{ transform:translate(-50%,-50%) scale(1); opacity:1; }
+    75%{ transform:translate(-50%,-50%) scale(1); opacity:1; }
+    100%{ transform:translate(-50%,-50%) scale(1.05); opacity:0; }
+  }
   .wc-car-prev, .wc-car-next{
     position:absolute; top:50%; transform:translateY(-50%); z-index:2;
     width:30px; height:30px; border-radius:50%; border:none;
@@ -1910,7 +1923,8 @@
   } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
   import {
     getAuth, onAuthStateChanged, createUserWithEmailAndPassword,
-    signInWithEmailAndPassword, signOut, updateProfile
+    signInWithEmailAndPassword, signOut, updateProfile,
+    setPersistence, browserLocalPersistence
   } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
 
   const firebaseConfig = {
@@ -1931,6 +1945,11 @@
   const app = firebaseReady ? initializeApp(firebaseConfig) : null;
   const db = firebaseReady ? getFirestore(app) : null;
   const auth = firebaseReady ? getAuth(app) : null;
+  // Force la persistance sur localStorage (au lieu du défaut IndexedDB,
+  // qui échoue silencieusement — et donc déconnecte à chaque fermeture —
+  // dans certains navigateurs restreints : webview Instagram/Messages,
+  // mode privé, PWA sur iPhone…).
+  if(auth) setPersistence(auth, browserLocalPersistence).catch(e=> console.error('setPersistence', e));
   const entriesCol = firebaseReady ? collection(db, 'wall_entries') : null;
   const contentDocRef = firebaseReady ? doc(db, 'site_content', 'main') : null;
 
@@ -2576,20 +2595,37 @@
       });
     }
 
-    // clicking a carousel slide (photos only, videos keep native controls)
-    // opens the full gallery starting at that slide — suppressed right after
-    // a finger drag so a swipe doesn't also register as a tap
+    // tapping a carousel slide (photos only, videos keep native controls)
+    // opens the full gallery — suppressed right after a finger drag so a
+    // swipe doesn't also register as a tap. A second tap within 300ms
+    // (double-tap, Instagram-style) likes the post instead of opening
+    // the gallery, and never unlikes an already-liked post.
     wallFeed.querySelectorAll('.wc-media img').forEach(img=>{
+      let tapTimer = null;
+      let lastTapTime = 0;
       img.addEventListener('click', ()=>{
         const mediaEl = img.closest('.wc-media');
         if(mediaEl && mediaEl.dataset.dragged === '1') return;
         const key = img.getAttribute('data-key');
-        const idx = Number(img.getAttribute('data-idx'));
-        const post = lastEntries.find(x => x.key === key);
-        if(!post) return;
-        const raw = post.photos || (post.photo ? [post.photo] : []);
-        const media = raw.map(m => typeof m === 'string' ? { type: 'image', src: m } : m);
-        openGallery(media, idx);
+        const now = Date.now();
+        if(now - lastTapTime < 300){
+          clearTimeout(tapTimer);
+          lastTapTime = 0;
+          if(currentUser){
+            showHeartBurst(mediaEl);
+            likePost(key, { forceLike: true });
+          }
+          return;
+        }
+        lastTapTime = now;
+        tapTimer = setTimeout(()=>{
+          const idx = Number(img.getAttribute('data-idx'));
+          const post = lastEntries.find(x => x.key === key);
+          if(!post) return;
+          const raw = post.photos || (post.photo ? [post.photo] : []);
+          const media = raw.map(m => typeof m === 'string' ? { type: 'image', src: m } : m);
+          openGallery(media, idx);
+        }, 300);
       });
     });
 
@@ -2868,7 +2904,7 @@
     setTimeout(()=> map.invalidateSize(), 60);
   }
 
-  async function likePost(key){
+  async function likePost(key, opts = {}){
     if(!currentUser){ await customAlert('Connecte-toi pour liker ce post.'); return; }
     try {
       const ref = doc(db, 'wall_entries', key);
@@ -2877,11 +2913,21 @@
       const post = snap.data();
       const likedBy = post.likedBy || [];
       const already = likedBy.includes(currentUser.uid);
+      if(opts.forceLike && already) return; // double-tap : ne délike jamais, comme Instagram
       const newLikedBy = already ? likedBy.filter(id => id !== currentUser.uid) : [...likedBy, currentUser.uid];
       await updateDoc(ref, { likedBy: newLikedBy, likes: newLikedBy.length });
     } catch(e){
       console.error('likePost', e);
     }
+  }
+
+  function showHeartBurst(container){
+    if(!container) return;
+    const heart = document.createElement('div');
+    heart.className = 'wc-heart-burst';
+    heart.textContent = '❤️';
+    container.appendChild(heart);
+    heart.addEventListener('animationend', ()=> heart.remove());
   }
 
   async function addComment(key, name, text, replyTo){
