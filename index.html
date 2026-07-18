@@ -282,22 +282,32 @@
   /* ---------- ROADMAP HORIZONTAL TIMELINE (glow, scrollable) ---------- */
   .roadmap-track{
     height:400px; padding:0 2rem; overflow-x:auto; overflow-y:hidden;
-    scroll-snap-type:x proximity; display:flex; align-items:center;
+    scroll-snap-type:x proximity; display:flex; align-items:center; justify-content:center;
   }
   .roadmap-line-wrap{
     position:relative; display:flex; align-items:center; gap:2.4rem;
     height:100%; width:max-content;
   }
   .roadmap-line-wrap::before{
-    content:""; position:absolute; left:0; right:0; top:50%; height:3px; transform:translateY(-50%);
+    content:""; position:absolute; left:0; right:0; top:50%; height:3px;
+    transform:translateY(-50%) scaleX(0); transform-origin:left center;
     background:linear-gradient(90deg, var(--magenta), var(--cyan), var(--orange), var(--yellow));
     box-shadow:0 0 20px rgba(255,255,255,.18);
     border-radius:3px;
+    transition:transform 1.6s cubic-bezier(.16,1,.3,1);
   }
+  .roadmap-track.in .roadmap-line-wrap::before{ transform:translateY(-50%) scaleX(1); }
   .rm-item{
     position:relative; flex:0 0 220px; height:100%;
     scroll-snap-align:center;
   }
+  .rm-item:nth-child(1){ transition-delay:.15s; }
+  .rm-item:nth-child(2){ transition-delay:.3s; }
+  .rm-item:nth-child(3){ transition-delay:.45s; }
+  .rm-item:nth-child(4){ transition-delay:.6s; }
+  .rm-item:nth-child(5){ transition-delay:.75s; }
+  .rm-item:nth-child(6){ transition-delay:.9s; }
+  .rm-item:nth-child(7){ transition-delay:1.05s; }
   .rm-dot{
     position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); z-index:2;
     width:18px; height:18px; border-radius:50%;
@@ -471,6 +481,7 @@
   }
   footer .fbig{ margin-bottom:.6rem; }
   footer .fbig img{ height:clamp(70px,12vw,120px); width:auto; }
+  .footer-copyright{ margin-top:1.2rem; font-size:.68rem; letter-spacing:.08em; opacity:.5; }
 
   /* ---------- MAP ---------- */
   .map-wrap{
@@ -600,19 +611,25 @@
   .crop-skip{ background:rgba(255,255,255,.1); color:var(--muted); }
   .crop-confirm{ background:linear-gradient(90deg,var(--magenta),var(--orange)); color:#0a0014; }
 
-  .wall-photos{ display:grid; gap:2px; }
-  .wall-photos[data-count="1"]{ grid-template-columns:1fr; }
-  .wall-photos[data-count="2"], .wall-photos[data-count="3"], .wall-photos[data-count="4"]{ grid-template-columns:1fr 1fr; }
-  .wall-photos[data-count="3"] .wp-tile:first-child{ grid-row:1 / span 2; }
-  .wp-tile{ position:relative; overflow:hidden; }
-  .wall-photos img, .wall-photos video{ width:100%; height:100%; display:block; aspect-ratio:1/1; object-fit:cover; cursor:zoom-in; }
-  .wall-photos video{ background:#000; }
-  .wall-photos[data-count="1"] img, .wall-photos[data-count="1"] video{ aspect-ratio:4/3; }
-  .wp-more-overlay{
-    position:absolute; inset:0; background:rgba(0,0,0,.55); color:#fff;
-    display:flex; align-items:center; justify-content:center; cursor:zoom-in;
-    font-family:'Bebas Neue'; font-size:1.6rem; letter-spacing:.05em;
+  /* swipeable photo carousel, Instagram-style */
+  .wc-media{ position:relative; background:#000; overflow:hidden; }
+  .wc-media-track{ display:flex; transition:transform .25s ease; touch-action:pan-y; }
+  .wc-media-slide{ flex:0 0 100%; min-width:0; }
+  .wc-media-slide img, .wc-media-slide video{ width:100%; display:block; aspect-ratio:1/1; object-fit:cover; cursor:zoom-in; }
+  .wc-car-prev, .wc-car-next{
+    position:absolute; top:50%; transform:translateY(-50%); z-index:2;
+    width:30px; height:30px; border-radius:50%; border:none;
+    background:rgba(10,0,20,.5); color:#fff; font-size:1.1rem; line-height:1; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
   }
+  .wc-car-prev{ left:8px; }
+  .wc-car-next{ right:8px; }
+  .wc-car-prev:disabled, .wc-car-next:disabled{ display:none; }
+  .wc-car-dots{ display:flex; justify-content:center; gap:6px; padding:.6rem 0 0; }
+  .wc-car-dot{
+    width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,.2); cursor:pointer;
+  }
+  .wc-car-dot.active{ background:var(--cyan); }
   .wall-submit{
     grid-column:1/-1; justify-self:start;
     font-family:'Bebas Neue'; letter-spacing:.08em; font-size:1.1rem;
@@ -726,34 +743,47 @@
   }
   .auth-logout-btn:hover{ border-color:var(--cyan); color:var(--ink); }
 
-  .wall-feed{ display:flex; flex-direction:column; gap:1.2rem; max-width:600px; margin:0 auto; }
+  .wall-feed{ display:flex; flex-direction:column; gap:1.2rem; max-width:470px; margin:0 auto; }
   .wall-card{
     background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.09);
     border-radius:14px; overflow:hidden; position:relative;
   }
-  .wall-card img{ width:100%; display:block; aspect-ratio:4/3; object-fit:cover; cursor:zoom-in; }
-  .wall-card .wc-body{ padding:1rem 1.1rem 1.2rem; }
-  .wall-card .wc-name{ font-family:'Bebas Neue'; font-size:1.1rem; letter-spacing:.03em; color:var(--yellow); }
-  .wall-card .wc-date{ font-size:.7rem; color:var(--muted); margin-top:-.1rem; margin-bottom:.5rem; letter-spacing:.05em; }
-  .wall-card .wc-msg{ font-size:.88rem; line-height:1.5; color:var(--ink); white-space:pre-wrap; }
-  .wall-delete{
-    position:absolute; top:8px; right:8px; z-index:2;
-    width:26px; height:26px; border-radius:50%; border:none;
-    background:rgba(20,0,0,.75); color:#ff6b6b; font-size:.9rem; cursor:pointer;
+  .wall-card .wc-body{ padding:.7rem 1rem 1rem; }
+
+  /* header: avatar + name + place, admin actions on the right */
+  .wc-header{ display:flex; align-items:center; gap:.7rem; padding:.7rem .9rem; }
+  .wc-avatar{
+    flex:none; width:34px; height:34px; border-radius:50%;
     display:flex; align-items:center; justify-content:center;
+    font-family:'Bebas Neue'; letter-spacing:.02em; font-size:.85rem; color:#0a0014;
   }
-  .wall-edit{
-    position:absolute; top:8px; right:42px; z-index:2;
-    width:26px; height:26px; border-radius:50%; border:none;
-    background:rgba(10,0,20,.75); color:var(--cyan); font-size:.85rem; cursor:pointer;
-    display:flex; align-items:center; justify-content:center;
+  .wc-header-text{ flex:1; min-width:0; }
+  .wall-card .wc-name{ font-family:'Bebas Neue'; font-size:1rem; letter-spacing:.03em; color:var(--yellow); line-height:1.15; }
+  .wc-header-place{ font-size:.68rem; color:var(--muted); letter-spacing:.02em; margin-top:.05em; }
+  .wc-header-actions{ flex:none; display:flex; gap:.3rem; }
+  .wall-delete, .wall-edit{
+    width:26px; height:26px; border-radius:50%; border:none; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; font-size:.8rem;
   }
+  .wall-delete{ background:rgba(255,255,255,.06); color:#ff6b6b; }
+  .wall-edit{ background:rgba(255,255,255,.06); color:var(--cyan); }
+
+  .wall-card .wc-caption{ font-size:.88rem; line-height:1.5; color:var(--ink); white-space:pre-wrap; }
+  .wall-card .wc-caption b{ color:var(--yellow); font-family:'Bebas Neue'; letter-spacing:.02em; font-weight:normal; margin-right:.3em; }
+  .wc-time{ font-size:.65rem; color:var(--muted); letter-spacing:.06em; text-transform:uppercase; margin-top:.4rem; }
   .wc-edit-textarea{
     width:100%; min-height:80px; background:rgba(0,0,0,.3); border:1px solid rgba(255,255,255,.2);
     border-radius:8px; color:var(--ink); font-family:'Space Grotesk'; font-size:.88rem;
     padding:.6rem .8rem; resize:vertical;
   }
   .wc-edit-textarea:focus{ outline:none; border-color:var(--cyan); }
+  .wc-edit-tags{ display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:.5rem; }
+  .wc-edit-tag-input{
+    flex:1 1 140px; background:rgba(0,0,0,.3); border:1px solid rgba(255,255,255,.2);
+    border-radius:8px; color:var(--ink); font-family:'Space Grotesk'; font-size:.82rem;
+    padding:.45rem .7rem;
+  }
+  .wc-edit-tag-input:focus{ outline:none; border-color:var(--cyan); }
   .wc-edit-photos{ display:flex; gap:.5rem; flex-wrap:wrap; margin-top:.6rem; }
   .wc-edit-photo{ position:relative; width:60px; height:60px; }
   .wc-edit-photo img, .wc-edit-photo video{
@@ -793,18 +823,23 @@
   .wall-load-more:hover{ border-color:var(--cyan); }
 
   /* likes & comments */
-  .wc-actions{ display:flex; align-items:center; gap:.5rem; margin-top:.9rem; padding-top:.8rem; border-top:1px solid rgba(255,255,255,.08); }
+  .wc-actionbar{ display:flex; align-items:center; gap:.9rem; padding:.7rem 0 .3rem; }
   .wc-like{
-    background:none; border:1px solid rgba(255,255,255,.15); border-radius:999px;
-    color:var(--muted); font-size:.85rem; padding:.35rem .8rem; cursor:pointer;
-    display:flex; align-items:center; gap:.4rem; transition:all .15s ease;
+    background:none; border:none; color:var(--muted); font-size:1.3rem; line-height:1;
+    padding:0; cursor:pointer; transition:transform .15s ease;
   }
-  .wc-like:hover{ border-color:var(--magenta); color:var(--ink); }
-  .wc-like.liked{ background:rgba(255,46,138,.15); border-color:var(--magenta); color:var(--magenta); }
-  .wc-comment-toggle{
-    background:none; border:none; color:var(--muted); font-size:.8rem; cursor:pointer; text-decoration:underline;
+  .wc-like:active{ transform:scale(1.2); }
+  .wc-actionbar .wc-comment-toggle{
+    background:none; border:none; color:var(--muted); font-size:1.2rem; line-height:1;
+    padding:0; cursor:pointer; text-decoration:none;
   }
-  .wc-comments{ margin-top:.7rem; display:flex; flex-direction:column; gap:.5rem; }
+  .wc-likes{ font-family:'Bebas Neue'; letter-spacing:.02em; font-size:.85rem; color:var(--ink); margin-bottom:.35rem; }
+  .wc-comment-viewall{
+    display:block; background:none; border:none; color:var(--muted); font-size:.78rem;
+    cursor:pointer; text-decoration:none; padding:0; margin-top:.4rem;
+  }
+  .wc-comment-viewall:hover{ color:var(--cyan); }
+  .wc-comments{ margin-top:.5rem; display:flex; flex-direction:column; gap:.5rem; }
   .wc-comment{ font-size:.82rem; background:rgba(255,255,255,.03); border-radius:8px; padding:.5rem .7rem; position:relative; }
   .wc-comment b{ color:var(--cyan); font-weight:600; }
   .wc-comment .cm-date{ color:var(--muted); font-size:.68rem; margin-left:.4rem; }
@@ -831,15 +866,19 @@
     margin-left:auto; background:none; border:none; color:var(--muted);
     font-size:.75rem; cursor:pointer; padding:0 .2rem;
   }
-  .wc-comment-form{ display:flex; gap:.4rem; margin-top:.6rem; flex-wrap:wrap; }
+  .wc-comment-form{
+    display:flex; align-items:center; gap:.4rem; margin-top:.6rem; padding-top:.6rem;
+    border-top:1px solid rgba(255,255,255,.08);
+  }
   .wc-comment-form input{
-    background:rgba(0,0,0,.3); border:1px solid rgba(255,255,255,.15); border-radius:6px;
-    color:var(--ink); font-size:.8rem; padding:.4rem .6rem; font-family:'Space Grotesk';
+    background:none; border:none;
+    color:var(--ink); font-size:.82rem; padding:.3rem 0; font-family:'Space Grotesk';
   }
   .wc-comment-form input.cf-text{ flex:1 1 140px; }
+  .wc-comment-form input.cf-text::placeholder{ color:var(--muted); }
   .wc-comment-form button{
-    background:var(--cyan); color:#0a0014; border:none; border-radius:6px;
-    font-family:'Bebas Neue'; letter-spacing:.05em; font-size:.8rem; padding:.4rem .8rem; cursor:pointer;
+    background:none; color:var(--cyan); border:none;
+    font-family:'Bebas Neue'; letter-spacing:.05em; font-size:.85rem; padding:.4rem .3rem; cursor:pointer;
   }
 
   /* ---------- JOURNAL DE VOYAGE (Polarsteps-style day-by-day recap) ---------- */
@@ -892,6 +931,15 @@
   .jr-post-name{ color:var(--yellow); font-family:'Bebas Neue'; letter-spacing:.03em; }
   .jr-post-msg{ font-size:.85rem; line-height:1.5; color:var(--ink); white-space:pre-wrap; }
   .jr-empty{ color:var(--muted); font-size:.9rem; text-align:center; padding:2rem; }
+  .jr-empty-fun{ padding:3.5rem 1.5rem; display:flex; flex-direction:column; align-items:center; gap:.5rem; }
+  .jr-empty-icon{ font-size:2.6rem; animation:jrBounce 2.4s ease-in-out infinite; }
+  .jr-empty-title{ font-family:'Bebas Neue'; letter-spacing:.04em; font-size:1.3rem; color:var(--yellow); }
+  .jr-empty-sub{ font-size:.85rem; color:var(--muted); max-width:36ch; }
+  .jr-empty-dots span{ display:inline-block; width:6px; height:6px; border-radius:50%; background:var(--cyan); margin:0 3px; animation:jrDot 1.2s ease-in-out infinite; }
+  .jr-empty-dots span:nth-child(2){ animation-delay:.15s; background:var(--magenta); }
+  .jr-empty-dots span:nth-child(3){ animation-delay:.3s; background:var(--yellow); }
+  @keyframes jrBounce{ 0%,100%{ transform:translateY(0) rotate(-4deg); } 50%{ transform:translateY(-10px) rotate(4deg); } }
+  @keyframes jrDot{ 0%,80%,100%{ transform:scale(.6); opacity:.4; } 40%{ transform:scale(1); opacity:1; } }
 
   /* ---------- CUSTOM MODAL (prompt/confirm/alert are blocked in sandboxed preview) ---------- */
   .custom-modal-overlay{
@@ -953,8 +1001,8 @@
     .auth-form input, .wc-comment-form input{
       font-size:16px;
     }
-    .wc-like, .wc-comment-toggle{ padding:.55rem .9rem; min-height:40px; }
-    .wall-delete{ width:32px; height:32px; }
+    .wc-actionbar .wc-like, .wc-actionbar .wc-comment-toggle{ padding:.5rem; min-width:40px; min-height:40px; }
+    .wall-delete, .wall-edit{ width:32px; height:32px; }
     .wc-comment-delete{ padding:.4rem; }
     .auth-pill{ padding:.65rem 1.1rem; }
     .auth-dock{ top:76px; right:12px; }
@@ -1106,7 +1154,7 @@
       </div>
       <textarea id="wfMessage" placeholder="Un petit message..." maxlength="500" required></textarea>
       <div class="file-row">
-        <label>📷 Ajouter des photos/vidéos (optionnel, 10 max) <input type="file" id="wfPhoto" accept="image/*,video/*" multiple></label>
+        <label>📷 Ajouter des photos (optionnel, 10 max) <input type="file" id="wfPhoto" accept="image/*" multiple></label>
         <div id="wfPreviewList" class="wall-thumb-preview-list"></div>
       </div>
       <button type="submit" class="wall-submit" id="wfSubmit">Publier</button>
@@ -1135,7 +1183,11 @@
   <div class="jr-stats reveal" id="jrStats"></div>
   <div class="jr-routemap reveal" id="jrRouteMap"></div>
   <div class="jr-days" id="jrDays">
-    <div class="jr-empty">Chargement…</div>
+    <div class="jr-empty jr-empty-fun">
+      <div class="jr-empty-icon">🧳</div>
+      <div class="jr-empty-title">Préparation des valises…</div>
+      <div class="jr-empty-dots"><span></span><span></span><span></span></div>
+    </div>
   </div>
 </section>
 
@@ -1145,7 +1197,7 @@
     <span class="section-num">03</span>
     <span class="section-title display">La roadmap</span>
   </div>
-  <div class="roadmap-track" data-editable="roadmap" contenteditable="false">
+  <div class="roadmap-track reveal" data-editable="roadmap" contenteditable="false">
    <div class="roadmap-line-wrap">
     <div class="rm-item reveal">
       <div class="rm-dot"></div>
@@ -1528,6 +1580,7 @@
 <footer>
   <div class="fbig display"><img src="rk_production_bold_gradient.png" alt="RK Production"></div>
   16 jours · 3 villes · New York → Washington DC → Miami
+  <div class="footer-copyright">©2026 RK Production Corporation</div>
 </footer>
 
 <div class="admin-dock" id="adminDock">
@@ -1859,9 +1912,6 @@
     getAuth, onAuthStateChanged, createUserWithEmailAndPassword,
     signInWithEmailAndPassword, signOut, updateProfile
   } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
-  import {
-    getStorage, ref, uploadBytes, getDownloadURL
-  } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-storage.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyDeNjRVenWrPi900Uvx2wkKKdNx7Vzz76U",
@@ -1881,7 +1931,6 @@
   const app = firebaseReady ? initializeApp(firebaseConfig) : null;
   const db = firebaseReady ? getFirestore(app) : null;
   const auth = firebaseReady ? getAuth(app) : null;
-  const storage = firebaseReady ? getStorage(app) : null;
   const entriesCol = firebaseReady ? collection(db, 'wall_entries') : null;
   const contentDocRef = firebaseReady ? doc(db, 'site_content', 'main') : null;
 
@@ -2072,8 +2121,7 @@
   const wfStatus = document.getElementById('wfStatus');
 
   const MAX_MEDIA = 10;
-  const MAX_VIDEO_SIZE = 50 * 1024 * 1024; // 50 Mo
-  let mediaItems = []; // [{type:'image', src: dataUrl} | {type:'video', src: storageUrl}]
+  let mediaItems = []; // [{type:'image', src: dataUrl}]
   let wfGeo = null; // {lat, lon} captured via navigator.geolocation
 
   // reverse-geocode (OpenStreetMap Nominatim, free/no key) to turn GPS coords
@@ -2127,21 +2175,30 @@
     );
   });
 
+  // photos are stored as inline base64 in the Firestore doc (1 Mo hard cap),
+  // so a full batch of MAX_MEDIA photos needs tighter compression per photo
+  // than a single one does, or the post silently loses its photos (see the
+  // 900 Ko fallback in the submit handler below).
+  function photoCompressionFor(count){
+    if(count <= 4) return { maxW: 1000, quality: 0.72 };
+    if(count <= 7) return { maxW: 900, quality: 0.65 };
+    return { maxW: 760, quality: 0.58 };
+  }
+
   // compress + resize photo client-side before storing (keeps it well under 5MB)
-  function readAndCompressImage(file){
+  function readAndCompressImage(file, maxW = 1000, quality = 0.72){
     return new Promise((resolve, reject)=>{
       const reader = new FileReader();
       reader.onload = (e)=>{
         const img = new Image();
         img.onload = ()=>{
-          const maxW = 1000;
           const scale = Math.min(1, maxW / img.width);
           const canvas = document.createElement('canvas');
           canvas.width = img.width * scale;
           canvas.height = img.height * scale;
           const ctx = canvas.getContext('2d');
           ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-          resolve({ type: 'image', src: canvas.toDataURL('image/jpeg', 0.72) });
+          resolve({ type: 'image', src: canvas.toDataURL('image/jpeg', quality) });
         };
         img.onerror = reject;
         img.src = e.target.result;
@@ -2151,22 +2208,8 @@
     });
   }
 
-  // videos go straight to Firebase Storage — far too big to inline as base64 in Firestore
-  async function uploadVideo(file){
-    if(file.size > MAX_VIDEO_SIZE) throw new Error('video-too-large');
-    const path = `wall_videos/${Date.now()}-${Math.random().toString(36).slice(2,8)}-${file.name}`;
-    const fileRef = ref(storage, path);
-    await uploadBytes(fileRef, file);
-    const url = await getDownloadURL(fileRef);
-    return { type: 'video', src: url };
-  }
-
   function renderPreviewList(){
-    wfPreviewList.innerHTML = mediaItems.map(m =>
-      m.type === 'video'
-        ? `<video src="${m.src}" muted></video>`
-        : `<img src="${m.src}">`
-    ).join('');
+    wfPreviewList.innerHTML = mediaItems.map(m => `<img src="${m.src}">`).join('');
   }
 
   // ---------- photo crop modal (Cropper.js) — one photo at a time ----------
@@ -2262,8 +2305,9 @@
 
   cropConfirmBtn.addEventListener('click', ()=>{
     if(!cropInstance) return;
-    const canvas = cropInstance.getCroppedCanvas({ maxWidth:1000, maxHeight:1000 });
-    const src = canvas.toDataURL('image/jpeg', 0.72);
+    const { maxW, quality } = singleCropMode ? { maxW: 1000, quality: 0.72 } : photoCompressionFor(cropQueue.length);
+    const canvas = cropInstance.getCroppedCanvas({ maxWidth:maxW, maxHeight:maxW });
+    const src = canvas.toDataURL('image/jpeg', quality);
     if(singleCropMode){ closeResizeModal(src); return; }
     cropResolve({ type:'image', src });
   });
@@ -2271,7 +2315,8 @@
   cropSkipBtn.addEventListener('click', async ()=>{
     if(singleCropMode){ closeResizeModal(null); return; }
     const file = cropQueue[cropIndex];
-    const item = await readAndCompressImage(file);
+    const { maxW, quality } = photoCompressionFor(cropQueue.length);
+    const item = await readAndCompressImage(file, maxW, quality);
     cropResolve(item);
   });
 
@@ -2290,28 +2335,16 @@
     if(files.length === 0) { mediaItems = []; wfPreviewList.innerHTML = ''; return; }
     const tooMany = files.length > MAX_MEDIA;
     if(tooMany) files = files.slice(0, MAX_MEDIA);
-    const videoFiles = files.filter(f => f.type.startsWith('video/'));
-    const imageFiles = files.filter(f => !f.type.startsWith('video/'));
 
     wfStatus.textContent = tooMany ? `⚠️ ${MAX_MEDIA} fichiers maximum, les suivants seront ignorés.` : '';
     mediaItems = [];
     try {
-      if(videoFiles.length){
-        wfStatus.textContent = 'Chargement des vidéos…';
-        mediaItems = mediaItems.concat(await Promise.all(videoFiles.map(uploadVideo)));
-        renderPreviewList();
-      }
-      if(imageFiles.length){
-        wfStatus.textContent = '';
-        const cropped = await cropImagesSequentially(imageFiles);
-        mediaItems = mediaItems.concat(cropped);
-        renderPreviewList();
-      }
+      mediaItems = await cropImagesSequentially(files);
+      renderPreviewList();
       if(!tooMany) wfStatus.textContent = '';
     } catch(e){
-      wfStatus.textContent = e.message === 'video-too-large'
-        ? '⚠️ Vidéo trop lourde (50 Mo max).'
-        : "Impossible de lire ces fichiers.";
+      console.error('wall media upload error:', e);
+      wfStatus.textContent = `❌ Upload impossible : ${e.code || e.message || 'erreur inconnue'}`;
       mediaItems = [];
       wfPreviewList.innerHTML = '';
     }
@@ -2321,6 +2354,10 @@
     const d = document.createElement('div');
     d.textContent = str;
     return d.innerHTML;
+  }
+
+  function escapeAttr(str){
+    return escapeHtml(str).replace(/"/g, '&quot;');
   }
 
   function formatDate(iso){
@@ -2337,6 +2374,22 @@
   let collapsedThreads = new Set(); // comment ids whose replies are currently hidden
   let openMaps = new Set(); // post keys whose inline location map is currently open
   let wallVisibleCount = 5; // how many posts to render at once; "Voir plus" bumps this up
+  let carouselIndex = new Map(); // post key -> current slide shown in the photo carousel
+
+  // deterministic avatar color + initials from a name, for posts (no profile photo upload)
+  const AVATAR_GRADIENTS = [
+    ['#ff2e8a','#ff9a2e'], ['#16e5ff','#7c3aff'], ['#ffe14d','#ff2e8a'],
+    ['#7c3aff','#16e5ff'], ['#ff9a2e','#ffe14d']
+  ];
+  function avatarGradientFor(name){
+    let hash = 0;
+    for(let i=0; i<name.length; i++) hash = (hash * 31 + name.charCodeAt(i)) >>> 0;
+    const [c1, c2] = AVATAR_GRADIENTS[hash % AVATAR_GRADIENTS.length];
+    return `linear-gradient(135deg, ${c1}, ${c2})`;
+  }
+  function initialsFor(name){
+    return name.trim().split(/\s+/).slice(0,2).map(w => w[0].toUpperCase()).join('');
+  }
 
   function genCommentId(){
     return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
@@ -2399,42 +2452,56 @@
       const liked = !!(currentUser && likedBy.includes(currentUser.uid));
       return `
       <div class="wall-card">
-        ${isAdmin ? `<button class="wall-delete" data-key="${e.key}" title="Supprimer ce post">✕</button>` : ''}
-        ${isAdmin ? `<button class="wall-edit" data-key="${e.key}" title="Modifier ce post">✏️</button>` : ''}
+        <div class="wc-header">
+          <div class="wc-avatar" style="background:${avatarGradientFor(e.name)}">${initialsFor(e.name)}</div>
+          <div class="wc-header-text">
+            <div class="wc-name">${escapeHtml(e.name)}</div>
+            ${e.place ? `<div class="wc-header-place">📍 ${escapeHtml(e.place)}</div>` : ''}
+          </div>
+          ${isAdmin ? `<div class="wc-header-actions">
+            <button class="wall-edit" data-key="${e.key}" title="Modifier ce post">✏️</button>
+            <button class="wall-delete" data-key="${e.key}" title="Supprimer ce post">✕</button>
+          </div>` : ''}
+        </div>
         ${(() => {
           const raw = e.photos || (e.photo ? [e.photo] : []);
           // normalize legacy plain-string photo entries to {type, src} objects
           const media = raw.map(m => typeof m === 'string' ? { type: 'image', src: m } : m);
           if(media.length === 0) return '';
-          // cap visible tiles at 4 (Instagram-style) so a post with many photos
-          // can't stretch the card — extras are reachable via the "+N" tile
-          const visible = media.slice(0, 4);
-          const extra = media.length - visible.length;
-          return `<div class="wall-photos" data-count="${visible.length}">
-            ${visible.map((m, i) => {
-              const showOverlay = extra > 0 && i === visible.length - 1;
-              const mediaTag = m.type === 'video'
-                ? `<video src="${m.src}" ${showOverlay ? 'muted' : 'controls'} playsinline></video>`
-                : `<img src="${m.src}" alt="photo de ${escapeHtml(e.name)}">`;
-              return `<div class="wp-tile" data-key="${e.key}" data-idx="${i}">
-                ${mediaTag}
-                ${showOverlay ? `<div class="wp-more-overlay">+${extra}</div>` : ''}
-              </div>`;
-            }).join('')}
-          </div>`;
+          const idx = Math.min(carouselIndex.get(e.key) || 0, media.length - 1);
+          // every slide is rendered up front (not just the current one) so a
+          // finger swipe can drag the strip directly, like the real app
+          return `<div class="wc-media" data-key="${e.key}" data-count="${media.length}">
+            <div class="wc-media-track" style="transform:translateX(${-idx * 100}%)">
+              ${media.map((m, i) => `
+                <div class="wc-media-slide">
+                  ${m.type === 'video'
+                    ? `<video src="${m.src}" controls playsinline></video>`
+                    : `<img src="${m.src}" alt="photo de ${escapeHtml(e.name)}" data-key="${e.key}" data-idx="${i}">`}
+                </div>
+              `).join('')}
+            </div>
+            ${media.length > 1 ? `
+              <button type="button" class="wc-car-prev" data-key="${e.key}" data-idx="${idx - 1}" ${idx === 0 ? 'disabled' : ''}>‹</button>
+              <button type="button" class="wc-car-next" data-key="${e.key}" data-idx="${idx + 1}" ${idx === media.length - 1 ? 'disabled' : ''}>›</button>
+            ` : ''}
+          </div>
+          ${media.length > 1 ? `<div class="wc-car-dots">
+            ${media.map((_, i) => `<span class="wc-car-dot ${i === idx ? 'active' : ''}" data-key="${e.key}" data-idx="${i}"></span>`).join('')}
+          </div>` : ''}`;
         })()}
         <div class="wc-body">
-          <div class="wc-name">${escapeHtml(e.name)}</div>
-          <div class="wc-date">${formatDate(e.date)}</div>
-          ${(e.activity || e.place || e.geo) ? `
-          <div class="wc-tags">
-            ${e.activity ? `<span class="wc-tag">🏷️ ${escapeHtml(e.activity)}</span>` : ''}
-            ${e.place ? `<span class="wc-tag">📍 ${escapeHtml(e.place)}</span>` : ''}
-            ${e.geo ? `<button type="button" class="wc-tag wc-map-toggle" data-key="${e.key}">${openMaps.has(e.key) ? '▲ Fermer la carte' : '🗺️ Voir sur la carte'}</button>` : ''}
-          </div>` : ''}
-          ${e.geo ? `<div class="wc-map" id="wc-map-${e.key}" data-lat="${e.geo.lat}" data-lon="${e.geo.lon}" style="display:${openMaps.has(e.key) ? 'block' : 'none'};"></div>` : ''}
+          <div class="wc-actionbar">
+            <button class="wc-like ${liked ? 'liked' : ''}" data-key="${e.key}" title="J'aime">${liked ? '❤️' : '🤍'}</button>
+            <button class="wc-comment-toggle" data-key="${e.key}" title="Commenter">💬</button>
+          </div>
+          ${likes > 0 ? `<div class="wc-likes">${likes} j'aime</div>` : ''}
           ${editingPosts.has(e.key) ? `
           <div class="wc-edit">
+            <div class="wc-edit-tags">
+              <input type="text" class="wc-edit-tag-input wc-edit-place" data-key="${e.key}" placeholder="📍 Lieu" maxlength="80" value="${escapeAttr(e.place || '')}">
+              <input type="text" class="wc-edit-tag-input wc-edit-activity" data-key="${e.key}" placeholder="🏷️ Activité" maxlength="60" value="${escapeAttr(e.activity || '')}">
+            </div>
             <textarea class="wc-edit-textarea" data-key="${e.key}" maxlength="500">${escapeHtml(e.message)}</textarea>
             <div class="wc-edit-photos">
               ${(editMedia.get(e.key) || []).map((m,mi) => `
@@ -2446,20 +2513,25 @@
               `).join('')}
             </div>
             <label class="wc-edit-addphoto">
-              📷 Ajouter des photos/vidéos
-              <input type="file" class="wc-edit-file" data-key="${e.key}" accept="image/*,video/*" multiple>
+              📷 Ajouter des photos
+              <input type="file" class="wc-edit-file" data-key="${e.key}" accept="image/*" multiple>
             </label>
             <div class="wc-edit-status" id="edit-status-${e.key}"></div>
             <div class="wc-edit-actions">
               <button class="wc-edit-save" data-key="${e.key}">Enregistrer</button>
               <button class="wc-edit-cancel" data-key="${e.key}">Annuler</button>
             </div>
-          </div>` : `<div class="wc-msg">${escapeHtml(e.message)}</div>`}
+          </div>` : `<div class="wc-caption"><b>${escapeHtml(e.name)}</b> ${escapeHtml(e.message)}</div>`}
 
-          <div class="wc-actions">
-            <button class="wc-like ${liked ? 'liked' : ''}" data-key="${e.key}">❤️ ${likes}</button>
-            <button class="wc-comment-toggle" data-key="${e.key}">💬 ${comments.length} commentaire${comments.length>1?'s':''}</button>
-          </div>
+          ${(e.activity || e.geo) ? `
+          <div class="wc-tags">
+            ${e.activity ? `<span class="wc-tag">🏷️ ${escapeHtml(e.activity)}</span>` : ''}
+            ${e.geo ? `<button type="button" class="wc-tag wc-map-toggle" data-key="${e.key}">${openMaps.has(e.key) ? '▲ Fermer la carte' : '🗺️ Voir sur la carte'}</button>` : ''}
+          </div>` : ''}
+          ${e.geo ? `<div class="wc-map" id="wc-map-${e.key}" data-lat="${e.geo.lat}" data-lon="${e.geo.lon}" style="display:${openMaps.has(e.key) ? 'block' : 'none'};"></div>` : ''}
+
+          ${comments.length > 0 ? `<button class="wc-comment-toggle wc-comment-viewall" data-key="${e.key}">${openComments.has(e.key) ? 'Masquer les commentaires' : `Voir les ${comments.length} commentaire${comments.length>1?'s':''}`}</button>` : ''}
+          <div class="wc-time">${formatDate(e.date)}</div>
 
           <div class="wc-comments" id="comments-${e.key}" style="display:${openComments.has(e.key) ? 'flex' : 'none'}; flex-direction:column;">
             ${(() => {
@@ -2479,17 +2551,17 @@
               `;
               }).join('');
             })()}
-            ${currentUser ? `
-            ${replyTarget.has(e.key) ? `
-            <div class="wc-reply-banner">
-              En réponse à <b>${escapeHtml(replyTarget.get(e.key).name)}</b>
-              <button type="button" class="wc-reply-cancel" data-key="${e.key}">✕</button>
-            </div>` : ''}
-            <form class="wc-comment-form" data-key="${e.key}">
-              <input class="cf-text" type="text" placeholder="Ton commentaire..." maxlength="200" required>
-              <button type="submit">Envoyer</button>
-            </form>` : `<div style="color:var(--muted); font-size:.8rem; margin-top:.4rem;">Connecte-toi pour commenter.</div>`}
           </div>
+          ${currentUser ? `
+          ${replyTarget.has(e.key) ? `
+          <div class="wc-reply-banner">
+            En réponse à <b>${escapeHtml(replyTarget.get(e.key).name)}</b>
+            <button type="button" class="wc-reply-cancel" data-key="${e.key}">✕</button>
+          </div>` : ''}
+          <form class="wc-comment-form" data-key="${e.key}">
+            <input class="cf-text" type="text" placeholder="Ajouter un commentaire..." maxlength="200" required>
+            <button type="submit">Publier</button>
+          </form>` : `<div style="color:var(--muted); font-size:.8rem; margin-top:.4rem;">Connecte-toi pour commenter.</div>`}
         </div>
       </div>
     `;
@@ -2504,19 +2576,90 @@
       });
     }
 
-    wallFeed.querySelectorAll('.wall-photos .wp-tile').forEach(tile=>{
-      // bare video tiles (no "+N" overlay) keep their native play controls;
-      // everything else opens the full gallery for that post
-      if(tile.querySelector('video') && !tile.querySelector('.wp-more-overlay')) return;
-      tile.addEventListener('click', ()=>{
-        const key = tile.getAttribute('data-key');
-        const idx = Number(tile.getAttribute('data-idx'));
+    // clicking a carousel slide (photos only, videos keep native controls)
+    // opens the full gallery starting at that slide — suppressed right after
+    // a finger drag so a swipe doesn't also register as a tap
+    wallFeed.querySelectorAll('.wc-media img').forEach(img=>{
+      img.addEventListener('click', ()=>{
+        const mediaEl = img.closest('.wc-media');
+        if(mediaEl && mediaEl.dataset.dragged === '1') return;
+        const key = img.getAttribute('data-key');
+        const idx = Number(img.getAttribute('data-idx'));
         const post = lastEntries.find(x => x.key === key);
         if(!post) return;
         const raw = post.photos || (post.photo ? [post.photo] : []);
         const media = raw.map(m => typeof m === 'string' ? { type: 'image', src: m } : m);
         openGallery(media, idx);
       });
+    });
+
+    // photo carousel: arrows/dots for a tap, real finger-drag for a swipe —
+    // all done with direct transform/class updates (no re-render) so the
+    // drag stays smooth every frame
+    wallFeed.querySelectorAll('.wc-media[data-count]').forEach(mediaEl=>{
+      const count = Number(mediaEl.getAttribute('data-count'));
+      const key = mediaEl.getAttribute('data-key');
+      const track = mediaEl.querySelector('.wc-media-track');
+      const card = mediaEl.closest('.wall-card');
+      const dots = card.querySelectorAll('.wc-car-dot');
+      const prevBtn = mediaEl.querySelector('.wc-car-prev');
+      const nextBtn = mediaEl.querySelector('.wc-car-next');
+
+      const goTo = (newIdx)=>{
+        newIdx = Math.max(0, Math.min(count - 1, newIdx));
+        carouselIndex.set(key, newIdx);
+        track.style.transform = `translateX(${-newIdx * 100}%)`;
+        dots.forEach((dot,i)=> dot.classList.toggle('active', i === newIdx));
+        if(prevBtn){ prevBtn.disabled = newIdx === 0; prevBtn.setAttribute('data-idx', newIdx - 1); }
+        if(nextBtn){ nextBtn.disabled = newIdx === count - 1; nextBtn.setAttribute('data-idx', newIdx + 1); }
+      };
+
+      if(prevBtn) prevBtn.addEventListener('click', ()=> goTo(Number(prevBtn.getAttribute('data-idx'))));
+      if(nextBtn) nextBtn.addEventListener('click', ()=> goTo(Number(nextBtn.getAttribute('data-idx'))));
+      dots.forEach(dot=> dot.addEventListener('click', ()=> goTo(Number(dot.getAttribute('data-idx')))));
+
+      if(count <= 1) return;
+      let startX = 0, startY = 0, dragX = 0, dragging = false, axisLocked = null;
+
+      mediaEl.addEventListener('touchstart', (evt)=>{
+        if(evt.touches.length !== 1) return;
+        startX = evt.touches[0].clientX;
+        startY = evt.touches[0].clientY;
+        dragX = 0;
+        dragging = true;
+        axisLocked = null;
+        mediaEl.dataset.dragged = '';
+        track.style.transition = 'none';
+      }, { passive: true });
+
+      mediaEl.addEventListener('touchmove', (evt)=>{
+        if(!dragging) return;
+        const dx = evt.touches[0].clientX - startX;
+        const dy = evt.touches[0].clientY - startY;
+        if(axisLocked === null && (Math.abs(dx) > 6 || Math.abs(dy) > 6)){
+          axisLocked = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
+        }
+        if(axisLocked !== 'x') return;
+        evt.preventDefault();
+        dragX = dx;
+        if(Math.abs(dx) > 10) mediaEl.dataset.dragged = '1';
+        const current = carouselIndex.get(key) || 0;
+        const pct = (-current * 100) + (dx / mediaEl.offsetWidth * 100);
+        track.style.transform = `translateX(${pct}%)`;
+      }, { passive: false });
+
+      const endDrag = ()=>{
+        if(!dragging) return;
+        dragging = false;
+        track.style.transition = '';
+        const current = carouselIndex.get(key) || 0;
+        const threshold = mediaEl.offsetWidth * 0.15;
+        if(axisLocked === 'x' && dragX < -threshold) goTo(current + 1);
+        else if(axisLocked === 'x' && dragX > threshold) goTo(current - 1);
+        else goTo(current);
+      };
+      mediaEl.addEventListener('touchend', endDrag);
+      mediaEl.addEventListener('touchcancel', endDrag);
     });
     wallFeed.querySelectorAll('.wc-edit-photo img').forEach(img=>{
       img.addEventListener('click', ()=> openLightbox(img.src, img.alt));
@@ -2557,11 +2700,18 @@
       btn.addEventListener('click', async ()=>{
         const key = btn.getAttribute('data-key');
         const textarea = wallFeed.querySelector(`.wc-edit-textarea[data-key="${key}"]`);
+        const placeInput = wallFeed.querySelector(`.wc-edit-place[data-key="${key}"]`);
+        const activityInput = wallFeed.querySelector(`.wc-edit-activity[data-key="${key}"]`);
         const newMessage = textarea.value.trim();
         if(!newMessage) return;
         btn.disabled = true;
         try {
-          await updateDoc(doc(db, 'wall_entries', key), { message: newMessage, photos: editMedia.get(key) || [] });
+          await updateDoc(doc(db, 'wall_entries', key), {
+            message: newMessage,
+            photos: editMedia.get(key) || [],
+            place: placeInput.value.trim() || null,
+            activity: activityInput.value.trim() || null
+          });
           editingPosts.delete(key);
           editMedia.delete(key);
         } catch(e){
@@ -2610,27 +2760,16 @@
         if(tooMany) files = files.slice(0, Math.max(room, 0));
         if(status) status.textContent = tooMany ? `⚠️ ${MAX_MEDIA} fichiers maximum au total, les suivants seront ignorés.` : '';
         if(files.length === 0) return;
-        const videoFiles = files.filter(f => f.type.startsWith('video/'));
-        const imageFiles = files.filter(f => !f.type.startsWith('video/'));
         try {
-          if(videoFiles.length){
-            if(status) status.textContent = 'Chargement des vidéos…';
-            const uploaded = await Promise.all(videoFiles.map(uploadVideo));
-            editMedia.set(key, [...(editMedia.get(key) || []), ...uploaded]);
-            renderWallEntries(lastEntries);
-          }
-          if(imageFiles.length){
-            const cropped = await cropImagesSequentially(imageFiles);
-            editMedia.set(key, [...(editMedia.get(key) || []), ...cropped]);
-            renderWallEntries(lastEntries);
-          }
+          const cropped = await cropImagesSequentially(files);
+          editMedia.set(key, [...(editMedia.get(key) || []), ...cropped]);
+          renderWallEntries(lastEntries);
           const finalStatus = document.getElementById(`edit-status-${key}`);
           if(finalStatus && !tooMany) finalStatus.textContent = '';
         } catch(e){
+          console.error('wall media upload error:', e);
           const errStatus = document.getElementById(`edit-status-${key}`);
-          if(errStatus) errStatus.textContent = e.message === 'video-too-large'
-            ? '⚠️ Vidéo trop lourde (50 Mo max).'
-            : "Impossible de lire ces fichiers.";
+          if(errStatus) errStatus.textContent = `❌ Upload impossible : ${e.code || e.message || 'erreur inconnue'}`;
         }
       });
     });
@@ -2646,6 +2785,10 @@
         const nowOpen = box.style.display === 'none';
         box.style.display = nowOpen ? 'flex' : 'none';
         if(nowOpen) openComments.add(key); else openComments.delete(key);
+        const post = lastEntries.find(x => x.key === key);
+        const count = post ? (post.comments || []).length : 0;
+        const viewAllBtn = wallFeed.querySelector(`.wc-comment-viewall[data-key="${key}"]`);
+        if(viewAllBtn) viewAllBtn.textContent = nowOpen ? 'Masquer les commentaires' : `Voir les ${count} commentaire${count>1?'s':''}`;
       });
     });
 
@@ -2779,7 +2922,7 @@
   const jrDaysEl = document.getElementById('jrDays');
   let jrRouteMapInstance = null;
   let jrDayMapInstances = new Map();
-  let lastJournalSignature = '';
+  let lastJournalSignature = null;
 
   function dayKeyOf(iso){
     const d = new Date(iso);
@@ -2874,7 +3017,12 @@
 
     if(entries.length === 0){
       jrStatsEl.innerHTML = '';
-      jrDaysEl.innerHTML = '<div class="jr-empty">Aucun post pour l’instant 👋</div>';
+      jrDaysEl.innerHTML = `
+        <div class="jr-empty jr-empty-fun">
+          <div class="jr-empty-icon">✈️</div>
+          <div class="jr-empty-title">Le journal est encore vide</div>
+          <div class="jr-empty-sub">Dès les premiers posts sur le mur, l’aventure s’écrira ici jour par jour !</div>
+        </div>`;
       try { buildJourneyRouteMap([]); } catch(err){ console.error('buildJourneyRouteMap', err); }
       return;
     }
@@ -2982,11 +3130,11 @@
       comments: []
     };
 
-    // Firestore limite un document à 1 Mo — les vidéos ne sont que des liens
-    // (quelques octets), mais les photos compressées inline peuvent s'accumuler.
+    // Firestore limite un document à 1 Mo — les photos compressées inline
+    // peuvent s'accumuler et dépasser cette limite sur un post à 10 photos.
     if(new Blob([JSON.stringify(entry)]).size > 900 * 1024){
-      entry.photos = entry.photos.filter(m => m.type === 'video');
-      wfStatus.textContent = "⚠️ Photos trop lourdes, post publié sans les photos (vidéos conservées).";
+      entry.photos = [];
+      wfStatus.textContent = "⚠️ Photos trop lourdes, post publié sans les photos.";
     }
 
     try {
@@ -3394,7 +3542,22 @@
       color: isTrain ? '#ffb703' : '#0077ff', weight: 3.5, dashArray: '10 8', opacity: 1
     }).addTo(map);
 
-    const movingIcon = L.divIcon({ className: 'trk-leaflet-marker', html: icon, iconSize: [24, 24] });
+    // ✈️ renders nose-up-right (~45°/NE) by default, so rotate it to match
+    // the true heading from departure to arrival (trains stay unrotated,
+    // since the 🚆 side-profile glyph isn't meant to be spun).
+    const bearing = (lat1, lon1, lat2, lon2) => {
+      const φ1 = lat1 * Math.PI / 180, φ2 = lat2 * Math.PI / 180;
+      const Δλ = (lon2 - lon1) * Math.PI / 180;
+      const y = Math.sin(Δλ) * Math.cos(φ2);
+      const x = Math.cos(φ1) * Math.sin(φ2) - Math.sin(φ1) * Math.cos(φ2) * Math.cos(Δλ);
+      return (Math.atan2(y, x) * 180 / Math.PI + 360) % 360;
+    };
+    const rotation = isTrain ? 0 : bearing(depLat, depLon, arrLat, arrLon) - 45;
+    const movingIcon = L.divIcon({
+      className: 'trk-leaflet-marker',
+      html: `<span style="display:inline-block; transform:rotate(${rotation}deg);">${icon}</span>`,
+      iconSize: [24, 24]
+    });
     const marker = L.marker(depPoint, { icon: movingIcon }).addTo(map);
 
     map.fitBounds([depPoint, arrPoint], { padding: [30, 30] });
