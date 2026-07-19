@@ -3515,6 +3515,11 @@
   sizeRoadmapLine();
   window.addEventListener('resize', sizeRoadmapLine);
   window.addEventListener('orientationchange', sizeRoadmapLine);
+  // iOS Safari restores the page from its back-forward cache (bfcache) when
+  // you background the app/tab and return, reusing the old snapshot without
+  // firing resize/orientationchange — so the line stays stuck at whatever
+  // width it had before. Re-measure on that restore too.
+  window.addEventListener('pageshow', (e)=>{ if(e.persisted) sizeRoadmapLine(); });
 </script>
 
 <script>
