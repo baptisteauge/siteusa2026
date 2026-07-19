@@ -518,41 +518,6 @@
   .map-legend .leg-item{ display:flex; align-items:center; gap:.5rem; }
   .map-legend .dot{ width:14px; height:3px; border-radius:2px; display:inline-block; }
 
-  /* ---------- ADMIN MODE ---------- */
-  [data-editable]{ border-radius:6px; }
-  body.admin-on [data-editable]{
-    transition:outline .2s ease;
-    outline:1.5px dashed rgba(22,229,255,.5);
-    outline-offset:4px;
-    cursor:text;
-  }
-  body.admin-on [data-editable]:hover{ outline-color:var(--cyan); background:rgba(22,229,255,.04); }
-  body.admin-on [data-editable]:focus{ outline:2px solid var(--cyan); background:rgba(22,229,255,.07); }
-
-  .admin-dock{
-    position:fixed; bottom:20px; right:20px; z-index:80;
-    display:none; flex-direction:column; align-items:flex-end; gap:.6rem;
-  }
-  .admin-dock.show{ display:flex; }
-  .admin-toggle{
-    font-family:'Bebas Neue'; letter-spacing:.08em; font-size:.85rem;
-    background:rgba(23,4,40,.9); color:var(--muted);
-    border:1px solid rgba(255,255,255,.15); border-radius:999px;
-    padding:.55rem 1.1rem; cursor:pointer;
-    display:flex; align-items:center; gap:.5rem;
-    box-shadow:0 6px 20px rgba(0,0,0,.4);
-  }
-  .admin-toggle:hover{ border-color:var(--cyan); color:var(--ink); }
-  .admin-toggle.is-on{ background:linear-gradient(90deg,var(--magenta),var(--cyan)); color:#0a0014; border-color:transparent; }
-  .admin-save{
-    font-family:'Bebas Neue'; letter-spacing:.08em; font-size:.9rem;
-    background:var(--cyan); color:#0a0014; border:none; border-radius:999px;
-    padding:.6rem 1.3rem; cursor:pointer;
-    box-shadow:0 6px 20px rgba(22,229,255,.4);
-    display:none;
-  }
-  body.admin-on .admin-save{ display:inline-block; }
-
   /* ---------- WALL / GUESTBOOK ---------- */
   .wall-form{
     display:grid; grid-template-columns:1fr 1fr; gap:1rem;
@@ -1041,7 +1006,6 @@
     .wc-comment-delete{ padding:.4rem; }
     .auth-pill{ padding:.65rem 1.1rem; }
     .auth-dock{ top:76px; right:12px; }
-    .admin-dock{ bottom:16px; right:12px; }
   }
 
   /* ---------- BRAND MARK — logo, pinned inside the trip banner, left side ---------- */
@@ -1252,7 +1216,7 @@
     <span class="section-num">03</span>
     <span class="section-title display">La roadmap</span>
   </div>
-  <div class="roadmap-track reveal" data-editable="roadmap" contenteditable="false">
+  <div class="roadmap-track reveal">
    <div class="roadmap-line-wrap">
     <div class="roadmap-line"></div>
     <div class="rm-item">
@@ -1340,7 +1304,7 @@
             <div class="trk-place">Paris CDG</div>
           </div>
         </div>
-        <div class="trk-meta" data-editable="mission-1" contenteditable="false">
+        <div class="trk-meta">
           <span class="trk-sub">Terminal 1 → Terminal 2F · correspondance 2h · Dim. 2 août</span>
           <span class="trk-status">À venir</span>
         </div>
@@ -1373,7 +1337,7 @@
             <div class="trk-fr-time">21:50</div>
           </div>
         </div>
-        <div class="trk-meta" data-editable="mission-2" contenteditable="false">
+        <div class="trk-meta">
           <span class="trk-sub">Terminal 2E → Terminal 1 · Dim. 2 août</span>
           <span class="trk-status">À venir</span>
         </div>
@@ -1407,7 +1371,7 @@
             <div class="trk-fr-time">15:53</div>
           </div>
         </div>
-        <div class="trk-meta" data-editable="mission-3" contenteditable="false">
+        <div class="trk-meta">
           <span class="trk-sub">Journée détour capitale · Jeu. 6 août</span>
           <span class="trk-status">À venir</span>
         </div>
@@ -1441,7 +1405,7 @@
             <div class="trk-fr-time">06:45</div>
           </div>
         </div>
-        <div class="trk-meta" data-editable="mission-3b" contenteditable="false">
+        <div class="trk-meta">
           <span class="trk-sub">Retour vers New York, même journée · Jeu. 6 août</span>
           <span class="trk-status">À venir</span>
         </div>
@@ -1475,7 +1439,7 @@
             <div class="trk-fr-time">00:30 (J+1)</div>
           </div>
         </div>
-        <div class="trk-meta" data-editable="mission-4" contenteditable="false">
+        <div class="trk-meta">
           <span class="trk-sub">Terminal C · Delta Air Lines · Lun. 10 août</span>
           <span class="trk-status">À venir</span>
         </div>
@@ -1508,7 +1472,7 @@
             <div class="trk-place">Paris CDG</div>
           </div>
         </div>
-        <div class="trk-meta" data-editable="mission-5" contenteditable="false">
+        <div class="trk-meta">
           <span class="trk-sub">Vol de nuit · arrivée J+1 puis train pour Lyon · Dim. 16 août</span>
           <span class="trk-status">À venir</span>
         </div>
@@ -1540,7 +1504,7 @@
             <div class="trk-place">Lyon Part-Dieu</div>
           </div>
         </div>
-        <div class="trk-meta" data-editable="mission-6" contenteditable="false">
+        <div class="trk-meta">
           <span class="trk-sub">Dernier trajet, retour à la maison · Lun. 17 août</span>
           <span class="trk-status">À venir</span>
         </div>
@@ -1563,7 +1527,7 @@
     <span class="section-title display">Au programme</span>
   </div>
   <div class="hq-grid">
-    <div class="hq-card ny reveal" data-editable="hq-1" contenteditable="false">
+    <div class="hq-card ny reveal">
       <img class="hq-photo" src="New york.jpg" alt="New York">
       <div class="hq-badge">8 NUITS</div>
       <div class="hq-tag">NEW YORK</div>
@@ -1571,7 +1535,7 @@
       <div class="hq-meta">Weehawken, NJ — vue sur Manhattan · 2 → 10 août</div>
       <a class="hq-maps-link" href="https://www.google.com/maps/search/?api=1&query=Sheraton+Lincoln+Harbor+Weehawken+NJ" target="_blank" rel="noopener noreferrer">📍 Voir sur Maps</a>
     </div>
-    <div class="hq-card mia reveal" data-editable="hq-2" contenteditable="false">
+    <div class="hq-card mia reveal">
       <img class="hq-photo" src="Miami.jpg" alt="Miami">
       <div class="hq-badge">6 NUITS</div>
       <div class="hq-tag">MIAMI</div>
@@ -1579,7 +1543,7 @@
       <div class="hq-meta">Miami Beach, FL · 10 → 16 août</div>
       <a class="hq-maps-link" href="https://www.google.com/maps/search/?api=1&query=Hotel+Trouvail+Miami+Beach+FL" target="_blank" rel="noopener noreferrer">📍 Voir sur Maps</a>
     </div>
-    <div class="hq-card dc reveal" data-editable="hq-3" contenteditable="false">
+    <div class="hq-card dc reveal">
       <img class="hq-photo" src="washington.jpg" alt="Washington DC">
       <div class="hq-badge">DAY TRIP</div>
       <div class="hq-tag">WASHINGTON DC</div>
@@ -1638,11 +1602,6 @@
   16 jours · 3 villes · New York → Washington DC → Miami
   <div class="footer-copyright">©2026 RK Production Corporation</div>
 </footer>
-
-<div class="admin-dock" id="adminDock">
-  <button class="admin-save" id="adminSave">💾 Enregistrer les modifications</button>
-  <button class="admin-toggle" id="adminToggle">🧳 Mode édition</button>
-</div>
 
 <div class="custom-modal-overlay" id="customModalOverlay">
   <div class="custom-modal">
@@ -1962,7 +1921,7 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
   import {
     getFirestore, collection, doc, addDoc, setDoc, getDoc,
-    updateDoc, deleteDoc, deleteField, query, orderBy, onSnapshot
+    updateDoc, deleteDoc, query, orderBy, onSnapshot
   } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
   import {
     getAuth, onAuthStateChanged, createUserWithEmailAndPassword,
@@ -1993,7 +1952,6 @@
   // mode privé, PWA sur iPhone…).
   if(auth) setPersistence(auth, browserLocalPersistence).catch(e=> console.error('setPersistence', e));
   const entriesCol = firebaseReady ? collection(db, 'wall_entries') : null;
-  const contentDocRef = firebaseReady ? doc(db, 'site_content', 'main') : null;
 
   // ============================================================
   // ACCOUNTS (Firebase Auth) — n'importe qui peut créer un compte
@@ -2004,82 +1962,8 @@
   let currentUser = null;
   let isAdmin = false;
 
-  async function loadEditableContent(){
-    try {
-      const snap = await getDoc(contentDocRef);
-      if(!snap.exists()) return;
-      const map = snap.data();
-      Object.entries(map).forEach(([key, html])=>{
-        const el = document.querySelector(`[data-editable="${key}"]`);
-        if(el) el.innerHTML = html;
-      });
-    } catch(e){
-      console.error('loadEditableContent', e);
-    } finally {
-      // .roadmap-track's saved HTML can include its own .roadmap-line node,
-      // which replaces the one sizeRoadmapLine() already measured earlier
-      // (that script runs during initial parsing, before this) — resize it
-      // again now that the DOM it depends on may have just been swapped in.
-      if(typeof sizeRoadmapLine === 'function') sizeRoadmapLine();
-    }
-  }
-
-  async function saveEditableContent(){
-    const map = {};
-    document.querySelectorAll('[data-editable]').forEach(el=>{
-      map[el.getAttribute('data-editable')] = el.innerHTML;
-    });
-    try {
-      await setDoc(contentDocRef, map);
-      adminSave.textContent = '✅ Enregistré !';
-      setTimeout(()=> adminSave.textContent = '💾 Enregistrer les modifications', 1800);
-    } catch(e){
-      await customAlert("Erreur lors de l'enregistrement, réessaie.");
-    }
-  }
-
-  // one-time recovery: visiting the site with ?resetRoadmap=1 while logged
-  // in as admin clears a stale saved "roadmap" snapshot from Firestore, so
-  // loadEditableContent() stops overwriting the current source markup with
-  // old saved HTML. Safe to call repeatedly — deleteField() on an absent
-  // field is a no-op.
-  let roadmapResetAttempted = false;
-  async function maybeResetRoadmapContent(){
-    if(roadmapResetAttempted) return;
-    if(new URLSearchParams(location.search).get('resetRoadmap') !== '1') return;
-    if(!isAdmin) return; // retried automatically once isAdmin becomes true, see updateAuthUI
-    roadmapResetAttempted = true;
-    try {
-      await updateDoc(contentDocRef, { roadmap: deleteField() });
-      await customAlert('✅ Roadmap réinitialisée ! La page va se recharger.');
-      const url = new URL(location.href);
-      url.searchParams.delete('resetRoadmap');
-      location.href = url.toString();
-    } catch(e){
-      console.error('maybeResetRoadmapContent', e);
-      roadmapResetAttempted = false;
-      await customAlert("❌ Erreur. Connecte-toi en admin puis recharge ce même lien.");
-    }
-  }
-
-  const adminToggle = document.getElementById('adminToggle');
-  const adminSave = document.getElementById('adminSave');
-  const adminDock = document.getElementById('adminDock');
   const wallFormWrap = document.getElementById('wallFormWrap');
   const wallLockedNote = document.getElementById('wallLockedNote');
-
-  // "Mode édition" is just an on/off toggle for content-editing, only
-  // ever usable once isAdmin is true (dock is hidden otherwise).
-  let editModeOn = false;
-  adminToggle.addEventListener('click', ()=>{
-    editModeOn = !editModeOn;
-    document.body.classList.toggle('admin-on', editModeOn);
-    document.querySelectorAll('[data-editable]').forEach(el=> el.setAttribute('contenteditable', editModeOn ? 'true' : 'false'));
-    adminToggle.textContent = editModeOn ? '🔓 Édition active' : '🧳 Mode édition';
-    adminToggle.classList.toggle('is-on', editModeOn);
-  });
-
-  adminSave.addEventListener('click', saveEditableContent);
 
   // ============================================================
   // AUTH — email/password accounts (Firebase Auth)
@@ -2141,16 +2025,6 @@
     wallFormWrap.style.display = isAdmin ? 'block' : 'none';
     wallLockedNote.style.display = isAdmin ? 'none' : 'block';
     if(isAdmin) autoCaptureLocationOnce();
-    maybeResetRoadmapContent();
-
-    adminDock.classList.toggle('show', isAdmin);
-    if(!isAdmin && editModeOn){
-      editModeOn = false;
-      document.body.classList.remove('admin-on');
-      document.querySelectorAll('[data-editable]').forEach(el=> el.setAttribute('contenteditable','false'));
-      adminToggle.textContent = '🧳 Mode édition';
-      adminToggle.classList.remove('is-on');
-    }
 
     renderWallEntries(lastEntries);
   }
@@ -3615,7 +3489,6 @@
     wallFeed.innerHTML = '<div class="wall-empty">⚠️ Configure firebaseConfig dans le code (voir le guide) pour activer le mur.</div>';
     jrDaysEl.innerHTML = '<div class="jr-empty">⚠️ Configure firebaseConfig dans le code pour activer le journal.</div>';
   } else {
-    loadEditableContent();
     startWallListener();
     loadRealFlightStatuses();
     loadRealTrainStatuses();
