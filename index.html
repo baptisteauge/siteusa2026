@@ -1962,7 +1962,7 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
   import {
     getFirestore, collection, doc, addDoc, setDoc, getDoc,
-    updateDoc, deleteDoc, query, orderBy, onSnapshot
+    updateDoc, deleteDoc, deleteField, query, orderBy, onSnapshot
   } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
   import {
     getAuth, onAuthStateChanged, createUserWithEmailAndPassword,
@@ -2015,6 +2015,12 @@
       });
     } catch(e){
       console.error('loadEditableContent', e);
+    } finally {
+      // .roadmap-track's saved HTML can include its own .roadmap-line node,
+      // which replaces the one sizeRoadmapLine() already measured earlier
+      // (that script runs during initial parsing, before this) — resize it
+      // again now that the DOM it depends on may have just been swapped in.
+      if(typeof sizeRoadmapLine === 'function') sizeRoadmapLine();
     }
   }
 
@@ -2029,6 +2035,30 @@
       setTimeout(()=> adminSave.textContent = '💾 Enregistrer les modifications', 1800);
     } catch(e){
       await customAlert("Erreur lors de l'enregistrement, réessaie.");
+    }
+  }
+
+  // one-time recovery: visiting the site with ?resetRoadmap=1 while logged
+  // in as admin clears a stale saved "roadmap" snapshot from Firestore, so
+  // loadEditableContent() stops overwriting the current source markup with
+  // old saved HTML. Safe to call repeatedly — deleteField() on an absent
+  // field is a no-op.
+  let roadmapResetAttempted = false;
+  async function maybeResetRoadmapContent(){
+    if(roadmapResetAttempted) return;
+    if(new URLSearchParams(location.search).get('resetRoadmap') !== '1') return;
+    if(!isAdmin) return; // retried automatically once isAdmin becomes true, see updateAuthUI
+    roadmapResetAttempted = true;
+    try {
+      await updateDoc(contentDocRef, { roadmap: deleteField() });
+      await customAlert('✅ Roadmap réinitialisée ! La page va se recharger.');
+      const url = new URL(location.href);
+      url.searchParams.delete('resetRoadmap');
+      location.href = url.toString();
+    } catch(e){
+      console.error('maybeResetRoadmapContent', e);
+      roadmapResetAttempted = false;
+      await customAlert("❌ Erreur. Connecte-toi en admin puis recharge ce même lien.");
     }
   }
 
@@ -2111,6 +2141,7 @@
     wallFormWrap.style.display = isAdmin ? 'block' : 'none';
     wallLockedNote.style.display = isAdmin ? 'none' : 'block';
     if(isAdmin) autoCaptureLocationOnce();
+    maybeResetRoadmapContent();
 
     adminDock.classList.toggle('show', isAdmin);
     if(!isAdmin && editModeOn){
