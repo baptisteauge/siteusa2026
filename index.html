@@ -3104,7 +3104,10 @@
 
   function dayNumberOf(key){
     const [y,m,d] = key.split('-').map(Number);
-    return Math.round((new Date(y, m-1, d) - TRIP_START_DATE) / 86400000) + 1;
+    const diff = Math.round((new Date(y, m-1, d) - TRIP_START_DATE) / 86400000);
+    // day 0 (departure) is "Jour 1"; before that, count matches the banner's
+    // "départ dans N jours" countdown (e.g. 14 days before départ = "Jour -14")
+    return diff >= 0 ? diff + 1 : diff;
   }
 
   function haversineKm(lat1, lon1, lat2, lon2){
