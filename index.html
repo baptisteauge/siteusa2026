@@ -288,12 +288,12 @@
   .citymap-map .leaflet-control-attribution{ font-size:9px; background:rgba(10,0,20,.6); color:var(--muted); }
   .citymap-map .leaflet-control-attribution a{ color:var(--muted); }
 
-  /* ---------- ROADMAP VERTICAL TIMELINE (glow, alternating) ---------- */
+  /* ---------- ROADMAP TIMELINE — vertical on phone, horizontal on desktop ---------- */
   .roadmap-list{
-    position:relative; max-width:760px; margin:0 auto; padding:.5rem 0 0;
+    position:relative; max-width:640px; margin:0 auto; padding:.5rem 0 0;
   }
   .roadmap-spine{
-    position:absolute; top:8px; bottom:8px; left:50%; width:3px;
+    position:absolute; top:8px; bottom:8px; left:19px; width:3px;
     transform:translateX(-50%) scaleY(0); transform-origin:top center;
     background:linear-gradient(180deg, var(--magenta), var(--cyan), var(--orange), var(--yellow));
     box-shadow:0 0 20px rgba(255,255,255,.18);
@@ -302,8 +302,8 @@
   }
   .roadmap-list.in .roadmap-spine{ transform:translateX(-50%) scaleY(1); }
   .rm-item{
-    position:relative; display:grid; grid-template-columns:1fr 2.4rem 1fr;
-    align-items:start; margin-bottom:2.6rem;
+    position:relative; display:grid; grid-template-columns:38px 1fr; column-gap:1rem;
+    align-items:start; margin-bottom:1.8rem;
     opacity:0; transform:translateY(24px);
     transition:opacity .6s ease, transform .6s ease;
   }
@@ -317,7 +317,7 @@
   .rm-item:nth-child(6){ transition-delay:.85s; }
   .rm-item:nth-child(7){ transition-delay:1s; }
   .rm-dot{
-    grid-column:2; justify-self:center; margin-top:.4rem; z-index:2;
+    grid-column:1; justify-self:center; margin-top:.4rem; z-index:2;
     width:16px; height:16px; border-radius:50%;
     background:var(--bg); border:3px solid var(--cyan);
     box-shadow:0 0 0 5px var(--bg), 0 0 18px rgba(22,229,255,.7);
@@ -327,27 +327,45 @@
   .rm-item:nth-child(3n+3) .rm-dot{ border-color:var(--yellow); box-shadow:0 0 0 5px var(--bg), 0 0 18px rgba(255,225,77,.7); }
   @keyframes rm-pulse{ 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.25); } }
   .rm-card{
-    grid-column:1; justify-self:end; width:100%; max-width:300px; text-align:center;
+    grid-column:2; justify-self:stretch; width:100%; max-width:none; text-align:left;
     background:rgba(255,255,255,.045); border:1px solid rgba(255,255,255,.12);
-    border-radius:18px; padding:1.2rem 1.3rem;
+    border-radius:18px; padding:1rem 1.1rem;
     backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
     box-shadow:0 12px 30px rgba(0,0,0,.35);
     transition:transform .25s ease, border-color .25s ease, box-shadow .25s ease;
   }
-  .rm-item:nth-child(even) .rm-card{ grid-column:3; justify-self:start; }
   .rm-card:hover{ transform:translateY(-4px); border-color:var(--cyan); box-shadow:0 18px 40px rgba(22,229,255,.15); }
   .rm-icon{ font-size:1.6rem; margin-bottom:.4rem; }
   .rm-date{ font-family:'Bebas Neue'; letter-spacing:.08em; font-size:1.1rem; color:var(--yellow); }
   .rm-text{ color:var(--ink); font-size:.88rem; margin-top:.3rem; line-height:1.4; }
 
-  @media (max-width:640px){
-    .roadmap-spine{ left:19px; }
-    .rm-item{ grid-template-columns:38px 1fr; column-gap:1rem; margin-bottom:1.8rem; }
-    .rm-dot{ grid-column:1; justify-self:center; }
-    .rm-card, .rm-item:nth-child(even) .rm-card{
-      grid-column:2; justify-self:stretch; max-width:none; text-align:left;
-      padding:1rem 1.1rem;
+  /* --- desktop / PC: horizontal timeline --- */
+  @media (min-width:901px){
+    .roadmap-list{
+      max-width:1240px;
+      display:flex; align-items:center; gap:.5rem;
+      padding:9.5rem .5rem;
+      overflow-x:auto; overflow-y:visible;
     }
+    .roadmap-spine{
+      top:50%; bottom:auto; left:0; right:0; width:auto; height:3px;
+      transform:scaleX(0) translateY(-50%); transform-origin:left center;
+      background:linear-gradient(90deg, var(--magenta), var(--cyan), var(--orange), var(--yellow));
+    }
+    .roadmap-list.in .roadmap-spine{ transform:scaleX(1) translateY(-50%); }
+    .rm-item{
+      display:flex; justify-content:center;
+      flex:1 0 170px; margin-bottom:0;
+      transform:translateY(0); /* fade in place, no rise, so dot stays aligned to the spine */
+    }
+    .rm-dot{ grid-column:unset; justify-self:unset; margin-top:0; }
+    .rm-card{
+      grid-column:unset; justify-self:unset;
+      position:absolute; left:50%; transform:translateX(-50%);
+      width:190px; text-align:center;
+      bottom:calc(100% + 26px);
+    }
+    .rm-item:nth-child(even) .rm-card{ bottom:auto; top:calc(100% + 26px); }
   }
 
   /* ---------- MISSIONS — live flight/train tracker (real boarding-pass style) ---------- */
