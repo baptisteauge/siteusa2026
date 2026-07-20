@@ -309,13 +309,15 @@
   }
   .rm-item.in{ opacity:1; transform:translateY(0); }
   .rm-item:last-child{ margin-bottom:0; }
-  .rm-item:nth-child(1){ transition-delay:.1s; }
-  .rm-item:nth-child(2){ transition-delay:.25s; }
-  .rm-item:nth-child(3){ transition-delay:.4s; }
-  .rm-item:nth-child(4){ transition-delay:.55s; }
-  .rm-item:nth-child(5){ transition-delay:.7s; }
-  .rm-item:nth-child(6){ transition-delay:.85s; }
-  .rm-item:nth-child(7){ transition-delay:1s; }
+  /* .roadmap-spine is the 1st child of .roadmap-list, so the .rm-item cards
+     are actually nth-child(2)..(8), not (1)..(7) — offset the count to match. */
+  .rm-item:nth-child(2){ transition-delay:.1s; }
+  .rm-item:nth-child(3){ transition-delay:.25s; }
+  .rm-item:nth-child(4){ transition-delay:.4s; }
+  .rm-item:nth-child(5){ transition-delay:.55s; }
+  .rm-item:nth-child(6){ transition-delay:.7s; }
+  .rm-item:nth-child(7){ transition-delay:.85s; }
+  .rm-item:nth-child(8){ transition-delay:1s; }
   .rm-dot{
     grid-column:1; justify-self:center; margin-top:.4rem; z-index:2;
     width:16px; height:16px; border-radius:50%;
