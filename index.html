@@ -2967,7 +2967,7 @@
     const lat = parseFloat(mapEl.dataset.lat), lon = parseFloat(mapEl.dataset.lon);
     if(isNaN(lat) || isNaN(lon)) return;
 
-    const map = L.map(mapEl, { scrollWheelZoom: false }).setView([lat, lon], 15);
+    const map = L.map(mapEl, { scrollWheelZoom: matchMedia('(pointer: fine)').matches }).setView([lat, lon], 15);
     L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
       attribution: 'Tiles &copy; Esri',
       maxZoom: 18
@@ -3081,7 +3081,7 @@
       return;
     }
 
-    const map = L.map(jrRouteMapEl, { scrollWheelZoom: false });
+    const map = L.map(jrRouteMapEl, { scrollWheelZoom: matchMedia('(pointer: fine)').matches });
     L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
       attribution: 'Tiles &copy; Esri', maxZoom: 18
     }).addTo(map);
@@ -3117,7 +3117,7 @@
     const el = document.getElementById(`jr-day-map-${key}`);
     if(!el || typeof L === 'undefined') return;
 
-    const map = L.map(el, { scrollWheelZoom:false, zoomControl:false });
+    const map = L.map(el, { scrollWheelZoom: matchMedia('(pointer: fine)').matches, zoomControl:false });
     L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
       attribution: 'Tiles &copy; Esri', maxZoom: 18
     }).addTo(map);
@@ -3580,7 +3580,7 @@
   document.querySelectorAll('.citymap-map').forEach(el => {
     const lat = parseFloat(el.dataset.lat), lon = parseFloat(el.dataset.lon);
     if(isNaN(lat) || isNaN(lon) || typeof L === 'undefined') return;
-    const map = L.map(el, { scrollWheelZoom: false }).setView([lat, lon], 11);
+    const map = L.map(el, { scrollWheelZoom: matchMedia('(pointer: fine)').matches }).setView([lat, lon], 11);
     L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
       attribution: 'Tiles &copy; Esri', maxZoom: 18
     }).addTo(map);
@@ -3602,7 +3602,7 @@
     const el = document.getElementById('tripmap');
     if(!el || typeof L === 'undefined') return;
 
-    const map = L.map(el, { scrollWheelZoom:false }).setView([38, -45], 3);
+    const map = L.map(el, { scrollWheelZoom: matchMedia('(pointer: fine)').matches }).setView([38, -45], 3);
     L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
       attribution: 'Tiles &copy; Esri', maxZoom: 18
     }).addTo(map);
@@ -3692,7 +3692,7 @@
     const depPoint = [depLat, depLon];
     const arrPoint = [arrLat, arrLon];
 
-    const map = L.map(mapEl, { scrollWheelZoom: false });
+    const map = L.map(mapEl, { scrollWheelZoom: matchMedia('(pointer: fine)').matches });
     L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
       attribution: 'Tiles &copy; Esri',
       maxZoom: 18
